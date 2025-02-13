@@ -244,12 +244,13 @@ map.on('load', function() {
             }
         });
         map.addLayer({
-            'id': trail,
+            'id': `${trail}-layer`,
             'type': 'line',
             'source': trail,
             'layout': {
                 'line-join': 'round',
-                'line-cap': 'round'
+                'line-cap': 'round',
+                'visibility': 'visible'
             },
             'paint': {
                 'line-color': trailData[trail].color,
