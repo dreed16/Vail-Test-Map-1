@@ -9,7 +9,20 @@
 <body>
     <div id="map"></div>
     <div class="mapboxgl-ctrl">
-        <button class="toggle-button" onclick="toggleTrails()">Toggle Trails</button>
+        <div class="dropdown">
+            <button class="toggle-button" onclick="toggleDropdown()">Toggle Trails</button>
+            <div id="difficultyDropdown" class="dropdown-content">
+                <label>
+                    <input type="checkbox" onchange="toggleTrailsByDifficulty('green', this.checked)" checked> Green Trails
+                </label>
+                <label>
+                    <input type="checkbox" onchange="toggleTrailsByDifficulty('blue', this.checked)" checked> Blue Trails
+                </label>
+                <label>
+                    <input type="checkbox" onchange="toggleTrailsByDifficulty('black', this.checked)" checked> Black Trails
+                </label>
+            </div>
+        </div>
         <button class="toggle-button" onclick="toggleMountainFeatures()">Toggle Mountain Features</button>
         <button class="toggle-button" onclick="toggleLifts()">Toggle Lifts</button>
         <button class="toggle-button" onclick="toggleMountainCams()">Toggle Mountain Cams</button>

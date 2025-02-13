@@ -44,7 +44,8 @@ var trailData = {
             [-106.33125380218794, 39.59934548127268],
             [-106.33130581392386, 39.59801825867885]
         ],
-        color: '#000000'
+        color: '#000000',
+        difficulty: 'black'
     },
     'MarmotValley': { 
         coordinates: [
@@ -56,7 +57,8 @@ var trailData = {
             [-106.34021762395904, 39.58572123911366],
             [-106.340036, 39.584859]
         ],
-        color: '#000000'
+        color: '#000000',
+        difficulty: 'black'
     },
     'JadeGlade': { 
         coordinates: [
@@ -68,7 +70,8 @@ var trailData = {
             [-106.33279561250929, 39.59842249039934],
             [-106.33237932092017, 39.5967263333705]
         ],
-        color: '#000000'
+        color: '#000000',
+        difficulty: 'black'
     },
     'GenghisKhan': { 
         coordinates: [
@@ -80,7 +83,8 @@ var trailData = {
             [-106.33417415130837, 39.59514304698915],
             [-106.33361219563729, 39.59469205915491]
         ],
-        color: '#000000'
+        color: '#000000',
+        difficulty: 'black'
     },
     'Sweetnsour': { 
         coordinates: [
@@ -92,7 +96,8 @@ var trailData = {
             [-106.33512233845303, 39.5900351430665],
             [-106.33344662604492, 39.58908762667821]
         ],
-        color: '#000000'
+        color: '#000000',
+        difficulty: 'black'
     },
     'PoppyfieldsWest': {
         coordinates: [
@@ -104,7 +109,8 @@ var trailData = {
             [-106.32756750224974, 39.60245802375934],
             [-106.32747703958593, 39.60102845561829]
         ],
-        color: '#0000FF'
+        color: '#00FF00',
+        difficulty: 'green'
     },
     'PoppyfieldsEast': { 
         coordinates: [
@@ -116,9 +122,10 @@ var trailData = {
             [-106.3277140937584, 39.59916156114991],
             [-106.32879368407545, 39.599416867373066]
         ],
-        color: '#0000FF'
+        color: '#0000FF',
+        difficulty: 'blue'
     },
-    'Chopstik': { 
+    'Chopstix': { 
         coordinates: [
             [-106.32406563973177, 39.604773053393416],
             [-106.32475805519992, 39.60411475062989],
@@ -128,7 +135,8 @@ var trailData = {
             [-106.32642477130658, 39.60220493553436],
             [-106.32739667721695, 39.601005948448574]
         ], 
-        color: '#0000FF' 
+        color: '#00FF00',
+        difficulty: 'Green' 
     },
     'ShangriLa': { 
         coordinates: [
@@ -140,7 +148,8 @@ var trailData = {
             [-106.32968596420775, 39.59539106066731],
             [-106.33332426137922, 39.59485715833674]
         ], 
-        color: '#000000' 
+        color: '#000000',
+        difficulty: 'black' 
     },
     'ShangriLaGlades': {
         coordinates: [
@@ -152,7 +161,8 @@ var trailData = {
             [-106.33201678309163, 39.59097408760894],
             [-106.33274787380067, 39.58994356568138]
         ],
-        color: '#000000'
+        color: '#000000',
+        difficulty: 'black'
     },
     'Poppyfields': { 
         coordinates: [
@@ -164,7 +174,8 @@ var trailData = {
             [-106.33361055744177, 39.59117530319412],
             [-106.33293042428278, 39.58622009339834]
         ],
-        color: '#0000FF'
+        color: '#0000FF',
+        difficulty: 'blue'
     }
 };
 
@@ -283,15 +294,15 @@ map.on('load', function() {
         ),
         
         'PoppyfieldsWest': new mapboxgl.Popup().setHTML(
-            "<strong>Poppyfields West</strong><br><strong>Rating:</strong> Blue<br><strong>Length:</strong> 800 feet<br><strong>Average Slope:</strong> 25 degrees<br>" +
+            "<strong>Poppyfields West</strong><br><strong>Rating:</strong> Green<br><strong>Length:</strong> 800 feet<br><strong>Average Slope:</strong> 25 degrees<br>" +
             "<iframe width='200' height='113' src='https://www.youtube.com/embed/ALC1TUvSRMQ' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
         ),
         'PoppyfieldsEast': new mapboxgl.Popup().setHTML(
-            "<strong>Poppyfields East</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 800 feet<br><strong>Average Slope:</strong> 32 degrees<br>" +
+            "<strong>Poppyfields East</strong><br><strong>Rating:</strong> Blue<br><strong>Length:</strong> 800 feet<br><strong>Average Slope:</strong> 32 degrees<br>" +
             "<iframe width='200' height='113' src='https://www.youtube.com/embed/ALC1TUvSRMQ' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
         ),
-        'Chopstik': new mapboxgl.Popup().setHTML(
-            "<strong>Chopstik</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 850 feet<br><strong>Average Slope:</strong> 33 degrees<br>" +
+        'Chopstix': new mapboxgl.Popup().setHTML(
+            "<strong>Chopstix</strong><br><strong>Rating:</strong> Green<br><strong>Length:</strong> 850 feet<br><strong>Average Slope:</strong> 33 degrees<br>" +
             "<iframe width='200' height='113' src='https://www.youtube.com/embed/ALC1TUvSRMQ' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
         ),
         'ShangriLa': new mapboxgl.Popup().setHTML(
@@ -299,7 +310,7 @@ map.on('load', function() {
             "<iframe width='200' height='113' src='https://www.youtube.com/embed/ALC1TUvSRMQ' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
         ),
         'Poppyfields': new mapboxgl.Popup().setHTML(
-            "<strong>Poppyfields</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 900 feet<br><strong>Average Slope:</strong> 32 degrees<br>" +
+            "<strong>Poppyfields</strong><br><strong>Rating:</strong> Blue<br><strong>Length:</strong> 900 feet<br><strong>Average Slope:</strong> 32 degrees<br>" +
             "<iframe width='200' height='113' src='https://www.youtube.com/embed/ALC1TUvSRMQ' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
         ),
         'ShangriLaGlades': new mapboxgl.Popup().setHTML(
@@ -310,23 +321,64 @@ map.on('load', function() {
 
     // Add click handlers for trails
     Object.keys(trailData).forEach(function(trail) {
-        map.on('click', trail, function() {
+        map.on('click', `${trail}-layer`, function() {
             if (currentPopup) currentPopup.remove();
             currentPopup = trailPopups[trail].setLngLat(trailData[trail].coordinates[0]).addTo(map);
         });
     });
 
     // Add mountain features
-    var mountainFeatureCoordinates = [
-        { coords: [-106.339999, 39.585711], videoUrl: 'https://www.youtube.com/embed/oEGp6xxbvLo' },
-        { coords: [-106.336291, 39.594849], videoUrl: 'https://www.youtube.com/embed/oEGp6xxbvLo' },
-        { coords: [-106.333330, 39.604559], videoUrl: 'https://www.youtube.com/embed/EFjP6GB0zdk' },
-        
-        // New coordinates from your dragged markers
-        { coords: [-106.32697124, 39.59998474], videoUrl: 'https://www.youtube.com/embed/oEGp6xxbvLo' },
-        { coords: [-106.32895412, 39.59646740], videoUrl: 'https://www.youtube.com/embed/oEGp6xxbvLo' },
-        { coords: [-106.33142281, 39.59184998], videoUrl: 'https://www.youtube.com/embed/oEGp6xxbvLo' }
-    ];
+    var mountainFeatures = {
+        'ChinaBowlCliff1': {
+            coordinates: [-106.339000, 39.585000],
+            videoUrl: 'https://www.youtube.com/embed/oEGp6xxbvLo',
+            difficulty: 'green',
+            type: 'cliff',
+            description: 'China Bowl Cliff Drop - A challenging 15-foot cliff with a steep landing.',
+            name: 'China Bowl Cliff #1',
+            icon: 'cliff-icon'
+        },
+        'DragonsBowlCliff': {
+            coordinates: [-106.336300, 39.594850],
+            videoUrl: 'https://www.youtube.com/embed/oEGp6xxbvLo',
+            difficulty: 'green',
+            type: 'cliff',
+            description: 'Dragons Bowl Cliff - Expert only. 20-foot drop requiring precise entry and landing.',
+            name: 'Dragons Bowl Main Cliff'
+        },
+        'SunUpBowlCliff': {
+            coordinates: [-106.333330, 39.604559],
+            videoUrl: 'https://www.youtube.com/embed/EFjP6GB0zdk',
+            difficulty: 'blue',
+            type: 'cliff',
+            description: 'Sun Up Bowl Cliff - Technical cliff drop with multiple entry points. Scout your landing first.',
+            name: 'Sun Up Bowl Cliff'
+        },
+        'TestFeature1': {
+            coordinates: [-106.334500, 39.592000],
+            videoUrl: 'https://www.youtube.com/embed/EFjP6GB0zdk',
+            difficulty: 'blue',
+            type: 'jump',
+            description: 'Test Feature 1 - New test feature for development.',
+            name: 'Test Feature #1'
+        },
+        'TestFeature2': {
+            coordinates: [-106.338000, 39.589000],
+            videoUrl: 'https://www.youtube.com/embed/oEGp6xxbvLo',
+            difficulty: 'black',
+            type: 'chute',
+            description: 'Test Feature 2 - Another test feature for development.',
+            name: 'Test Feature #2'
+        },
+        'TestFeature3': {
+            coordinates: [-106.335800, 39.595500],
+            videoUrl: 'https://www.youtube.com/embed/EFjP6GB0zdk',
+            difficulty: 'black',
+            type: 'cliff',
+            description: 'Test Feature 3 - Third test feature for development.',
+            name: 'Test Feature #3'
+        }
+    };
 
     // Create custom icon element
     const createCustomMarker = (color) => {
@@ -348,15 +400,27 @@ map.on('load', function() {
     };
 
     // Add markers with custom icon
-    mountainFeatureCoordinates.forEach(function(feature, index) {
-        const colors = ['#ff0000', '#00ff00', '#000000'];
+    Object.values(mountainFeatures).forEach(function(feature) {
+        // Create a color mapping based on difficulty
+        const difficultyColors = {
+            'green': '#00ff00',
+            'blue': '#0000ff',
+            'black': '#000000'
+        };
+        
         var marker = new mapboxgl.Marker({
-            element: createCustomMarker(colors[index % 3])
+            element: createCustomMarker(difficultyColors[feature.difficulty])  // Use difficulty color
         })
-            .setLngLat(feature.coords)
-            .setPopup(new mapboxgl.Popup().setHTML(
-                "<strong>Mountain Features</strong><br>" +
-                `<iframe width='200' height='113' src='${feature.videoUrl}' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>`
+            .setLngLat(feature.coordinates)
+            .setPopup(new mapboxgl.Popup({
+                className: `popup-${feature.difficulty}`
+            }).setHTML(
+                `<div class="feature-popup ${feature.difficulty}-feature">
+                    <strong>${feature.name}</strong><br>
+                    <p><strong>Difficulty:</strong> ${feature.difficulty}</p>
+                    <p>${feature.description}</p>
+                    <iframe width='200' height='113' src='${feature.videoUrl}' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>
+                </div>`
             ))
             .addTo(map);
         mountainMarkers.push(marker);
@@ -508,4 +572,45 @@ function toggleTrailAdjustment() {
         removeButton.remove();
     };
     document.body.appendChild(removeButton);
+}
+
+// Keep track of which difficulties are visible
+const visibleDifficulties = {
+    'green': true,
+    'blue': true,
+    'black': true
+};
+
+function toggleTrailsByDifficulty(difficulty, isChecked) {
+    // Store the checkbox state
+    visibleDifficulties[difficulty.toLowerCase()] = isChecked;
+    
+    // Update trail visibility
+    Object.keys(trailData).forEach(function(trail) {
+        const trailDifficulty = trailData[trail].difficulty.toLowerCase();
+        // Check if this trail's difficulty is currently visible
+        const shouldBeVisible = visibleDifficulties[trailDifficulty];
+        
+        // For debugging
+        console.log(`Trail: ${trail}, Difficulty: ${trailDifficulty}, Visible: ${shouldBeVisible}`);
+        
+        map.setLayoutProperty(`${trail}-layer`, 'visibility', shouldBeVisible ? 'visible' : 'none');
+    });
+}
+
+function toggleDropdown() {
+    document.getElementById("difficultyDropdown").classList.toggle("show");
+}
+
+// Close the dropdown if the user clicks outside of it
+window.onclick = function(event) {
+    if (!event.target.matches('.toggle-button')) {
+        var dropdowns = document.getElementsByClassName("dropdown-content");
+        for (var i = 0; i < dropdowns.length; i++) {
+            var openDropdown = dropdowns[i];
+            if (openDropdown.classList.contains('show')) {
+                openDropdown.classList.remove('show');
+            }
+        }
+    }
 }
