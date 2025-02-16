@@ -73,31 +73,6 @@ var trailData = {
         difficulty: 'blue',
         color: '#0000FF'
     },
-    'SilkRoad2': { 
-        coordinates: [
-            [-106.30987152325706,39.599670057332474],
-            [-106.30419055630101,39.598441117743164],
-            [-106.29925631666852,39.59637861613626],
-            [-106.29922397276528,39.593646036833746],
-            [-106.30094603891776,39.59138686893766],
-            [-106.3035114053874,39.58999889155757],
-            [-106.30482611381514,39.589147953774585],
-            [-106.3063820812357,39.589052668438],
-            [-106.3078981326763,39.58913606794755],
-            [-106.30908711615977,39.5894391388498],
-            [-106.31166918576231,39.589098468099735],
-            [-106.31275981055472,39.58947772169489],
-            [-106.3146740120924,39.59057428453093],
-            [-106.31608211889603,39.59086236930622],
-            [-106.31821316552613,39.59087632394005],
-            [-106.3197355998969,39.59020424766655],
-            [-106.32665709905902,39.58652030531371],
-            [-106.32926119715509,39.58573297871578],
-            [-106.33202344872058,39.585794813749885]
-        ],
-        difficulty: 'blue',
-        color: '#0000FF'
-    },
     'OrientExpressTrail': { 
         coordinates: [
             [-106.32017866171509,39.600167528619636],
@@ -137,32 +112,6 @@ var trailData = {
         difficulty: 'black',
         color: '#000000'
     },
-    'OuterMongoliaBowl': { 
-        coordinates: [
-            [-106.30141526757174,39.59697019989372],
-            [-106.30208364323178,39.59599739220411],
-            [-106.30280548468416,39.595106991068604],
-            [-106.30375882082515,39.59395024281429],
-            [-106.30459141390111,39.592502099315794],
-            [-106.30491300691888,39.5912224273313],
-            [-106.30612371127309,39.58914653702459]
-        ],
-        difficulty: 'black',
-        color: '#000000'
-    },
-    'GorkyPark': { 
-        coordinates: [
-            [-106.31838683657757,39.600151251433914],
-            [-106.31823673681502,39.59921725138608],
-            [-106.31801801748944,39.59856322715248],
-            [-106.31793604384676,39.597474222825554],
-            [-106.31817851066775,39.59622577405656],
-            [-106.31887647285546,39.59334676472503],
-            [-106.3187343899681,39.59070141710984]
-        ],
-        difficulty: 'black',
-        color: '#000000'
-    },
     'BolshoiBallroom': { 
         coordinates: {
             main: [
@@ -193,43 +142,6 @@ var trailData = {
                 [-106.3116214965331,39.59926982353977],
                 [-106.31089167279536,39.59964552990439],
                 [-106.31011903296603,39.59989292170113]
-            ]
-        },
-        difficulty: 'black',
-        color: '#000000'
-    },
-    'InnerMongoliaBowl': { 
-        coordinates: {
-            main: [
-                [-106.3098381753307,39.59949192811237],
-                [-106.30912405668799,39.598763977247984],
-                [-106.30856201374378,39.59804696271047],
-                [-106.30812210410944,39.59753013991002],
-                [-106.30781698953906,39.59709120593902],
-                [-106.30792218142221,39.59668416747974]
-            ],
-            leftFork: [
-                // Starting from merge point
-                [-106.30792218142221,39.59668416747974],
-                [-106.30842698386985,39.59594163633608],
-                [-106.30882527781527,39.59548211326691],
-                [-106.30932048517695,39.59499182224337],
-                [-106.31008582820849,39.59426933777857],
-                [-106.31080353919397,39.5935641991222],
-                [-106.31129149575153,39.5929608480362],
-                [-106.31183128921363,39.59213550686317],
-                [-106.31240819576766,39.59117588352285],
-                [-106.31298352951961,39.59041559657507]
-            ],
-            rightFork: [
-                // Starting from merge point
-                [-106.30792218142221,39.59668416747974],
-                [-106.30730259159799,39.59695000998968],
-                [-106.30671352414076,39.59719788427341],
-                [-106.30605987063622,39.59752356330617],
-                [-106.30525496293883,39.597871512659225],
-                [-106.30471730521963,39.59810197188463],
-                [-106.3042754819121,39.59822214524888]
             ]
         },
         difficulty: 'black',
@@ -291,8 +203,8 @@ var trailData = {
             [-106.33417415130837, 39.59514304698915],
             [-106.33361219563729, 39.59469205915491]
         ],
-        difficulty: 'black',
-        color: '#000000'
+        color: '#000000',
+        difficulty: 'black'
     },
     'OverYonder': { 
         coordinates: [
@@ -304,8 +216,8 @@ var trailData = {
             [-106.34779137591633,39.595830585050095],
             [-106.3483717378382,39.596013311949235]
         ],
-        difficulty: 'black',
-        color: '#000000'
+        difficulty: 'blue',
+        color: '#0000FF'
     },
     'Yonder': { 
         coordinates: [
@@ -333,186 +245,6 @@ var trailData = {
         difficulty: 'black',
         color: '#000000'
     },
-    'Miltsface': { 
-        coordinates: [
-            [-106.35478541900021,39.60200606316275],
-            [-106.3540932242399,39.601758693961756],
-            [-106.35316438415161,39.60129920600363],
-            [-106.35256369793255,39.60118620338136],
-            [-106.35185972571527,39.601055292526496],
-            [-106.35128787374813,39.600972520226435],
-            [-106.35067905035888,39.600808503895905]
-        ],
-        difficulty: 'black',
-        color: '#000000'
-    },
-    'CowsFace': { 
-        coordinates: [
-            [-106.35492321944508,39.599521416993866],
-            [-106.35403026414622,39.599031573280456],
-            [-106.35293766159205,39.59824191184185],
-            [-106.35217073872639,39.59769694128451],
-            [-106.35138278600863,39.59717361759391],
-            [-106.35064522629615,39.59659843363474],
-            [-106.34982525861625,39.59567142100542]
-        ],
-        difficulty: 'black',
-        color: '#000000'
-    },
-    'Campbells': { 
-        coordinates: [
-            [-106.3544738661612,39.6009218961982],
-            [-106.35348239165587,39.60005855662797],
-            [-106.35254388230284,39.59948001956374],
-            [-106.3515365934209,39.59905757926464],
-            [-106.35028719016778,39.59832188661278],
-            [-106.34932254480997,39.59765368545891],
-            [-106.34887818737322,39.59715549098814]
-        ],
-        difficulty: 'black',
-        color: '#000000'
-    },
-    'ChickenYard': { 
-        coordinates: [
-            [-106.35548024719468,39.59900136846218],
-            [-106.35655476700254,39.59804141804335],
-            [-106.35688706869573,39.59669947680058],
-            [-106.35661224894417,39.59574053953193],
-            [-106.35598422117685,39.59470910393975],
-            [-106.35538270532624,39.594119325728855],
-            [-106.35469562526505,39.59253023550244]
-        ],
-        difficulty: 'black',  // Assuming blue based on name, let me know if different
-        color: '#000000'
-    },
-    'TheSlot': { 
-        coordinates: [
-            [-106.3543401753827,39.60409251248532],
-            [-106.35347647439747,39.60342832933762],
-            [-106.35285586342863,39.60298297103964],
-            [-106.34957212175378,39.59986378384926],
-            [-106.34850958727114,39.59817837899979],
-            [-106.3486277371072,39.59713070801436],
-            [-106.34991202482227,39.59530664248376],
-            [-106.35254032699737,39.593281046969],
-            [-106.35794456354837,39.59064872083408],
-            [-106.35926917719121,39.59086992234657],
-            [-106.36085723289565,39.590831974399805]
-        ],
-        difficulty: 'blue',
-        color: '#0000FF'
-    },
-    'ApresVous': { 
-        coordinates: [
-            [-106.3551822258895,39.60364029191007],
-            [-106.35526945528397,39.60283697491343],
-            [-106.35508003338758,39.600878295201966],
-            [-106.35532092912666,39.59957688675388],
-            [-106.35541536121046,39.5984768969943],
-            [-106.35476752686908,39.59674137261737],
-            [-106.35420465780342,39.59604315515054],
-            [-106.35326891134582,39.59532925210314],
-            [-106.35302045847921,39.5950805303184],
-            [-106.35270784877717,39.59469392251043],
-            [-106.3523569839152,39.59403499523444]
-        ],
-        difficulty: 'black',
-        color: '#000000'
-    },
-    'Forever': { 
-        coordinates: [
-            [-106.35592080135322,39.60380466857936],
-            [-106.35612403924665,39.603028252666604],
-            [-106.35634322827657,39.60188254842171],
-            [-106.35721859975588,39.600932188333985],
-            [-106.35860855395758,39.60064408285291],
-            [-106.35933486668392,39.60044631445783],
-            [-106.35976854425816,39.59941868773785],
-            [-106.36024046549778,39.59809391967278],
-            [-106.36140537500741,39.59695298059714],
-            [-106.36337124781947,39.59573019126472],
-            [-106.36466678033834,39.594975226581454]
-        ],
-        difficulty: 'black',  // Assuming black based on length/steepness, let me know if different
-        color: '#000000'
-    },
-    'Wow': { 
-        coordinates: [
-            [-106.35748507062063,39.604459218696235],
-            [-106.35745196707185,39.603578052479094],
-            [-106.35753521859499,39.60301432160776],
-            [-106.35978851883641,39.601459532184634],
-            [-106.3602151258385,39.60085102770941],
-            [-106.36099409426967,39.60030694413186],
-            [-106.3622269870212,39.59980603528314],
-            [-106.36298149440077,39.59944448979394],
-            [-106.36393343003076,39.59901607119025],
-            [-106.36474075816344,39.59841303163611],
-            [-106.36590866011223,39.59757321995622]
-        ],
-        difficulty: 'black',  // Assuming black based on steepness, let me know if different
-        color: '#000000'
-    },
-    'Windows': { 
-        coordinates: [
-            [-106.36434529925234,39.60408142605766],
-            [-106.36452513890472,39.60354245276619],
-            [-106.36451739880087,39.60289423115978],
-            [-106.36443532211133,39.602243471780184],
-            [-106.36477144010028,39.60163220065681],
-            [-106.36608098174132,39.600491994322994],
-            [-106.36647617245306,39.60007468913281]
-        ],
-        difficulty: 'black',
-        color: '#000000'
-    },
-    'MorningSideRidge': { 
-        coordinates: [
-            [-106.37230889371128,39.60271215771948],
-            [-106.37178417772057,39.60187954249099],
-            [-106.3712782250805,39.60126322727257],
-            [-106.3704706603337,39.60037704859545],
-            [-106.36954306776465,39.599560317098934],
-            [-106.36812419034537,39.59892894899576],
-            [-106.36708976025852,39.59875421242924]
-        ],
-        difficulty: 'black',  // Assuming black based on name and location, let me know if different
-        color: '#000000'
-    },
-    'StraightShot': { 
-        coordinates: [
-            [-106.36947761248742,39.60448989803126],
-            [-106.36888513216144,39.60401462342699],
-            [-106.36787374826571,39.60216031871306],
-            [-106.36709353624111,39.60069708407556],
-            [-106.366791267308,39.59979003490204],
-            [-106.36652464152122,39.5983201985629],
-            [-106.36594868069295,39.597088415839096],
-            [-106.3649685635435,39.595358609360545],
-            [-106.36396811112063,39.59343602056791],
-            [-106.36338927985685,39.592105253836905],
-            [-106.36134218291144,39.59108098428425]
-        ],
-        difficulty: 'black',  // Assuming black based on steepness, let me know if different
-        color: '#000000'
-    },
-    'OS': { 
-        coordinates: [
-            [-106.37266364571751,39.602311886885985],
-            [-106.3737776125502,39.600887684968995],
-            [-106.37448589421966,39.599815425181816],
-            [-106.3757398342663,39.598884723433656],
-            [-106.3766786241653,39.597481083881746],
-            [-106.37639266572978,39.594841481703156],
-            [-106.3745845547199,39.593597850785216],
-            [-106.37103558515356,39.59349371284014],
-            [-106.36896022255641,39.59357941794951],
-            [-106.36656393769431,39.59416868703332],
-            [-106.3647903735342,39.59460632022416]
-        ],
-        difficulty: 'black',  // Assuming black based on location and path, let me know if different
-        color: '#000000'
-    },
     'YonderGully': { 
         coordinates: [
             [-106.3481212239938,39.59826293298076],
@@ -526,58 +258,6 @@ var trailData = {
         difficulty: 'black',
         color: '#000000'
     },
-    'RickysRidge': { 
-        coordinates: [
-            [-106.37383407118429,39.600305323564584],
-            [-106.37305201850025,39.59980426949198],
-            [-106.37232573437176,39.59932772778481],
-            [-106.37133619000298,39.59876769670902],
-            [-106.37053124878125,39.598493801200135],
-            [-106.36923190115641,39.59814386805681],
-            [-106.36642758938953,39.59779150567536]
-        ],
-        difficulty: 'black',  // Assuming blue based on name, let me know if different
-        color: '#000000'
-    },
-    'Seldom': { 
-        coordinates: [
-            [-106.37631824181072,39.59714810606357],
-            [-106.37447831210973,39.59690274411324],
-            [-106.37260618400909,39.59672336871583],
-            [-106.37124857960127,39.596825499539705],
-            [-106.36985137710334,39.5969991746251],
-            [-106.36807470346173,39.5967414786671],
-            [-106.36591730396673,39.59661250381578]
-        ],
-        difficulty: 'black',  // Assuming black based on location, let me know if different
-        color: '#000000'
-    },
-    'Never': { 
-        coordinates: [
-            [-106.37607457213849,39.59517363413329],
-            [-106.37482861501582,39.5951237749388],
-            [-106.37313296857353,39.595189885537735],
-            [-106.3717051941947,39.59539101257127],
-            [-106.36983295054996,39.59546327735538],
-            [-106.36795929222777,39.59550361822693],
-            [-106.36543549576909,39.595769659831745]
-        ],
-        difficulty: 'black',  // Assuming black based on location, let me know if different
-        color: '#000000'
-    },
-    'Widges': { 
-        coordinates: [
-            [-106.37520511997711,39.59897164661936],
-            [-106.37464764129554,39.59886426965457],
-            [-106.37415088130871,39.598809089661074],
-            [-106.37363970350694,39.598683986352995],
-            [-106.37311671951193,39.59862853000797],
-            [-106.37263791514435,39.59846878378866],
-            [-106.37026460265045,39.597114594220045]
-        ],
-        difficulty: 'black',  // Assuming black based on location, let me know if different
-        color: '#000000'
-    },
     'Sweetnsour': { 
         coordinates: [
             [-106.33743671975635, 39.59658399932417],
@@ -588,8 +268,8 @@ var trailData = {
             [-106.33512233845303, 39.5900351430665],
             [-106.33344662604492, 39.58908762667821]
         ],
-        difficulty: 'black',
-        color: '#000000'
+        color: '#000000',
+        difficulty: 'black'
     },
     'PoppyfieldsWest': {
         coordinates: [
@@ -774,20 +454,6 @@ var liftData = {
         popupContent: "<strong>Orient Express</strong><br><strong>Type:</strong> High-Speed Quad<br><strong>Vertical Rise:</strong> 1,400 ft<br><strong> Time:</strong> 9 mins<br>" +
                       "<iframe width='200' height='113' src='https://www.youtube.com/embed/nkeJFKI1Y9o?si=JVCOQWtmuaPkoaYp' frameborder='0' allowfullscreen></iframe>"
     },
-    'HighNoonExpress': {
-        coordinates: [
-            [-106.36113961282129,39.590581899373234],
-            [-106.35661343672389,39.60450585503446]
-        ],
-        color: '#FF0000'  // Assuming it's red like other lifts
-    },
-    'SunUpExpress': {
-        coordinates: [
-            [-106.36148710905488,39.59074324292021],
-            [-106.37029027787614,39.60474819599358]
-        ],
-        color: '#FF0000'  // Assuming red like other lifts
-    },
     'Teacupexpress': {
         coordinates: [[-106.339910, 39.584593], [-106.336286, 39.602144]],
         color: '#FF0000',
@@ -892,20 +558,8 @@ map.on('load', function() {
             content: "<strong>Silk Road</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
                 "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
         },
-        'SilkRoad2': {
-            content: "<strong>Silk Road</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
-                "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
-        },
         'RedSquare': {
             content: "<strong>Red Square</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
-                "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
-        },
-        'OuterMongoliaBowl': {
-            content: "<strong>Outer Mongolia Bowl</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
-                "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
-        },
-        'GorkyPark': {
-            content: "<strong>Gorky Park</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
                 "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
         },
         'OrientExpressTrail': {
@@ -920,7 +574,7 @@ map.on('load', function() {
             content: "<strong>Sleepy Time Road</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
                 "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
         },
-        'OverYonder': {
+                'OverYonder': {
             content: "<strong>Over Yonder</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
                 "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
         },
@@ -928,56 +582,8 @@ map.on('load', function() {
             content: "<strong>Headwall</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
                 "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
         },
-        'TheSlot': {
-            content: "<strong>The Slot</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
-                "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
-        },
-        'MiltsFace': {
-            content: "<strong>Milt's Face</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
-                "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
-        },
-        'CowsFace': {
-            content: "<strong>Cow's Face</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
-                "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
-        },
-        'Campbells': {
-            content: "<strong>Campbell's</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
-                "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
-        },
-        'ChickenYard': {
-            content: "<strong>Chicken Yard</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
-                "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
-        },
-        'ApresVous': {
-            content: "<strong>Apres Vous</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
-                "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
-        },
         'YonderGully': {
             content: "<strong>Yonder Gully</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
-                "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
-        },
-        'Forever': {
-            content: "<strong>Forever</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
-                "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
-        },
-        'Wow': {
-            content: "<strong>Wow</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
-                "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
-        },
-        'Windows': {
-            content: "<strong>Windows</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
-                "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
-        },
-        'OS': {
-            content: "<strong>OS</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
-                "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
-        },
-        'MorningSideRidge': {
-            content: "<strong>Morning Side Ridge</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
-                "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
-        },
-        'StraightShot': {
-            content: "<strong>Straight Shot</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
                 "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
         },
         'Yonder': {
@@ -986,22 +592,6 @@ map.on('load', function() {
         },
         'Sweetnsour': {
             content: "<strong>Sweet N Sour</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
-                "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
-        },
-        'RickysRidge': {
-            content: "<strong>Ricky's Ridge</strong><br><strong>Rating:</strong> Blue<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
-                "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
-        },
-        'Seldom': {
-            content: "<strong>Seldom</strong><br><strong>Rating:</strong> Blue<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
-                "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
-        },
-        'Never': {
-            content: "<strong>Never</strong><br><strong>Rating:</strong> Blue<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
-                "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
-        },
-        'Widges': {
-            content: "<strong>Widges</strong><br><strong>Rating:</strong> Blue<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
                 "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
         },
         'GenghisKhan': {
@@ -1034,10 +624,6 @@ map.on('load', function() {
         },
         'BolshoiBallroom': {
             content: "<strong>Bolshoi Ballroom</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 750 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
-                "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
-        },
-        'Windows': {
-            content: "<strong>Windows</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
                 "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
         }
     };
@@ -1175,25 +761,6 @@ map.on('load', function() {
         });
 
         map.on('mouseleave', `SleepyTimeRoad-${pathType}-layer`, function() {
-            map.getCanvas().style.cursor = '';
-        });
-    });
-
-    // Add click handlers for all parts of BolshoiBallroom
-    ['main', 'leftFork', 'rightFork'].forEach(pathType => {
-        map.on('click', `BolshoiBallroom-${pathType}-layer`, function(e) {
-            new mapboxgl.Popup()
-                .setLngLat(e.lngLat)
-                .setHTML(trailPopups['BolshoiBallroom'].content)
-                .addTo(map);
-        });
-
-        // Change cursor to pointer when hovering over any part of the trail
-        map.on('mouseenter', `BolshoiBallroom-${pathType}-layer`, function() {
-            map.getCanvas().style.cursor = 'pointer';
-        });
-
-        map.on('mouseleave', `BolshoiBallroom-${pathType}-layer`, function() {
             map.getCanvas().style.cursor = '';
         });
     });
@@ -1336,29 +903,13 @@ function toggleDropdown() {
     document.getElementById('difficultyDropdown').classList.toggle('show');
 }
 
-function toggleTrailsByDifficulty(difficulty) {
+function toggleTrailsByDifficulty(difficulty, show) {
+    console.log('Toggling', difficulty, 'trails:', show ? 'show' : 'hide');
     Object.keys(trailData).forEach(function(trail) {
+        console.log('Checking trail:', trail, 'difficulty:', trailData[trail].difficulty);
         if (trailData[trail].difficulty === difficulty) {
-            // Check if it's a split trail
-            if (trailData[trail].coordinates.main) {
-                // Handle split trail visibility
-                ['main', 'leftFork', 'rightFork'].forEach(function(pathType) {
-                    const visibility = map.getLayoutProperty(`${trail}-${pathType}-layer`, 'visibility');
-                    map.setLayoutProperty(
-                        `${trail}-${pathType}-layer`,
-                        'visibility',
-                        visibility === 'visible' ? 'none' : 'visible'
-                    );
-                });
-            } else {
-                // Handle regular trail visibility
-                const visibility = map.getLayoutProperty(`${trail}-layer`, 'visibility');
-                map.setLayoutProperty(
-                    `${trail}-layer`,
-                    'visibility',
-                    visibility === 'visible' ? 'none' : 'visible'
-                );
-            }
+            console.log('Matching trail found:', trail);
+            map.setLayoutProperty(`${trail}-layer`, 'visibility', show ? 'visible' : 'none');
         }
     });
 }
@@ -1372,12 +923,10 @@ function toggleLiftAdjustment() {
         'Wapiti-layer',
         'Test1-layer',
         'Mongolia-layer',
-        'HighNoonExpress-layer',
-        'SunUpExpress-layer',
         'Teacupexpress-layer'
     ];
     
-    liftLayers.forEach(function(liftId) {
+    liftLayers.forEach(liftId => {
         if (map.getLayer(liftId)) {
             const source = map.getSource(liftId.replace('-layer', ''));
             if (source && source._data) {
@@ -1430,9 +979,7 @@ function toggleLiftAdjustment() {
     removeButton.style.right = '10px';
     removeButton.style.zIndex = '1';
     removeButton.onclick = function() {
-        document.querySelectorAll('.mapboxgl-marker').forEach(function(marker) {
-            marker.remove();
-        });
+        document.querySelectorAll('.mapboxgl-marker').forEach(marker => marker.remove());
         removeButton.remove();
     };
     document.body.appendChild(removeButton);
