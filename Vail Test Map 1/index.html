@@ -9,23 +9,33 @@
 <body>
     <div id="map"></div>
     <div class="mapboxgl-ctrl">
-        <div class="dropdown">
-            <button class="toggle-button" onclick="toggleDropdown()">Toggle Trails</button>
-            <div id="difficultyDropdown" class="dropdown-content">
-                <label>
-                    <input type="checkbox" onchange="toggleTrailsByDifficulty('green', this.checked)" checked> Green Trails
+        <div class="toggle-container">
+            <button id="mainToggle">Toggle</button>
+            <div id="mainDropdown" class="dropdown-content">
+                <label class="checkbox-container">
+                    <input type="checkbox" id="toggleTrails" checked> Trails
+                    <div class="difficulty-dropdown">
+                        <label><input type="checkbox" id="toggleGreenTrails" checked> Green</label>
+                        <label><input type="checkbox" id="toggleBlueTrails" checked> Blue</label>
+                        <label><input type="checkbox" id="toggleBlackTrails" checked> Black</label>
+                    </div>
                 </label>
-                <label>
-                    <input type="checkbox" onchange="toggleTrailsByDifficulty('blue', this.checked)" checked> Blue Trails
+                <label class="checkbox-container">
+                    <input type="checkbox" id="toggleLifts" checked> Lifts
                 </label>
-                <label>
-                    <input type="checkbox" onchange="toggleTrailsByDifficulty('black', this.checked)" checked> Black Trails
+                <label class="checkbox-container">
+                    <input type="checkbox" id="toggleCams" checked> Mountain Cams
+                </label>
+                <label class="checkbox-container">
+                    <input type="checkbox" id="toggleFeatures" checked> Mountain Features
+                    <div class="difficulty-dropdown">
+                        <label><input type="checkbox" id="toggleGreenFeatures" checked> Green</label>
+                        <label><input type="checkbox" id="toggleBlueFeatures" checked> Blue</label>
+                        <label><input type="checkbox" id="toggleBlackFeatures" checked> Black</label>
+                    </div>
                 </label>
             </div>
         </div>
-        <button class="toggle-button" onclick="toggleMountainFeatures()">Toggle Mountain Features</button>
-        <button class="toggle-button" onclick="toggleLifts()">Toggle Lifts</button>
-        <button class="toggle-button" onclick="toggleMountainCams()">Toggle Mountain Cams</button>
         <button onclick="toggleTrailAdjustment()">Adjust Trails</button>
         <button onclick="toggleLiftAdjustment()">Adjust Lifts</button>
     </div>

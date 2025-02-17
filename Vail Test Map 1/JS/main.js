@@ -1,3 +1,158 @@
+// Move this to the very top of your file, outside any other functions
+const createCustomMarker = (color) => {
+    const element = document.createElement('div');
+    element.className = 'custom-marker';
+    element.style.backgroundImage = 'url("images/cliff-drop.png")';
+    element.style.width = '32px';
+    element.style.height = '32px';
+    element.style.backgroundSize = 'contain';
+    element.style.backgroundRepeat = 'no-repeat';
+    element.style.backgroundPosition = 'center';
+    element.style.backgroundColor = 'transparent';
+    element.style.border = `2px solid ${color}`;
+    element.style.borderRadius = '50%';
+    return element;
+};
+
+// Then your mountainFeatureData
+const mountainFeatureData = {
+    'RockDrop1': {
+        coordinates: [-106.339999, 39.585711],
+        difficulty: 'green',
+        videoUrl: 'https://www.youtube.com/embed/oEGp6xxbvLo',
+        content: "<strong>Terrain Park 1</strong><br><strong>Rating:</strong> Green<br><strong>Type:</strong> Beginner Terrain Park<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/oEGp6xxbvLo' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'RockDrop2': {
+        coordinates: [-106.336291, 39.594849],
+        difficulty: 'blue',
+        videoUrl: 'https://www.youtube.com/embed/oEGp6xxbvLo',
+        content: "<strong>Terrain Park 2</strong><br><strong>Rating:</strong> Blue<br><strong>Type:</strong> Intermediate Terrain Park<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/oEGp6xxbvLo' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'RockDrop3': {
+        coordinates: [-106.308402, 39.596582],
+        difficulty: 'blue',
+        videoUrl: 'https://www.youtube.com/embed/oEGp6xxbvLo',
+        content: "<strong>Terrain Park 2</strong><br><strong>Rating:</strong> Blue<br><strong>Type:</strong> Intermediate Terrain Park<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/oEGp6xxbvLo' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'RockDrop4': {
+        coordinates: [-106.313593, 39.594497],
+        difficulty: 'black',
+        videoUrl: 'https://www.youtube.com/embed/oEGp6xxbvLo',
+        content: "<strong>Terrain Park 2</strong><br><strong>Rating:</strong> Blue<br><strong>Type:</strong> Intermediate Terrain Park<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/oEGp6xxbvLo' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'RockDrop5': {
+        coordinates: [-106.323305, 39.593049],
+        difficulty: 'black',
+        videoUrl: 'https://www.youtube.com/embed/oEGp6xxbvLo',
+        content: "<strong>Terrain Park 2</strong><br><strong>Rating:</strong> Blue<br><strong>Type:</strong> Intermediate Terrain Park<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/oEGp6xxbvLo' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'RockDrop6': {
+        coordinates: [-106.323688, 39.591749],
+        difficulty: 'black',
+        videoUrl: 'https://www.youtube.com/embed/oEGp6xxbvLo',
+        content: "<strong>Terrain Park 2</strong><br><strong>Rating:</strong> Blue<br><strong>Type:</strong> Intermediate Terrain Park<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/oEGp6xxbvLo' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'RockDrop7': {
+        coordinates: [-106.302832, 39.596664],
+        difficulty: 'green',
+        videoUrl: 'https://www.youtube.com/embed/oEGp6xxbvLo',
+        content: "<strong>Terrain Park 2</strong><br><strong>Rating:</strong> Blue<br><strong>Type:</strong> Intermediate Terrain Park<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/oEGp6xxbvLo' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'RockDrop8': {
+        coordinates: [-106.303139, 39.591508],
+        difficulty: 'green',
+        videoUrl: 'https://www.youtube.com/embed/oEGp6xxbvLo',
+        content: "<strong>Terrain Park 2</strong><br><strong>Rating:</strong> Blue<br><strong>Type:</strong> Intermediate Terrain Park<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/oEGp6xxbvLo' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'RockDrop9': {
+        coordinates: [-106.353852, 39.597364],
+        difficulty: 'green',
+        videoUrl: 'https://www.youtube.com/embed/oEGp6xxbvLo',
+        content: "<strong>Terrain Park 2</strong><br><strong>Rating:</strong> Blue<br><strong>Type:</strong> Intermediate Terrain Park<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/oEGp6xxbvLo' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'RockDrop10': {
+        coordinates: [-106.353365, 39.594066],
+        difficulty: 'black',
+        videoUrl: 'https://www.youtube.com/embed/oEGp6xxbvLo',
+        content: "<strong>Terrain Park 2</strong><br><strong>Rating:</strong> Blue<br><strong>Type:</strong> Intermediate Terrain Park<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/oEGp6xxbvLo' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'RockDrop11': {
+        coordinates: [-106.347805, 39.595189],
+        difficulty: 'black',
+        videoUrl: 'https://www.youtube.com/embed/oEGp6xxbvLo',
+        content: "<strong>Terrain Park 2</strong><br><strong>Rating:</strong> Blue<br><strong>Type:</strong> Intermediate Terrain Park<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/oEGp6xxbvLo' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'RockDrop12': {
+        coordinates: [-106.369066, 39.595175],
+        difficulty: 'black',
+        videoUrl: 'https://www.youtube.com/embed/oEGp6xxbvLo',
+        content: "<strong>Terrain Park 2</strong><br><strong>Rating:</strong> Blue<br><strong>Type:</strong> Intermediate Terrain Park<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/oEGp6xxbvLo' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'RockDrop13': {
+        coordinates: [-106.367089, 39.602693],
+        difficulty: 'black',
+        videoUrl: 'https://www.youtube.com/embed/oEGp6xxbvLo',
+        content: "<strong>Terrain Park 2</strong><br><strong>Rating:</strong> Blue<br><strong>Type:</strong> Intermediate Terrain Park<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/oEGp6xxbvLo' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'TerrainPark3': {
+        coordinates: [-106.333330, 39.605559],
+        difficulty: 'black',
+        videoUrl: 'https://www.youtube.com/embed/EFjP6GB0zdk',
+        content: "<strong>Terrain Park 3</strong><br><strong>Rating:</strong> Black<br><strong>Type:</strong> Advanced Terrain Park<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/EFjP6GB0zdk' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'TerrainPark4': {
+        coordinates: [-106.32697124, 39.59998474],
+        difficulty: 'green',
+        videoUrl: 'https://www.youtube.com/embed/oEGp6xxbvLo',
+        content: "<strong>Terrain Park 4</strong><br><strong>Rating:</strong> Green<br><strong>Type:</strong> Beginner Terrain Park<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/oEGp6xxbvLo' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'TerrainPark5': {
+        coordinates: [-106.32895412, 39.59646740],
+        difficulty: 'blue',
+        videoUrl: 'https://www.youtube.com/embed/oEGp6xxbvLo',
+        content: "<strong>Terrain Park 5</strong><br><strong>Rating:</strong> Blue<br><strong>Type:</strong> Intermediate Terrain Park<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/oEGp6xxbvLo' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'TerrainPark6': {
+        coordinates: [-106.33142281, 39.59184998],
+        difficulty: 'black',
+        videoUrl: 'https://www.youtube.com/embed/oEGp6xxbvLo',
+        content: "<strong>Terrain Park 6</strong><br><strong>Rating:</strong> Black<br><strong>Type:</strong> Advanced Terrain Park<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/oEGp6xxbvLo' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'MarmotValley': {
+        coordinates: [
+            [-106.34121769108032,39.590748368721535],
+            [-106.34076993307175,39.58992340367948],
+            [-106.34076463974233,39.588942164680475],
+            [-106.34067035276605,39.58825782483714],
+            [-106.34028551361685,39.58699356620821],
+            [-106.34012420108256,39.585933878251296],
+            [-106.33994321846883,39.5849478093738]
+        ],
+        difficulty: 'black',
+        color: '#000000'
+    }
+};
+
+// Initialize your variables
+let mountainMarkers = [];
+
 console.log('Script starting');
 mapboxgl.accessToken = 'pk.eyJ1IjoiZHJlZWR2YWlsIiwiYSI6ImNtNzFpZm1vZDBjamwyaW9iNXB4d2Y3MXMifQ.SX00x_QQAbJWREWA2j_C8Q';
 console.log('Token set');
@@ -23,13 +178,11 @@ map.on('error', function(e) {
 
 // Variables to track visibility states
 var trailsVisible = true;
-var mountainFeaturesVisible = true;
 var liftsVisible = true;
 var mountainCamsVisible = true;
 var currentPopup = null;
 
 // Arrays to store markers
-var mountainMarkers = [];
 var liveFeedMarkers = [];
 
 // Trail data
@@ -690,7 +843,46 @@ var trailData = {
             [-106.34402326893745,39.590513042191844],
             [-106.34334685315699,39.59011480141331],
             [-106.34289321564594,39.58982470581495],
-            [-106.34240697602664,39.589545984274025]
+            [-106.34254379843672,39.58962216551578]
+        ],
+        difficulty: 'black',
+        color: '#000000'
+    },
+    'TeaCupGlades': {
+        coordinates: [
+            [-106.34408838371183,39.58678354923842],
+            [-106.34354269406246,39.58657951506959],
+            [-106.34290303938485,39.58632096372608],
+            [-106.34246117651868,39.586127377572325],
+            [-106.34190774641381,39.58587098069776],
+            [-106.34123981353886,39.58547798548901],
+            [-106.3402251680436,39.584711941342846]
+        ],
+        difficulty: 'black',
+        color: '#000000'
+    },
+    'MarmotValley': {
+        coordinates: [
+            [-106.34121769108032,39.590748368721535],
+            [-106.34076993307175,39.58992340367948],
+            [-106.34076463974233,39.588942164680475],
+            [-106.34067035276605,39.58825782483714],
+            [-106.34028551361685,39.58699356620821],
+            [-106.34012420108256,39.585933878251296],
+            [-106.33994321846883,39.5849478093738]
+        ],
+        difficulty: 'black',
+        color: '#000000'
+    },
+    'WFO': {
+        coordinates: [
+            [-106.34979530334019,39.590111696965096],
+            [-106.35060284704635,39.59024942779675],
+            [-106.35158690029601,39.59036048585648],
+            [-106.35264145724341,39.590611850163015],
+            [-106.35372923494538,39.59082783429295],
+            [-106.35506355524932,39.59091593542226],
+            [-106.35629819408152,39.59103228182079]
         ],
         difficulty: 'black',
         color: '#000000'
@@ -1028,6 +1220,18 @@ map.on('load', function() {
             content: "<strong>Morning Thunder</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
                 "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
         },
+        'TeaCupGlades': {
+            content: "<strong>Tea Cup Glades</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+                "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+        },
+        'MarmotValley': {
+            content: "<strong>Marmot Valley</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+                "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+        },
+        'WFO': {
+            content: "<strong>Tea Cup Glades</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+                "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+        },
         'JadeGlade': {
             content: "<strong>Jade's Glade</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 750 feet<br><strong>Average Slope:</strong> 33 degrees<br>" +
                 "<iframe width='200' height='113' src='https://www.youtube.com/embed/ALC1TUvSRMQ' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
@@ -1064,17 +1268,6 @@ map.on('load', function() {
         });
     });
 
-    // Add mountain features
-    var mountainFeatureCoordinates = [
-        { coords: [-106.339999, 39.585711], videoUrl: 'https://www.youtube.com/embed/oEGp6xxbvLo' },
-        { coords: [-106.336291, 39.594849], videoUrl: 'https://www.youtube.com/embed/oEGp6xxbvLo' },
-        { coords: [-106.333330, 39.604559], videoUrl: 'https://www.youtube.com/embed/EFjP6GB0zdk' },
-        
-        // New coordinates from your dragged markers
-        { coords: [-106.32697124, 39.59998474], videoUrl: 'https://www.youtube.com/embed/oEGp6xxbvLo' },
-        { coords: [-106.32895412, 39.59646740], videoUrl: 'https://www.youtube.com/embed/oEGp6xxbvLo' },
-        { coords: [-106.33142281, 39.59184998], videoUrl: 'https://www.youtube.com/embed/oEGp6xxbvLo' }
-    ];
 
     // Create custom icon element
     const createCustomMarker = (color) => {
@@ -1095,20 +1288,6 @@ map.on('load', function() {
         return element;
     };
 
-    // Add markers with custom icon
-    mountainFeatureCoordinates.forEach(function(feature, index) {
-        const colors = ['#ff0000', '#00ff00', '#000000'];
-        var marker = new mapboxgl.Marker({
-            element: createCustomMarker(colors[index % 3])
-        })
-            .setLngLat(feature.coords)
-            .setPopup(new mapboxgl.Popup().setHTML(
-                "<strong>Mountain Features</strong><br>" +
-                `<iframe width='200' height='113' src='${feature.videoUrl}' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>`
-            ))
-            .addTo(map);
-        mountainMarkers.push(marker);
-    });
 
     // Add live feed markers
     var liveFeedLocations = [
@@ -1197,6 +1376,8 @@ map.on('load', function() {
             map.getCanvas().style.cursor = '';
         });
     });
+    
+    createFeatureMarkers(); // Add this line
 });
 
 // Toggle functions
@@ -1209,12 +1390,6 @@ function toggleTrails() {
     });
 }
 
-function toggleMountainFeatures() {
-    mountainFeaturesVisible = !mountainFeaturesVisible;
-    mountainMarkers.forEach(function(marker) {
-        marker.getElement().style.display = mountainFeaturesVisible ? 'block' : 'none';
-    });
-}
 
 function toggleLifts() {
     liftsVisible = !liftsVisible;
@@ -1337,26 +1512,26 @@ function toggleDropdown() {
 }
 
 function toggleTrailsByDifficulty(difficulty) {
-    Object.keys(trailData).forEach(function(trail) {
+    Object.keys(trailData).forEach(trail => {
         if (trailData[trail].difficulty === difficulty) {
             // Check if it's a split trail
             if (trailData[trail].coordinates.main) {
                 // Handle split trail visibility
-                ['main', 'leftFork', 'rightFork'].forEach(function(pathType) {
-                    const visibility = map.getLayoutProperty(`${trail}-${pathType}-layer`, 'visibility');
+                ['main', 'leftFork', 'rightFork'].forEach(pathType => {
+                    const checkbox = document.getElementById(`toggle${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}Trails`);
                     map.setLayoutProperty(
                         `${trail}-${pathType}-layer`,
                         'visibility',
-                        visibility === 'visible' ? 'none' : 'visible'
+                        checkbox.checked ? 'visible' : 'none'  // Changed this line
                     );
                 });
             } else {
                 // Handle regular trail visibility
-                const visibility = map.getLayoutProperty(`${trail}-layer`, 'visibility');
+                const checkbox = document.getElementById(`toggle${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}Trails`);
                 map.setLayoutProperty(
                     `${trail}-layer`,
                     'visibility',
-                    visibility === 'visible' ? 'none' : 'visible'
+                    checkbox.checked ? 'visible' : 'none'  // Changed this line
                 );
             }
         }
@@ -1443,3 +1618,169 @@ var adjustLiftsButton = document.createElement('button');
 adjustLiftsButton.textContent = 'Adjust Lifts';
 adjustLiftsButton.onclick = toggleLiftAdjustment;
 document.body.appendChild(adjustLiftsButton);
+
+// Add these event listeners after your map initialization code
+document.getElementById('mainToggle').addEventListener('click', function() {
+    const dropdown = document.getElementById('mainDropdown');
+    dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+});
+
+// Handle Trails toggle
+document.getElementById('toggleTrails').addEventListener('change', function() {
+    const difficultyDropdown = this.parentElement.querySelector('.difficulty-dropdown');
+    difficultyDropdown.style.display = this.checked ? 'block' : 'none';
+    
+    // If unchecked, uncheck all difficulty options
+    if (!this.checked) {
+        difficultyDropdown.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+            cb.checked = false;
+            toggleTrailsByDifficulty(cb.id.replace('toggle', '').replace('Trails', '').toLowerCase());
+        });
+    }
+});
+
+// Handle Mountain Features toggle
+document.getElementById('toggleFeatures').addEventListener('change', function() {
+    const difficultyDropdown = this.parentElement.querySelector('.difficulty-dropdown');
+    difficultyDropdown.style.display = this.checked ? 'block' : 'none';
+    
+    if (!this.checked) {
+        difficultyDropdown.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+            cb.checked = false;
+        });
+    }
+});
+
+// Handle difficulty toggles for trails
+['Green', 'Blue', 'Black'].forEach(difficulty => {
+    document.getElementById(`toggle${difficulty}Trails`).addEventListener('change', function() {
+        toggleTrailsByDifficulty(difficulty.toLowerCase());
+    });
+});
+
+// Handle lifts toggle
+document.getElementById('toggleLifts').addEventListener('change', function() {
+    toggleLifts();
+});
+
+// Add this with your other toggle event listeners
+document.getElementById('toggleCams').addEventListener('change', function() {
+    // Add your mountain cams toggle logic here
+    toggleMountainCams();
+});
+
+// Function to create markers with difficulty-based colors
+function createFeatureMarkers() {
+    console.log("Creating feature markers...");
+    mountainMarkers = []; // Clear existing markers
+    
+    Object.keys(mountainFeatureData).forEach(feature => {
+        console.log("Creating marker for:", feature);
+        const featureInfo = mountainFeatureData[feature];
+        let markerColor;
+        
+        // Set marker color based on difficulty
+        switch(featureInfo.difficulty) {
+            case 'green':
+                markerColor = '#00ff00';
+                break;
+            case 'blue':
+                markerColor = '#0000ff';
+                break;
+            case 'black':
+                markerColor = '#000000';
+                break;
+        }
+
+        var marker = new mapboxgl.Marker({
+            element: createCustomMarker(markerColor)
+        })
+            .setLngLat(featureInfo.coordinates)
+            .setPopup(new mapboxgl.Popup().setHTML(featureInfo.content))
+            .addTo(map);
+        
+        marker.difficulty = featureInfo.difficulty;
+        mountainMarkers.push(marker);
+        console.log("Marker added:", marker);
+    });
+}
+
+// Updated toggle function for features
+function toggleFeaturesByDifficulty(difficulty) {
+    console.log(`Toggling ${difficulty} features`);
+    mountainMarkers.forEach(marker => {
+        if (marker.difficulty === difficulty) {
+            const checkbox = document.getElementById(`toggle${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}Features`);
+            if (checkbox) {
+                console.log(`Setting ${difficulty} markers visibility:`, checkbox.checked);
+                marker.getElement().style.visibility = checkbox.checked ? 'visible' : 'hidden';
+            }
+        }
+    });
+}
+
+// Update the main features toggle handler
+document.getElementById('toggleFeatures').addEventListener('change', function() {
+    const difficultyDropdown = this.parentElement.querySelector('.difficulty-dropdown');
+    difficultyDropdown.style.display = this.checked ? 'block' : 'none';
+    
+    if (!this.checked) {
+        // If main features toggle is unchecked, hide all features
+        mountainMarkers.forEach(marker => {
+            marker.getElement().style.visibility = 'hidden';
+        });
+        // Uncheck all difficulty checkboxes
+        difficultyDropdown.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+            cb.checked = false;
+        });
+    } else {
+        // If main toggle is checked, show features based on their difficulty checkbox states
+        ['green', 'blue', 'black'].forEach(difficulty => {
+            toggleFeaturesByDifficulty(difficulty);
+        });
+    }
+});
+
+// Make sure the difficulty toggle event listeners are set up
+['Green', 'Blue', 'Black'].forEach(difficulty => {
+    const checkbox = document.getElementById(`toggle${difficulty}Features`);
+    if (checkbox) {
+        checkbox.addEventListener('change', function() {
+            console.log(`${difficulty} checkbox clicked:`, this.checked);
+            toggleFeaturesByDifficulty(difficulty.toLowerCase());
+        });
+    }
+});
+
+
+// First, let's check if our HTML elements exist
+console.log("Main toggle exists:", document.getElementById('toggleFeatures') !== null);
+console.log("Green toggle exists:", document.getElementById('toggleGreenFeatures') !== null);
+console.log("Blue toggle exists:", document.getElementById('toggleBlueFeatures') !== null);
+console.log("Black toggle exists:", document.getElementById('toggleBlackFeatures') !== null);
+
+// Update the event listeners with more logging
+document.getElementById('toggleFeatures').addEventListener('change', function() {
+    console.log("Main features toggle clicked!");
+    const difficultyDropdown = this.parentElement.querySelector('.difficulty-dropdown');
+    console.log("Dropdown found:", difficultyDropdown !== null);
+    difficultyDropdown.style.display = this.checked ? 'block' : 'none';
+    
+    if (!this.checked) {
+        difficultyDropdown.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+            cb.checked = false;
+        });
+    }
+});
+
+['Green', 'Blue', 'Black'].forEach(difficulty => {
+    const checkbox = document.getElementById(`toggle${difficulty}Features`);
+    if (checkbox) {
+        checkbox.addEventListener('change', function() {
+            console.log(`${difficulty} features checkbox clicked! Checked:`, this.checked);
+            toggleFeaturesByDifficulty(difficulty.toLowerCase());
+        });
+    } else {
+        console.log(`${difficulty} features checkbox not found!`);
+    }
+});
