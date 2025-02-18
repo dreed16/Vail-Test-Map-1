@@ -204,7 +204,6 @@ map.on('load', function() {
 
 
 
-
     liveFeedLocations.forEach(function(location) {
         var liveFeedMarker = new mapboxgl.Marker({ color: 'red' })
             .setLngLat(location.coords)
