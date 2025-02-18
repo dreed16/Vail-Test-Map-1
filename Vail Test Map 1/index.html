@@ -1,13 +1,105 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="utf-8">
     <title>Vail 3D Map</title>
-    <script src='https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.js'></script>
-    <link href='https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.css' rel='stylesheet' />
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js"></script>
     <link href='css/styles.css' rel='stylesheet' />
+    <style>
+        body { margin: 0; padding: 0; }
+        #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+        .marker {
+            background-image: url('Images/TerrainParkMarker.png');
+            background-size: cover;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .mapboxgl-popup {
+            max-width: 200px;
+        }
+        .mapboxgl-popup-content {
+            text-align: center;
+            font-family: 'Open Sans', sans-serif;
+        }
+        
+        /* Control styles */
+        .control-panel {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 1;
+        }
+        button {
+            margin: 5px;
+            padding: 5px 10px;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        #navigationMenu {
+            position: absolute;
+            top: 50px;
+            left: 10px;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            z-index: 2;
+            display: none;
+        }
+    </style>
 </head>
 <body>
     <div id="map"></div>
+    <div class="control-panel">
+        <button onclick="toggleTrails()">Toggle</button>
+        <button onclick="adjustTrails()">Adjust Trails</button>
+        <button onclick="toggleLiftAdjustment()">Adjust Lifts</button>
+        <button onclick="toggleNavigation()">Navigation</button>
+    </div>
+
+    <!-- Navigation Menu -->
+    <div id="navigationMenu">
+        <h3>Navigation</h3>
+        <div>
+            <label for="startPoint">Starting Point:</label>
+            <select id="startPoint">
+                <option value="">Select starting point...</option>
+                <option value="HighNoonTop">Top of High Noon Express</option>
+                <option value="SunUpBottom">Bottom of Sun Up Express</option>
+                <option value="SunUpTop">Top of Sun Up Express</option>
+                <option value="TeaCupBottom">Bottom of Tea Cup Express</option>
+            </select>
+        </div>
+        <div style="margin-top: 10px;">
+            <label for="endPoint">Ending Point:</label>
+            <select id="endPoint">
+                <option value="">Select ending point...</option>
+                <option value="HighNoonTop">Top of High Noon Express</option>
+                <option value="SunUpBottom">Bottom of Sun Up Express</option>
+                <option value="SunUpTop">Top of Sun Up Express</option>
+                <option value="TeaCupBottom">Bottom of Tea Cup Express</option>
+            </select>
+        </div>
+        <div class="recommended-routes" style="margin-top: 15px;">
+            <h4>Recommended Routes:</h4>
+            <button onclick="showRecommendedRoute('easy')" style="margin: 5px;">
+                🟢 Easiest Way
+            </button>
+            <button onclick="showRecommendedRoute('quick')" style="margin: 5px;">
+                ⚡ Quickest Way
+            </button>
+            <button onclick="showRecommendedRoute('adventure')" style="margin: 5px;">
+                🎯 Adventurous Way
+            </button>
+        </div>
+    </div>
+
     <div class="mapboxgl-ctrl">
         <div class="toggle-container">
             <button id="mainToggle">Toggle</button>
@@ -35,15 +127,15 @@
                     </div>
                 </label>
             </div>
-        </div>
-        <button onclick="toggleTrailAdjustment()">Adjust Trails</button>
-        <button onclick="toggleLiftAdjustment()">Adjust Lifts</button>
+        </div>     
     </div>
+
     <script src="Data/trailData.js"></script>
     <script src="Data/trailpopup.js"></script>
     <script src="Data/liftdata.js"></script>
     <script src="Data/mountainFeatures.js"></script>
     <script src="Data/mountaincams.js"></script>
     <script src="JS/main.js"></script>
+    <script src="JS/wayfinding.js"></script>
 </body>
 </html>

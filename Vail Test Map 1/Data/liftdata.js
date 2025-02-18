@@ -12,16 +12,16 @@ var liftData = {
         popupContent: "<strong>Wapiti</strong><br><strong>Type:</strong> High-Speed Quad<br><strong>Vertical Rise:</strong> 1,400 ft<br><strong> Time:</strong> 9 mins<br>" +
                       "<iframe width='200' height='113' src='https://www.youtube.com/embed/nkeJFKI1Y9o?si=JVCOQWtmuaPkoaYp' frameborder='0' allowfullscreen></iframe>"
     },
-    'Test1': {
+    'SunUpExpress': {
         coordinates: [[-106.348416, 39.597273], [-106.336842, 39.602036]],
         color: '#FF0000',
-        popupContent: "<strong>Orient Express</strong><br><strong>Type:</strong> High-Speed Quad<br><strong>Vertical Rise:</strong> 1,400 ft<br><strong> Time:</strong> 9 mins<br>" +
+        popupContent: "<strong>Sun Up Express</strong><br><strong>Type:</strong> High-Speed Quad<br><strong>Vertical Rise:</strong> 1,400 ft<br><strong> Time:</strong> 9 mins<br>" +
                       "<iframe width='200' height='113' src='https://www.youtube.com/embed/nkeJFKI1Y9o?si=JVCOQWtmuaPkoaYp' frameborder='0' allowfullscreen></iframe>"
     },
     'Mongolia': {
         coordinates: [[-106.31537974887122, 39.59980436898809], [-106.31027072825114, 39.59998686506145]],
         color: '#FF0000',
-        popupContent: "<strong>Orient Express</strong><br><strong>Type:</strong> High-Speed Quad<br><strong>Vertical Rise:</strong> 1,400 ft<br><strong> Time:</strong> 9 mins<br>" +
+        popupContent: "<strong>Mongolia</strong><br><strong>Type:</strong> High-Speed Quad<br><strong>Vertical Rise:</strong> 1,400 ft<br><strong> Time:</strong> 9 mins<br>" +
                       "<iframe width='200' height='113' src='https://www.youtube.com/embed/nkeJFKI1Y9o?si=JVCOQWtmuaPkoaYp' frameborder='0' allowfullscreen></iframe>"
     },
     'HighNoonExpress': {
@@ -31,7 +31,7 @@ var liftData = {
         ],
         color: '#FF0000'  // Assuming it's red like other lifts
     },
-    'SunUpExpress': {
+    'SunDownExpress': {
         coordinates: [
             [-106.36148710905488,39.59074324292021],
             [-106.37029027787614,39.60474819599358]

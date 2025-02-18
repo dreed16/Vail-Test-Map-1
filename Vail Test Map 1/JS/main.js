@@ -18,6 +18,7 @@ const createCustomMarker = (color) => {
 
 // Initialize your variables
 let mountainMarkers = [];
+let mountainFeatures = []; // Initialize empty array for features
 
 console.log('Script starting');
 mapboxgl.accessToken = 'pk.eyJ1IjoiZHJlZWR2YWlsIiwiYSI6ImNtNzFpZm1vZDBjamwyaW9iNXB4d2Y3MXMifQ.SX00x_QQAbJWREWA2j_C8Q';
@@ -51,6 +52,8 @@ var currentPopup = null;
 // Arrays to store markers
 var liveFeedMarkers = [];
 
+// Add this at the top of main.js
+let navigationActive = false;
 
 // Temporary function for trail adjustment
 function makeTrailsDraggable() {
@@ -282,11 +285,27 @@ map.on('load', function() {
         });
     });
     
-    createFeatureMarkers(); // Add this line
+    createFeatureMarkers(mountainFeatures); // Add this line
+
+    // Add click event for coordinates
+    map.on('click', function(e) {
+        console.log('Clicked coordinates:', [e.lngLat.lng, e.lngLat.lat]);
+    });
+
+    // Initialize features after map is loaded
+    try {
+        createFeatureMarkers(mountainFeatures);
+    } catch (error) {
+        console.error('Error initializing features:', error);
+    }
 });
 
 // Toggle functions
 function toggleTrails() {
+    if (navigationActive) {
+        console.log('Navigation is active, toggle disabled');
+        return; // Don't do anything if navigation is active
+    }
     trailsVisible = !trailsVisible;
     console.log('Toggling trails:', trailsVisible);
     Object.keys(trailData).forEach(function(trail) {
@@ -398,18 +417,6 @@ function toggleTrailAdjustment() {
         }
     });
 
-    // Add button to remove adjustment markers
-    const removeButton = document.createElement('button');
-    removeButton.textContent = 'Remove Trail Adjustment Markers';
-    removeButton.style.position = 'absolute';
-    removeButton.style.top = '10px';
-    removeButton.style.right = '10px';
-    removeButton.style.zIndex = '1';
-    removeButton.onclick = function() {
-        trailMarkers.forEach(marker => marker.remove());
-        removeButton.remove();
-    };
-    document.body.appendChild(removeButton);
 }
 
 function toggleDropdown() {
@@ -502,27 +509,8 @@ function toggleLiftAdjustment() {
         }
     });
     
-    // Add remove button
-    const removeButton = document.createElement('button');
-    removeButton.textContent = 'Remove Lift Adjustment Markers';
-    removeButton.style.position = 'absolute';
-    removeButton.style.top = '10px';
-    removeButton.style.right = '10px';
-    removeButton.style.zIndex = '1';
-    removeButton.onclick = function() {
-        document.querySelectorAll('.mapboxgl-marker').forEach(function(marker) {
-            marker.remove();
-        });
-        removeButton.remove();
-    };
-    document.body.appendChild(removeButton);
-}
 
-// Update the adjustLiftsButton to use this function
-var adjustLiftsButton = document.createElement('button');
-adjustLiftsButton.textContent = 'Adjust Lifts';
-adjustLiftsButton.onclick = toggleLiftAdjustment;
-document.body.appendChild(adjustLiftsButton);
+}
 
 // Add these event listeners after your map initialization code
 document.getElementById('mainToggle').addEventListener('click', function() {
@@ -575,38 +563,25 @@ document.getElementById('toggleCams').addEventListener('change', function() {
 });
 
 // Function to create markers with difficulty-based colors
-function createFeatureMarkers() {
-    console.log("Creating feature markers...");
-    mountainMarkers = []; // Clear existing markers
+function createFeatureMarkers(features) {
+    console.log('Creating markers with features:', features);
     
-    Object.keys(mountainFeatureData).forEach(feature => {
-        console.log("Creating marker for:", feature);
-        const featureInfo = mountainFeatureData[feature];
-        let markerColor;
-        
-        // Set marker color based on difficulty
-        switch(featureInfo.difficulty) {
-            case 'green':
-                markerColor = '#00ff00';
-                break;
-            case 'blue':
-                markerColor = '#0000ff';
-                break;
-            case 'black':
-                markerColor = '#000000';
-                break;
-        }
+    if (!features || !Array.isArray(features)) {
+        console.warn('No valid features provided');
+        return;
+    }
 
-        var marker = new mapboxgl.Marker({
-            element: createCustomMarker(markerColor)
-        })
-            .setLngLat(featureInfo.coordinates)
-            .setPopup(new mapboxgl.Popup().setHTML(featureInfo.content))
-            .addTo(map);
-        
-        marker.difficulty = featureInfo.difficulty;
-        mountainMarkers.push(marker);
-        console.log("Marker added:", marker);
+    features.forEach(feature => {
+        if (feature && feature.geometry && Array.isArray(feature.geometry.coordinates)) {
+            try {
+                const marker = new mapboxgl.Marker()
+                    .setLngLat(feature.geometry.coordinates)
+                    .addTo(map);
+                console.log('Marker created for:', feature);
+            } catch (error) {
+                console.error('Error creating marker:', error);
+            }
+        }
     });
 }
 
@@ -625,46 +600,6 @@ function toggleFeaturesByDifficulty(difficulty) {
 }
 
 // Update the main features toggle handler
-document.getElementById('toggleFeatures').addEventListener('change', function() {
-    const difficultyDropdown = this.parentElement.querySelector('.difficulty-dropdown');
-    difficultyDropdown.style.display = this.checked ? 'block' : 'none';
-    
-    if (!this.checked) {
-        // If main features toggle is unchecked, hide all features
-        mountainMarkers.forEach(marker => {
-            marker.getElement().style.visibility = 'hidden';
-        });
-        // Uncheck all difficulty checkboxes
-        difficultyDropdown.querySelectorAll('input[type="checkbox"]').forEach(cb => {
-            cb.checked = false;
-        });
-    } else {
-        // If main toggle is checked, show features based on their difficulty checkbox states
-        ['green', 'blue', 'black'].forEach(difficulty => {
-            toggleFeaturesByDifficulty(difficulty);
-        });
-    }
-});
-
-// Make sure the difficulty toggle event listeners are set up
-['Green', 'Blue', 'Black'].forEach(difficulty => {
-    const checkbox = document.getElementById(`toggle${difficulty}Features`);
-    if (checkbox) {
-        checkbox.addEventListener('change', function() {
-            console.log(`${difficulty} checkbox clicked:`, this.checked);
-            toggleFeaturesByDifficulty(difficulty.toLowerCase());
-        });
-    }
-});
-
-
-// First, let's check if our HTML elements exist
-console.log("Main toggle exists:", document.getElementById('toggleFeatures') !== null);
-console.log("Green toggle exists:", document.getElementById('toggleGreenFeatures') !== null);
-console.log("Blue toggle exists:", document.getElementById('toggleBlueFeatures') !== null);
-console.log("Black toggle exists:", document.getElementById('toggleBlackFeatures') !== null);
-
-// Update the event listeners with more logging
 document.getElementById('toggleFeatures').addEventListener('change', function() {
     console.log("Main features toggle clicked!");
     const difficultyDropdown = this.parentElement.querySelector('.difficulty-dropdown');
@@ -689,3 +624,11 @@ document.getElementById('toggleFeatures').addEventListener('change', function() 
         console.log(`${difficulty} features checkbox not found!`);
     }
 });
+
+// Add click event listener for coordinates
+map.on('click', (e) => {
+    const lat = e.lngLat.lat;
+    const lng = e.lngLat.lng;
+    console.log(`Coordinates: [${lng}, ${lat}]`);
+});
+
