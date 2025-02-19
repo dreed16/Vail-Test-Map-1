@@ -14,7 +14,8 @@ const createCustomMarker = (color) => {
     return element;
 };
 
-// Then your mountainFeatureData
+// Then your mountainFeatureData.
+
 
 // Initialize your variables
 let mountainMarkers = [];
@@ -420,7 +421,22 @@ function toggleTrailAdjustment() {
 }
 
 function toggleDropdown() {
-    document.getElementById('difficultyDropdown').classList.toggle('show');
+    const dropdown = document.getElementById('mainDropdown');
+    if (dropdown) {
+        dropdown.classList.toggle('show');
+    }
+}
+
+// Close dropdown if user clicks outside
+window.onclick = function(event) {
+    if (!event.target.matches('#mainToggle')) {
+        const dropdowns = document.getElementsByClassName('dropdown-content');
+        for (let dropdown of dropdowns) {
+            if (dropdown.classList.contains('show')) {
+                dropdown.classList.remove('show');
+            }
+        }
+    }
 }
 
 function toggleTrailsByDifficulty(difficulty) {

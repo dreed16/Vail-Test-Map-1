@@ -15,6 +15,36 @@ var navigationPoints = {
         coordinates: [-106.33653799931282, 39.60203751975274],
         marker: "🔵"
     },
+    "OrientExpressBottom": {
+        name: "Bottom of Orient Express",
+        coordinates: [-106.33215374536216, 39.58595261897972],
+        marker: "🔵"
+    },
+    "SkylineExpressTop": {
+        name: "Top of Skyline Express",
+        coordinates: [-106.32886495418725, 39.56374129044079],
+        marker: "🔵"
+    },
+    "SkylineExpressBottom": {
+        name: "Bottom of Skyline Express",
+        coordinates: [-106.34068977962873, 39.58411808744441],
+        marker: "🔵"
+    },
+    "OrientExpressTop": {
+        name: "Top of Orient Express",
+        coordinates: [-106.3219955176766, 39.605131093015274],
+        marker: "🔵"
+    },
+    "PetesExpressTop": {
+        name: "Top of Pete's Express",
+        coordinates: [-106.30807029045621, 39.57306194205927],
+        marker: "🔵"
+    },
+    "PetesExpressBottom": {
+        name: "Bottom of Pete's Express",
+        coordinates: [-106.32854173371445, 39.58099707319917],
+        marker: "🔵"
+    },
     "TeaCupBottom": {
         name: "Bottom of Tea Cup Express",
         coordinates: [-106.34008654524948, 39.58448160226101],
@@ -27,8 +57,8 @@ var routeDefinitions = {
     "HighNoonTop-SunUpBottom": {
         routeNumber: 1,
         name: "High Noon to Sun Up Bottom",
-        trails: ["TheSlot", "MiltsFace", "Campbells", "Headwall", "YonderGully", "Yonder", "OverYonder"],  // Add your trail IDs here
-        lifts: []           // Add your lift IDs here
+        trails: ["TheSlot", "MiltsFace", "Campbells", "Headwall", "YonderGully", "Yonder", "OverYonder", "SleepyTimeRoad", "SleepyTimeRoadRightFork"],
+        lifts: []
     },
     "HighNoonTop-SunUpTop": {
         routeNumber: 2,
@@ -39,8 +69,8 @@ var routeDefinitions = {
     "HighNoonTop-TeaCupBottom": {
         routeNumber: 3,
         name: "High Noon to Tea Cup Bottom",
-        trails: ["TheSlot", "MiltsFace", "Campbells", "Headwall", "YonderGully", "Yonder", "OverYonder", "RedZinger", "EmperorsChoice", "MorningThunder", "SleepyTimeRoad", "MarotValley"],
-        lifts: []
+        trails: ["TheSlot", "Poppyfields", "Chinabowlrunout", "DragonsTeeth", "JadeGlade", "GenghisKhan", "Sweetnsour", "MiltsFace", "Campbells", "TeaCupGlades", "Headwall", "YonderGully", "Yonder", "OverYonder", "RedZinger", "SleepyTimeRoadLeftFork","SleepyTimeRoadRightFork","EmperorsChoice", "MorningThunder", "SleepyTimeRoad", "MarmotValley"],
+        lifts: ["SunUpExpress"]
     },
     "SunUpBottom-SunUpTop": {
         routeNumber: 4,
@@ -57,6 +87,18 @@ var routeDefinitions = {
     "SunUpTop-TeaCupBottom": {
         routeNumber: 6,
         name: "Sun Up Top to Tea Cup",
+        trails: [],
+        lifts: []
+    },
+    "PetesExpressTop-SkylineExpressBottom": {
+        routeNumber: 7,
+        name: "Pete's Express Top to Skyline Express Bottom",
+        trails: ["GrandReview", "TheStar", "Hornsilver", "Resolution"],
+        lifts: []
+    },
+    "HighNoonTop-OrientExpressBottom": {
+        routeNumber: 8,
+        name: "High Noon Top to Orient Express Bottom",
         trails: [],
         lifts: []
     }
@@ -126,37 +168,78 @@ function displayNavigationPoints() {
     });
 }
 
-// Wait for map to be available
-window.addEventListener('load', function() {
-    console.log('Window loaded, checking for map...');
-    if (typeof map !== 'undefined') {
-        console.log('Map found, initializing wayfinding...');
-        displayNavigationPoints();
-    } else {
-        console.error('Map not found!');
-    }
-});
-
-// Wait for DOM to be fully loaded
+// Wait for both DOM and map to be ready
 document.addEventListener('DOMContentLoaded', function() {
-    initializeNavigationControls();
+    console.log('DOM loaded, waiting for map...');
+    
+    // Wait for map to be loaded
+    if (map) {
+        map.on('load', function() {
+            console.log('Map loaded, initializing navigation...');
+            setTimeout(initializeNavigationControls, 500); // Give more time for elements to load
+        });
+    }
 });
 
-function initializeNavigationControls() {
-    const startPoint = document.getElementById('startPoint');
-    const endPoint = document.getElementById('endPoint');
-
-    if (!startPoint || !endPoint) {
-        console.error('Navigation elements not found');
-        return;
+// Add this function at the top level
+function toggleNavigation() {
+    const navigationMenu = document.getElementById('navigationMenu');
+    
+    if (navigationMenu.style.display === 'block') {
+        // Hide the navigation menu
+        navigationMenu.style.display = 'none';
+        
+        // Reset all trails to original properties
+        Object.keys(trailData).forEach(trailId => {
+            const layerId = `${trailId}-layer`;
+            if (map.getLayer(layerId)) {
+                map.setPaintProperty(layerId, 'line-opacity', 1);
+                map.setPaintProperty(layerId, 'line-width', 6); // Reset to original width
+            }
+        });
+        
+        // Reset all lifts to original properties
+        Object.keys(liftData).forEach(liftId => {
+            const layerId = `${liftId}-layer`;
+            if (map.getLayer(layerId)) {
+                map.setPaintProperty(layerId, 'line-opacity', 1);
+                map.setPaintProperty(layerId, 'line-width', 2); // Reset to original width
+            }
+        });
+        
+        // Clear any selected route options
+        const startPoint = document.getElementById('startPoint');
+        const endPoint = document.getElementById('endPoint');
+        if (startPoint) startPoint.value = '';
+        if (endPoint) endPoint.value = '';
+        
+    } else {
+        // Show the navigation menu
+        navigationMenu.style.display = 'block';
     }
+}
 
-    try {
-        startPoint.addEventListener('change', handleRouteSelection);
-        endPoint.addEventListener('change', handleRouteSelection);
-        console.log('Navigation controls initialized');
-    } catch (error) {
-        console.error('Error initializing navigation controls:', error);
+// Update initializeNavigationControls to remove the click handler since we're using onclick
+function initializeNavigationControls() {
+    console.log('Attempting to initialize navigation controls...');
+    
+    const elements = {
+        navigationBtn: document.getElementById('navigationBtn'),
+        navigationMenu: document.getElementById('navigationMenu'),
+        startPoint: document.getElementById('startPoint'),
+        endPoint: document.getElementById('endPoint')
+    };
+
+    // Log what we found
+    Object.entries(elements).forEach(([name, element]) => {
+        console.log(`${name} found:`, !!element);
+    });
+
+    // Add route selection handlers
+    if (elements.startPoint && elements.endPoint) {
+        elements.startPoint.addEventListener('change', handleRouteSelection);
+        elements.endPoint.addEventListener('change', handleRouteSelection);
+        console.log('Route selection handlers added');
     }
 }
 
@@ -182,48 +265,54 @@ var isNavigationActive = false;
 function handleRouteSelection() {
     const startPoint = document.getElementById('startPoint').value;
     const endPoint = document.getElementById('endPoint').value;
+    const routeKey = `${startPoint}-${endPoint}`;
 
-    if (startPoint && endPoint) {
-        const routeKey = `${startPoint}-${endPoint}`;
-        console.log('Looking for route:', routeKey);
+    console.log('Handling route selection:', routeKey);
 
-        // Get the route definition
+    // First, dim ALL trails and lifts
+    Object.keys(trailData).forEach(trailId => {
+        const layerId = `${trailId}-layer`;
+        if (map.getLayer(layerId)) {
+            console.log('Dimming trail:', trailId);
+            map.setLayoutProperty(layerId, 'visibility', 'visible');
+            map.setPaintProperty(layerId, 'line-opacity', 0.25);
+            map.setPaintProperty(layerId, 'line-width', 3);
+        }
+    });
+
+    // Dim all lifts
+    Object.keys(liftData).forEach(liftId => {
+        const layerId = `${liftId}-layer`;
+        if (map.getLayer(layerId)) {
+            console.log('Dimming lift:', liftId);
+            map.setLayoutProperty(layerId, 'visibility', 'visible');
+            map.setPaintProperty(layerId, 'line-opacity', 0.2);
+        }
+    });
+
+    // Then highlight the specific trails and lifts for this route
+    if (routeDefinitions[routeKey]) {
         const route = routeDefinitions[routeKey];
-        if (route) {
-            console.log('Found route:', route);
-            
-            // First, hide ALL trails
-            Object.keys(trailData).forEach(trailId => {
-                // Handle regular trails
-                const layerId = `${trailId}-layer`;
+        console.log('Highlighting route trails:', route.trails);
+        
+        // Highlight route trails
+        route.trails.forEach(trailId => {
+            const layerId = `${trailId}-layer`;
+            if (map.getLayer(layerId)) {
+                console.log('Highlighting trail:', trailId);
+                map.setPaintProperty(layerId, 'line-opacity', 1);
+                map.setPaintProperty(layerId, 'line-width', 6);
+            }
+        });
+
+        // Highlight route lifts
+        if (route.lifts) {
+            route.lifts.forEach(liftId => {
+                const layerId = `${liftId}-layer`;
                 if (map.getLayer(layerId)) {
-                    map.setLayoutProperty(layerId, 'visibility', 'none');
+                    console.log('Highlighting lift:', liftId);
+                    map.setPaintProperty(layerId, 'line-opacity', 1);
                 }
-                
-                // Handle split trails if they exist
-                ['main', 'leftFork', 'rightFork'].forEach(pathType => {
-                    const splitLayerId = `${trailId}-${pathType}-layer`;
-                    if (map.getLayer(splitLayerId)) {
-                        map.setLayoutProperty(splitLayerId, 'visibility', 'none');
-                    }
-                });
-            });
-            
-            // Then show ONLY the trails in our route
-            route.trails.forEach(trailId => {
-                // Show regular trail
-                const layerId = `${trailId}-layer`;
-                if (map.getLayer(layerId)) {
-                    map.setLayoutProperty(layerId, 'visibility', 'visible');
-                }
-                
-                // Show split trail if it exists
-                ['main', 'leftFork', 'rightFork'].forEach(pathType => {
-                    const splitLayerId = `${trailId}-${pathType}-layer`;
-                    if (map.getLayer(splitLayerId)) {
-                        map.setLayoutProperty(splitLayerId, 'visibility', 'visible');
-                    }
-                });
             });
         }
     }
@@ -233,65 +322,6 @@ function handleRouteSelection() {
 function toggleTrails() {
     if (!isNavigationActive) {  // Only toggle if navigation is not active
         // Your existing toggle code
-    }
-}
-
-// Handle navigation button clicks
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('Wayfinding.js loaded');
-    
-    const navigationBtn = document.getElementById('navigationBtn');
-    const navigationMenu = document.getElementById('navigationMenu');
-    
-    if (!navigationBtn) {
-        console.error('Navigation button not found!');
-    }
-    if (!navigationMenu) {
-        console.error('Navigation menu not found!');
-    }
-
-    navigationBtn.addEventListener('click', function() {
-        console.log('Navigation button clicked');
-        console.log('Current menu display:', navigationMenu.style.display);
-        
-        // Simple toggle
-        if (navigationMenu.style.display === 'block') {
-            console.log('Hiding menu');
-            navigationMenu.style.display = 'none';
-            // Reset trails visibility
-            Object.keys(trailData).forEach(trailId => {
-                const layerId = `${trailId}-layer`;
-                if (map.getLayer(layerId)) {
-                    map.setLayoutProperty(layerId, 'visibility', 'visible');
-                }
-            });
-        } else {
-            console.log('Showing menu');
-            navigationMenu.style.display = 'block';
-        }
-    });
-});
-
-function toggleNavigation() {
-    const navigationMenu = document.getElementById('navigationMenu');
-    if (navigationMenu.style.display === 'block') {
-        navigationMenu.style.display = 'none';
-        // Show all trails again when closing
-        Object.keys(trailData).forEach(trailId => {
-            const layerId = `${trailId}-layer`;
-            if (map.getLayer(layerId)) {
-                map.setLayoutProperty(layerId, 'visibility', 'visible');
-            }
-            
-            ['main', 'leftFork', 'rightFork'].forEach(pathType => {
-                const splitLayerId = `${trailId}-${pathType}-layer`;
-                if (map.getLayer(splitLayerId)) {
-                    map.setLayoutProperty(splitLayerId, 'visibility', 'visible');
-                }
-            });
-        });
-    } else {
-        navigationMenu.style.display = 'block';
     }
 }
 
@@ -317,8 +347,8 @@ const recommendedRoutes = {
         easy: {
             name: "Gentle Route",
             description: "A smooth descent via Emperors Choice",
-            trails: ["SleepyTimeRoad"],
-            lifts: []  // No lifts for this route
+            trails: ["SleepyTimeRoad", "SleepyTimeRoadLeftFork", "Chinabowlrunout"],
+            lifts: []  
         },
         quick: {
             name: "Direct Route",
@@ -329,7 +359,7 @@ const recommendedRoutes = {
         adventure: {
             name: "Expert's Choice",
             description: "Challenging terrain with lift access",
-            trails: ["Campbells", "EmperorsChoice"],
+            trails: ["Campbells", "EmperorsChoice", "MarmotValley"],
             lifts: ["SunUpExpress"]  // Include the lift explicitly
         }
     }

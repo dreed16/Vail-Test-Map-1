@@ -58,9 +58,9 @@
     <div id="map"></div>
     <div class="control-panel">
         <button onclick="toggleTrails()">Toggle</button>
-        <button onclick="adjustTrails()">Adjust Trails</button>
+        <button onclick="toggleTrailAdjustment()">Adjust Trails</button>
         <button onclick="toggleLiftAdjustment()">Adjust Lifts</button>
-        <button onclick="toggleNavigation()">Navigation</button>
+        <button id="navigationBtn" onclick="toggleNavigation()">Navigation</button>
     </div>
 
     <!-- Navigation Menu -->
@@ -73,16 +73,26 @@
                 <option value="HighNoonTop">Top of High Noon Express</option>
                 <option value="SunUpBottom">Bottom of Sun Up Express</option>
                 <option value="SunUpTop">Top of Sun Up Express</option>
+                <option value="PetesExpressTop">Top of Pete's Express</option>
+                <option value="PetesExpressBottom">Bottom of Pete's Express</option>
+                <option value="SkylineExpressTop">Top of Skyline Express</option>
+                <option value="SkylineExpressBottom">Bottom of Skyline Express</option>
+                <option value="OrientExpressTop">Top of Orient Express</option>
                 <option value="TeaCupBottom">Bottom of Tea Cup Express</option>
             </select>
         </div>
         <div style="margin-top: 10px;">
             <label for="endPoint">Ending Point:</label>
             <select id="endPoint">
-                <option value="">Select ending point...</option>
+                <option value="">Select starting point...</option>
                 <option value="HighNoonTop">Top of High Noon Express</option>
                 <option value="SunUpBottom">Bottom of Sun Up Express</option>
                 <option value="SunUpTop">Top of Sun Up Express</option>
+                <option value="PetesExpressTop">Top of Pete's Express</option>
+                <option value="PetesExpressBottom">Bottom of Pete's Express</option>
+                <option value="SkylineExpressTop">Top of Skyline Express</option>
+                <option value="SkylineExpressBottom">Bottom of Skyline Express</option>
+                <option value="OrientExpressTop">Top of Orient Express</option>
                 <option value="TeaCupBottom">Bottom of Tea Cup Express</option>
             </select>
         </div>

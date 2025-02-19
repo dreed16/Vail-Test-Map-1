@@ -18,10 +18,28 @@ var liftData = {
         popupContent: "<strong>Sun Up Express</strong><br><strong>Type:</strong> High-Speed Quad<br><strong>Vertical Rise:</strong> 1,400 ft<br><strong> Time:</strong> 9 mins<br>" +
                       "<iframe width='200' height='113' src='https://www.youtube.com/embed/nkeJFKI1Y9o?si=JVCOQWtmuaPkoaYp' frameborder='0' allowfullscreen></iframe>"
     },
+    'PetesExpressLift': {
+        coordinates: [[-106.32855634230215, 39.580990685381465], [-106.30804156945408, 39.5730717424816]],
+        color: '#FF0000',
+        popupContent: "<strong>Pete's Express Lift</strong><br><strong>Type:</strong> High-Speed Quad<br><strong>Vertical Rise:</strong> 1,400 ft<br><strong> Time:</strong> 9 mins<br>" +
+                      "<iframe width='200' height='113' src='https://www.youtube.com/embed/nkeJFKI1Y9o?si=JVCOQWtmuaPkoaYp' frameborder='0' allowfullscreen></iframe>"
+    },
+    'EarlsExpressLift': {
+        coordinates: [[-106.34233944935606, 39.57053333824993], [-106.32895829509683, 39.56331794108942]],
+        color: '#FF0000',
+        popupContent: "<strong>Pete's Express Lift</strong><br><strong>Type:</strong> High-Speed Quad<br><strong>Vertical Rise:</strong> 1,400 ft<br><strong> Time:</strong> 9 mins<br>" +
+                      "<iframe width='200' height='113' src='https://www.youtube.com/embed/nkeJFKI1Y9o?si=JVCOQWtmuaPkoaYp' frameborder='0' allowfullscreen></iframe>"
+    },
     'Mongolia': {
         coordinates: [[-106.31537974887122, 39.59980436898809], [-106.31027072825114, 39.59998686506145]],
         color: '#FF0000',
         popupContent: "<strong>Mongolia</strong><br><strong>Type:</strong> High-Speed Quad<br><strong>Vertical Rise:</strong> 1,400 ft<br><strong> Time:</strong> 9 mins<br>" +
+                      "<iframe width='200' height='113' src='https://www.youtube.com/embed/nkeJFKI1Y9o?si=JVCOQWtmuaPkoaYp' frameborder='0' allowfullscreen></iframe>"
+    },
+    'Skylineexpress': {
+        coordinates: [[-106.34070593717222, 39.58408506001541], [-106.32887660958609, 39.56374205768566]],
+        color: '#FF0000',
+        popupContent: "<strong>Skyline Express</strong><br><strong>Type:</strong> High-Speed Quad<br><strong>Vertical Rise:</strong> 1,400 ft<br><strong> Time:</strong> 9 mins<br>" +
                       "<iframe width='200' height='113' src='https://www.youtube.com/embed/nkeJFKI1Y9o?si=JVCOQWtmuaPkoaYp' frameborder='0' allowfullscreen></iframe>"
     },
     'HighNoonExpress': {

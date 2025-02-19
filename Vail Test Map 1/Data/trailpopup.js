@@ -27,6 +27,26 @@ var trailPopups = {
         content: "<strong>Silk Road</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
             "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
     },
+    'Steepndeep': {
+        content: "<strong>Silk Road</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'BigRockPark': {
+        content: "<strong>Big Rock Park</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'ChinaSpur': {
+        content: "<strong>China Spur</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'BigRockParkRunout': {
+        content: "<strong>Big Rock Park Runout</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'Resolution': {
+        content: "<strong>Resolution</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
     'RedSquare': {
         content: "<strong>Red Square</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
             "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
@@ -43,12 +63,28 @@ var trailPopups = {
         content: "<strong>Orient Express</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
             "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
     },
+    'InnerMongoliaBowl': {
+        content: "<strong>Inner Mongolia Bowl</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
     'Rasputinsrevenge': {
         content: "<strong>Rasputin's Revenge</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
             "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
     },
     'SleepyTimeRoad': {
         content: "<strong>Sleepy Time Road</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'SunUpCatwalk': {
+        content: "<strong>Sun Up Catwalk</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'SleepyTimeRoadLeftFork': {
+        content: "<strong>Sleepy Time Road Left Fork</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'SleepyTimeRoadRightFork': {
+        content: "<strong>Sleepy Time Road Right Fork</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
             "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
     },
     'OverYonder': {
@@ -65,6 +101,50 @@ var trailPopups = {
     },
     'MiltsFace': {
         content: "<strong>Milt's Face</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'SkreeField': {
+        content: "<strong>Skree Field</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'Cloud9': {
+        content: "<strong>Cloud 9</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'Cloud9Catwalk': {
+        content: "<strong>Cloud 9 Catwalk</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'LoversLeap': {
+        content: "<strong>Lover's Leap</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'HeavyMetal': {
+        content: "<strong>Milt's Face</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'IronMask': {
+        content: "<strong>Iron Mask</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'LittleOllie': {
+        content: "<strong>Little Ollie</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'Encore': {
+        content: "<strong>Encore</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'TheDivide': {
+        content: "<strong>The Divide</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'Hornsilver': {
+        content: "<strong>Hornsilver</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'TheStar': {
+        content: "<strong>The Star</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
             "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
     },
     'CowsFace': {
@@ -97,6 +177,22 @@ var trailPopups = {
     },
     'Windows': {
         content: "<strong>Windows</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'InTheWuides': {
+        content: "<strong>In The Wuides</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'KellysToalRoad': {
+        content: "<strong>Kelly's Toal Road</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'ChampagneGlade': {
+        content: "<strong>Champagne Glade</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'CJsGlade': {
+        content: "<strong>CJ's Glade</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
             "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?si=nfdaKQtbtGFnq5k5' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
     },
     'OS': {

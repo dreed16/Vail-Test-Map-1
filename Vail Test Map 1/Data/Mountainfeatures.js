@@ -117,18 +117,5 @@ const mountainFeatureData = {
         videoUrl: 'https://www.youtube.com/embed/oEGp6xxbvLo',
         content: "<strong>Terrain Park 6</strong><br><strong>Rating:</strong> Black<br><strong>Type:</strong> Advanced Terrain Park<br>" +
             "<iframe width='200' height='113' src='https://www.youtube.com/embed/oEGp6xxbvLo' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
-    },
-    'MarmotValley': {
-        coordinates: [
-            [-106.34121769108032,39.590748368721535],
-            [-106.34076993307175,39.58992340367948],
-            [-106.34076463974233,39.588942164680475],
-            [-106.34067035276605,39.58825782483714],
-            [-106.34028551361685,39.58699356620821],
-            [-106.34012420108256,39.585933878251296],
-            [-106.33994321846883,39.5849478093738]
-        ],
-        difficulty: 'black',
-        color: '#000000'
     }
 };
