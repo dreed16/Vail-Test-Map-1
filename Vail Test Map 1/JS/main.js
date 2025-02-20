@@ -1,16 +1,16 @@
-// Move this to the very top of your file, outside any other functions
+// Custom marker creator - at the very top of main.js
 const createCustomMarker = (color) => {
     const element = document.createElement('div');
     element.className = 'custom-marker';
-    element.style.backgroundImage = 'url("images/cliff-drop.png")';
-    element.style.width = '32px';
-    element.style.height = '32px';
-    element.style.backgroundSize = 'contain';
-    element.style.backgroundRepeat = 'no-repeat';
-    element.style.backgroundPosition = 'center';
-    element.style.backgroundColor = 'transparent';
-    element.style.border = `2px solid ${color}`;
-    element.style.borderRadius = '50%';
+    
+    // Create the marker SVG
+    element.innerHTML = `
+        <svg width="32" height="32" viewBox="0 0 32 32">
+            <image href="/Vail Test Map 1/images/cliff-drop.png" width="32" height="32"/>
+            <circle cx="16" cy="16" r="15" fill="none" stroke="${color}" stroke-width="2"/>
+        </svg>
+    `;
+    
     return element;
 };
 
@@ -134,16 +134,18 @@ map.on('load', function() {
     try {
         // Create markers for each feature
         Object.entries(mountainFeatureData).forEach(([id, feature]) => {
-            // Create marker with correct color
-            const marker = new mapboxgl.Marker({
-                color: feature.difficulty === 'green' ? '#008000' : 
-                       feature.difficulty === 'blue' ? '#0000FF' : '#000000'
-            })
-            .setLngLat(feature.coordinates)
-            .setPopup(new mapboxgl.Popup().setHTML(feature.content))
-            .addTo(map);
+            const color = feature.difficulty === 'green' ? '#008000' : 
+                         feature.difficulty === 'blue' ? '#0000FF' : '#000000';
             
-            // Store the difficulty with the marker
+            // Create the custom element first
+            const customElement = createCustomMarker(color);
+            
+            // Create marker directly with the element
+            const marker = new mapboxgl.Marker(customElement)
+                .setLngLat(feature.coordinates)
+                .setPopup(new mapboxgl.Popup().setHTML(feature.content))
+                .addTo(map);
+            
             marker.difficulty = feature.difficulty;
             mountainMarkers.push(marker);
         });
@@ -245,26 +247,6 @@ map.on('load', function() {
     });
 
 
-    // Create custom icon element
-    const createCustomMarker = (color) => {
-        const element = document.createElement('div');
-        element.className = 'custom-marker';
-        element.style.backgroundImage = 'url("images/cliff-drop.png")';
-        element.style.width = '32px';  // 20% smaller than 40px
-        element.style.height = '32px';
-        element.style.backgroundSize = 'contain';
-        element.style.backgroundRepeat = 'no-repeat';
-        element.style.backgroundPosition = 'center';
-        element.style.backgroundColor = 'transparent';
-        
-        // Keep the colored border
-        element.style.border = `2px solid ${color}`;
-        element.style.borderRadius = '50%';
-        
-        return element;
-    };
-
-
 
     liveFeedLocations.forEach(function(location) {
         var liveFeedMarker = new mapboxgl.Marker({ color: 'red' })
@@ -344,9 +326,7 @@ map.on('load', function() {
         });
     });
     
-    createFeatureMarkers(mountainFeatureData); // Add this line
-
-    // Add click event for coordinates
+        // Add click event for coordinates
     map.on('click', function(e) {
         console.log('Clicked coordinates:', [e.lngLat.lng, e.lngLat.lat]);
     });
@@ -671,13 +651,15 @@ function createFeatureMarkers(featureData) {
 
     Object.entries(featureData).forEach(([id, feature]) => {
         try {
-            const marker = new mapboxgl.Marker({
-                color: feature.difficulty === 'green' ? '#008000' : 
-                       feature.difficulty === 'blue' ? '#0000FF' : '#000000'
-            })
-            .setLngLat(feature.coordinates)
-            .setPopup(new mapboxgl.Popup().setHTML(feature.content))
-            .addTo(map);
+            const color = feature.difficulty === 'green' ? '#008000' : 
+                         feature.difficulty === 'blue' ? '#0000FF' : '#000000';
+            
+            // Create marker with custom element
+            const customElement = createCustomMarker(color);
+            const marker = new mapboxgl.Marker(customElement)
+                .setLngLat(feature.coordinates)
+                .setPopup(new mapboxgl.Popup().setHTML(feature.content))
+                .addTo(map);
             
             // Store the difficulty with the marker
             marker.difficulty = feature.difficulty;
