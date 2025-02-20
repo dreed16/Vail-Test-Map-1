@@ -19,9 +19,22 @@ const createCustomMarker = (color) => {
 
 // Initialize your variables
 let mountainMarkers = [];
-let mountainFeatures = []; // Initialize empty array for features
+
+// Debug checks
+if (typeof mountainFeatureData === 'undefined') {
+    console.error('mountainFeatureData is not defined! Check if Mountainfeatures.js is loaded correctly');
+} else {
+    console.log('mountainFeatureData is loaded:', Object.keys(mountainFeatureData).length, 'features found');
+}
+
+// Use the mountainFeatureData from your Mountainfeatures.js file
+console.log('Mountain Feature Data:', mountainFeatureData); // Debug log
 
 console.log('Script starting');
+console.log('mountainFeatureData loaded:', {
+    data: mountainFeatureData,
+    count: Object.keys(mountainFeatureData).length
+});
 mapboxgl.accessToken = 'pk.eyJ1IjoiZHJlZWR2YWlsIiwiYSI6ImNtNzFpZm1vZDBjamwyaW9iNXB4d2Y3MXMifQ.SX00x_QQAbJWREWA2j_C8Q';
 console.log('Token set');
 
@@ -94,8 +107,53 @@ function makeTrailsDraggable() {
     });
 }
 
-// Initialize map and add terrain
+// Add this at the very top of main.js, before any other code
+console.log('DEBUG - mountainFeatureData:', {
+    isDefined: typeof mountainFeatureData !== 'undefined',
+    value: mountainFeatureData,
+    type: typeof mountainFeatureData,
+    keys: mountainFeatureData ? Object.keys(mountainFeatureData) : 'none'
+});
+
+// Then wrap your feature creation in a try-catch
+try {
+    if (!mountainFeatureData) {
+        throw new Error('mountainFeatureData is undefined');
+    }
+    console.log('Feature data keys:', Object.keys(mountainFeatureData));
+} catch (error) {
+    console.error('Error accessing mountainFeatureData:', error);
+}
+
 map.on('load', function() {
+    // First, verify data
+    console.log('Map loaded - mountainFeatureData:', mountainFeatureData);
+    console.log('mountainFeatureData type:', typeof mountainFeatureData);
+    console.log('Keys:', Object.keys(mountainFeatureData));
+
+    try {
+        // Create markers for each feature
+        Object.entries(mountainFeatureData).forEach(([id, feature]) => {
+            // Create marker with correct color
+            const marker = new mapboxgl.Marker({
+                color: feature.difficulty === 'green' ? '#008000' : 
+                       feature.difficulty === 'blue' ? '#0000FF' : '#000000'
+            })
+            .setLngLat(feature.coordinates)
+            .setPopup(new mapboxgl.Popup().setHTML(feature.content))
+            .addTo(map);
+            
+            // Store the difficulty with the marker
+            marker.difficulty = feature.difficulty;
+            mountainMarkers.push(marker);
+        });
+
+        console.log('Created markers:', mountainMarkers.length);
+    } catch (error) {
+        console.error('Error in feature creation:', error);
+    }
+
+    console.log('Map loaded');
     map.addSource('dem', {
         type: 'raster-dem',
         url: 'mapbox://mapbox.terrain-rgb',
@@ -286,7 +344,7 @@ map.on('load', function() {
         });
     });
     
-    createFeatureMarkers(mountainFeatures); // Add this line
+    createFeatureMarkers(mountainFeatureData); // Add this line
 
     // Add click event for coordinates
     map.on('click', function(e) {
@@ -295,7 +353,9 @@ map.on('load', function() {
 
     // Initialize features after map is loaded
     try {
-        createFeatureMarkers(mountainFeatures);
+        console.log('Creating feature markers with:', mountainFeatureData);
+        createFeatureMarkers(mountainFeatureData);
+        console.log('Feature markers created');
     } catch (error) {
         console.error('Error initializing features:', error);
     }
@@ -548,24 +608,46 @@ document.getElementById('toggleTrails').addEventListener('change', function() {
     }
 });
 
-// Handle Mountain Features toggle
+// Main toggle for the Mountain Features section
 document.getElementById('toggleFeatures').addEventListener('change', function() {
+    console.log("Main features toggle clicked!");
     const difficultyDropdown = this.parentElement.querySelector('.difficulty-dropdown');
     difficultyDropdown.style.display = this.checked ? 'block' : 'none';
     
+    // If unchecking main toggle, hide all features
     if (!this.checked) {
-        difficultyDropdown.querySelectorAll('input[type="checkbox"]').forEach(cb => {
-            cb.checked = false;
+        ['green', 'blue', 'black'].forEach(difficulty => {
+            const checkbox = document.querySelector(`input[name="mountainFeatures${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}"]`);
+            if (checkbox) {
+                checkbox.checked = false;
+                hideFeatureMarkers(difficulty);
+            }
         });
     }
 });
 
-// Handle difficulty toggles for trails
-['Green', 'Blue', 'Black'].forEach(difficulty => {
-    document.getElementById(`toggle${difficulty}Trails`).addEventListener('change', function() {
-        toggleTrailsByDifficulty(difficulty.toLowerCase());
-    });
+// Individual difficulty toggles
+['green', 'blue', 'black'].forEach(difficulty => {
+    const checkbox = document.querySelector(`input[name="mountainFeatures${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}"]`);
+    if (checkbox) {
+        checkbox.addEventListener('change', function() {
+            console.log(`${difficulty} features checkbox clicked! Checked:`, this.checked);
+            toggleFeaturesByDifficulty(difficulty, this.checked);
+        });
+    }
 });
+
+function showFeatureMarkers(difficulty) {
+    console.log(`Showing ${difficulty} markers`);
+    mountainMarkers.filter(marker => marker.difficulty === difficulty)
+        .forEach(marker => marker.addTo(map));
+}
+
+function hideFeatureMarkers(difficulty) {
+    console.log(`Hiding ${difficulty} markers`);
+    mountainMarkers.filter(marker => marker.difficulty === difficulty)
+        .forEach(marker => marker.remove());
+}
 
 // Handle lifts toggle
 document.getElementById('toggleLifts').addEventListener('change', function() {
@@ -579,72 +661,64 @@ document.getElementById('toggleCams').addEventListener('change', function() {
 });
 
 // Function to create markers with difficulty-based colors
-function createFeatureMarkers(features) {
-    console.log('Creating markers with features:', features);
+function createFeatureMarkers(featureData) {
+    console.log('Creating markers with features:', featureData);
     
-    if (!features || !Array.isArray(features)) {
-        console.warn('No valid features provided');
+    if (!featureData || typeof featureData !== 'object') {
+        console.warn('No valid feature data provided');
         return;
     }
 
-    features.forEach(feature => {
-        if (feature && feature.geometry && Array.isArray(feature.geometry.coordinates)) {
-            try {
-                const marker = new mapboxgl.Marker()
-                    .setLngLat(feature.geometry.coordinates)
-                    .addTo(map);
-                console.log('Marker created for:', feature);
-            } catch (error) {
-                console.error('Error creating marker:', error);
-            }
+    Object.entries(featureData).forEach(([id, feature]) => {
+        try {
+            const marker = new mapboxgl.Marker({
+                color: feature.difficulty === 'green' ? '#008000' : 
+                       feature.difficulty === 'blue' ? '#0000FF' : '#000000'
+            })
+            .setLngLat(feature.coordinates)
+            .setPopup(new mapboxgl.Popup().setHTML(feature.content))
+            .addTo(map);
+            
+            // Store the difficulty with the marker
+            marker.difficulty = feature.difficulty;
+            mountainMarkers.push(marker);
+            
+            console.log('Marker created for:', id);
+        } catch (error) {
+            console.error('Error creating marker for', id, ':', error);
         }
     });
 }
-
-// Updated toggle function for features
-function toggleFeaturesByDifficulty(difficulty) {
-    console.log(`Toggling ${difficulty} features`);
-    mountainMarkers.forEach(marker => {
-        if (marker.difficulty === difficulty) {
-            const checkbox = document.getElementById(`toggle${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}Features`);
-            if (checkbox) {
-                console.log(`Setting ${difficulty} markers visibility:`, checkbox.checked);
-                marker.getElement().style.visibility = checkbox.checked ? 'visible' : 'hidden';
-            }
-        }
-    });
-}
-
-// Update the main features toggle handler
-document.getElementById('toggleFeatures').addEventListener('change', function() {
-    console.log("Main features toggle clicked!");
-    const difficultyDropdown = this.parentElement.querySelector('.difficulty-dropdown');
-    console.log("Dropdown found:", difficultyDropdown !== null);
-    difficultyDropdown.style.display = this.checked ? 'block' : 'none';
-    
-    if (!this.checked) {
-        difficultyDropdown.querySelectorAll('input[type="checkbox"]').forEach(cb => {
-            cb.checked = false;
-        });
-    }
-});
-
-['Green', 'Blue', 'Black'].forEach(difficulty => {
-    const checkbox = document.getElementById(`toggle${difficulty}Features`);
-    if (checkbox) {
-        checkbox.addEventListener('change', function() {
-            console.log(`${difficulty} features checkbox clicked! Checked:`, this.checked);
-            toggleFeaturesByDifficulty(difficulty.toLowerCase());
-        });
-    } else {
-        console.log(`${difficulty} features checkbox not found!`);
-    }
-});
 
 // Add click event listener for coordinates
 map.on('click', (e) => {
     const lat = e.lngLat.lat;
     const lng = e.lngLat.lng;
     console.log(`Coordinates: [${lng}, ${lat}]`);
+});
+
+// Function to toggle features by difficulty
+function toggleFeaturesByDifficulty(difficulty, show) {
+    console.log(`Toggling ${difficulty} features. Show:`, show);
+    mountainMarkers.forEach(marker => {
+        if (marker.difficulty.toLowerCase() === difficulty.toLowerCase()) {
+            if (show) {
+                marker.addTo(map);
+            } else {
+                marker.remove();
+            }
+        }
+    });
+}
+
+// Update the event listeners to use this function
+['Green', 'Blue', 'Black'].forEach(difficulty => {
+    const checkbox = document.getElementById(`toggle${difficulty}Features`);
+    if (checkbox) {
+        checkbox.addEventListener('change', function() {
+            console.log(`${difficulty} features checkbox clicked! Checked:`, this.checked);
+            toggleFeaturesByDifficulty(difficulty, this.checked);
+        });
+    }
 });
 

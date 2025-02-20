@@ -64,12 +64,12 @@
     </div>
 
     <!-- Navigation Menu -->
-    <div id="navigationMenu">
+    <div id="navigationMenu" style="display: none;">
         <h3>Navigation</h3>
         <div>
             <label for="startPoint">Starting Point:</label>
             <select id="startPoint">
-                <option value="">Select starting point...</option>
+                <option value="">Click a point on map or select from list</option>
                 <option value="HighNoonTop">Top of High Noon Express</option>
                 <option value="SunUpBottom">Bottom of Sun Up Express</option>
                 <option value="SunUpTop">Top of Sun Up Express</option>
@@ -78,13 +78,14 @@
                 <option value="SkylineExpressTop">Top of Skyline Express</option>
                 <option value="SkylineExpressBottom">Bottom of Skyline Express</option>
                 <option value="OrientExpressTop">Top of Orient Express</option>
+                <option value="OrientExpressBottom">Bottom of Orient Express</option>
                 <option value="TeaCupBottom">Bottom of Tea Cup Express</option>
             </select>
         </div>
         <div style="margin-top: 10px;">
             <label for="endPoint">Ending Point:</label>
             <select id="endPoint">
-                <option value="">Select starting point...</option>
+                <option value="">Click a point on map or select from list</option>
                 <option value="HighNoonTop">Top of High Noon Express</option>
                 <option value="SunUpBottom">Bottom of Sun Up Express</option>
                 <option value="SunUpTop">Top of Sun Up Express</option>
@@ -92,7 +93,8 @@
                 <option value="PetesExpressBottom">Bottom of Pete's Express</option>
                 <option value="SkylineExpressTop">Top of Skyline Express</option>
                 <option value="SkylineExpressBottom">Bottom of Skyline Express</option>
-                <option value="OrientExpressTop">Top of Orient Express</option>
+                <option value="OrientExpressTop">Top of Orient Express</option> 
+                <option value="OrientExpressBottom">Bottom of Orient Express</option>
                 <option value="TeaCupBottom">Bottom of Tea Cup Express</option>
             </select>
         </div>
@@ -108,6 +110,7 @@
                 🎯 Adventurous Way
             </button>
         </div>
+        <button id="resetNavigation" onclick="resetNavigationSelections()">Reset Selection</button>
     </div>
 
     <div class="mapboxgl-ctrl">
@@ -140,12 +143,18 @@
         </div>     
     </div>
 
+    <!-- Load Mapbox first -->
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js'></script>
+    
+    <!-- Load all data files -->
     <script src="Data/trailData.js"></script>
     <script src="Data/trailpopup.js"></script>
     <script src="Data/liftdata.js"></script>
-    <script src="Data/mountainFeatures.js"></script>
+    <script src="Data/Mountainfeatures.js"></script>
     <script src="Data/mountaincams.js"></script>
-    <script src="JS/main.js"></script>
+    
+    <!-- Load JavaScript files -->
     <script src="JS/wayfinding.js"></script>
+    <script src="JS/main.js"></script>
 </body>
 </html>

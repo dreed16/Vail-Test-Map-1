@@ -93,11 +93,60 @@ var routeDefinitions = {
     "PetesExpressTop-SkylineExpressBottom": {
         routeNumber: 7,
         name: "Pete's Express Top to Skyline Express Bottom",
-        trails: ["GrandReview", "TheStar", "Hornsilver", "Resolution"],
+        trails: ["GrandReview", "GrandReview2", "SilkRoad3", "BigRockParkRunout", "TheStar", "Hornsilver", "Resolution", "Cloud9Catwalk2", "Cloud9runout", "Chinabowlrunout", "ChinaSpur"],
+        lifts: ["PetesExpressLift"]
+    },
+    "PetesExpressTop-PetesExpressBottom": {
+        routeNumber: 8,
+        name: "Pete's Express Top to Pete's Express Bottom",
+        trails: ["GrandReview", "GrandReview2","BigRockParkRunout", "TheStar", "Hornsilver", "Resolution", "Cloud9Catwalk2"],
+        lifts: ["PetesExpressLift"]
+    },
+    "PetesExpressTop-OrientExpressBottom": {
+        routeNumber: 9,
+        name: "Pete's Express Top to Pete's Express Bottom",
+        trails: ["GrandReview", "GrandReview2", "ChinaSpur", "SilkRoad3", "TheStar", "Hornsilver", "Resolution", "Cloud9Catwalk2"],
+        lifts: ["PetesExpressLift"]
+    },
+    "PetesExpressTop-TeaCupBottom": {
+        routeNumber: 10,
+        name: "Pete's Express Top to Tea Cup Bottom",
+        trails: ["GrandReview", "GrandReview2", "ChinaSpur", "SilkRoad3", "TheStar", "Hornsilver", "Resolution", "Cloud9Catwalk2", "Cloud9runout", "Chinabowlrunout", "BigRockParkRunout", "Resolution"],
+        lifts: ["Teacupexpress"]
+    },
+
+    "SkylineExpressTop-SkylineExpressBottom": {
+        routeNumber: 11,
+        name: "Skyline Express Top to Skyline Express Bottom",
+        trails: ["Cloud9", "SkreeField", "Steepndeep", "LoversLeap", "IronMask", "LittleOllie", "HeavyMetal", "BigRockPark", "BigRockParkRunout", "Cloud9Catwalk", "Cloud9runout", "ChampagneGlade", "InTheWuides", "CJsGlade", "KellysToalRoad", "TheDivide", "Encore", "Chinabowlrunout"],
+        lifts: ["Skylineexpress", "EarlsExpressLift"]
+    },
+    "SkylineExpressTop-OrientExpressBottom": {
+        routeNumber: 12,
+        name: "Skyline Express Top to Orient Express Bottom",
+        trails: ["Cloud9", "Cloud9Catwalk2", "ChinaSpur", "SilkRoad3","SkreeField", "LoversLeap", "IronMask", "LittleOllie", "HeavyMetal", "BigRockPark", "BigRockParkRunout", "Cloud9Catwalk"],
+        lifts: ["Orient"]
+    },
+    "SkylineExpressTop-PetesExpressBottom": {
+        routeNumber: 13,
+        name: "Skyline Express Top to Pete's Express Bottom",
+        trails: ["Cloud9", "SkreeField", "Steepndeep", "LoversLeap", "IronMask", "LittleOllie", "HeavyMetal", "BigRockPark", "BigRockParkRunout", "Cloud9Catwalk", "Cloud9Catwalk2"],
         lifts: []
     },
+    "SkylineExpressTop-TeaCupBottom": {
+        routeNumber: 14,
+        name: "Skyline Express Top to Pete's Express Bottom",
+        trails: ["Cloud9", "Cloud9runout", "Encore", "TheDivide", "KellysToalRoad", "CJsGlade", "ChampagneGlade", "InTheWuides","Chinabowlrunout", "ChinaSpur", "SilkRoad3", "SkreeField", "Steepndeep", "LoversLeap", "IronMask", "LittleOllie", "HeavyMetal", "BigRockPark", "BigRockParkRunout", "Cloud9Catwalk", "Cloud9Catwalk2"],
+        lifts: ["Teacupexpress"]
+    },
+    "SkylineExpressTop-PetesExpressTop": {
+        routeNumber: 15,
+        name: "Skyline Express Top to Pete's Express Top",
+        trails: ["Cloud9", "SkreeField", "Steepndeep", "LoversLeap", "IronMask", "LittleOllie", "HeavyMetal", "BigRockPark", "BigRockParkRunout", "Cloud9Catwalk", "Cloud9Catwalk2"],
+        lifts: ["PetesExpressLift"]
+    },
     "HighNoonTop-OrientExpressBottom": {
-        routeNumber: 8,
+        routeNumber: 20,
         name: "High Noon Top to Orient Express Bottom",
         trails: [],
         lifts: []
@@ -143,28 +192,28 @@ function displayNavigationPoints() {
     console.log('Displaying navigation points...');
     
     // Create custom HTML element for marker
-    Object.keys(navigationPoints).forEach(pointId => {
-        const point = navigationPoints[pointId];
-        console.log(`Adding marker for ${point.name}`);
-        
-        // Create a custom marker element
-        const el = document.createElement('div');
-        el.className = 'navigation-marker';
-        el.style.backgroundColor = '#0066cc';
-        el.style.width = '20px';
-        el.style.height = '20px';
-        el.style.borderRadius = '50%';
-        el.style.border = '2px solid white';
-        el.style.cursor = 'pointer';  // Add pointer cursor
-        
-        // Add the marker to the map
-        const marker = new mapboxgl.Marker(el)
+    Object.entries(navigationPoints).forEach(([pointId, point]) => {
+        console.log('Creating marker for:', pointId); // Debug log
+        const marker = new mapboxgl.Marker()
             .setLngLat(point.coordinates)
             .setPopup(new mapboxgl.Popup().setText(point.name))
             .addTo(map);
             
-        // Add click handler
-        el.addEventListener('click', () => handlePointClick(pointId));
+        // Add click handler to marker
+        marker.getElement().addEventListener('click', () => {
+            console.log('Marker clicked:', pointId); // Debug log
+            const startPoint = document.getElementById('startPoint');
+            const endPoint = document.getElementById('endPoint');
+            
+            if (!startPoint.value) {
+                startPoint.value = pointId;
+            } else if (!endPoint.value) {
+                endPoint.value = pointId;
+                handleRouteSelection();
+            }
+        });
+        
+        navigationMarkers.push(marker);
     });
 }
 
@@ -181,7 +230,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Add this function at the top level
+let navigationMarkers = []; // Add this at the top of your file to track markers
+
 function toggleNavigation() {
     const navigationMenu = document.getElementById('navigationMenu');
     
@@ -189,21 +239,16 @@ function toggleNavigation() {
         // Hide the navigation menu
         navigationMenu.style.display = 'none';
         
-        // Reset all trails to original properties
+        // Remove all markers
+        navigationMarkers.forEach(marker => marker.remove());
+        navigationMarkers = [];
+        
+        // Reset all trails and lifts to original properties
         Object.keys(trailData).forEach(trailId => {
             const layerId = `${trailId}-layer`;
             if (map.getLayer(layerId)) {
                 map.setPaintProperty(layerId, 'line-opacity', 1);
-                map.setPaintProperty(layerId, 'line-width', 6); // Reset to original width
-            }
-        });
-        
-        // Reset all lifts to original properties
-        Object.keys(liftData).forEach(liftId => {
-            const layerId = `${liftId}-layer`;
-            if (map.getLayer(layerId)) {
-                map.setPaintProperty(layerId, 'line-opacity', 1);
-                map.setPaintProperty(layerId, 'line-width', 2); // Reset to original width
+                map.setPaintProperty(layerId, 'line-width', 6);
             }
         });
         
@@ -214,8 +259,31 @@ function toggleNavigation() {
         if (endPoint) endPoint.value = '';
         
     } else {
-        // Show the navigation menu
         navigationMenu.style.display = 'block';
+        
+        // Add markers for each navigation point
+        Object.entries(navigationPoints).forEach(([pointId, point]) => {
+            const marker = new mapboxgl.Marker()
+                .setLngLat(point.coordinates)
+                .setPopup(new mapboxgl.Popup().setText(point.name))
+                .addTo(map);
+                
+            // Add click handler to marker
+            marker.getElement().addEventListener('click', () => {
+                const startPoint = document.getElementById('startPoint');
+                const endPoint = document.getElementById('endPoint');
+                
+                if (!startPoint.value) {
+                    startPoint.value = pointId;
+                } else if (!endPoint.value) {
+                    endPoint.value = pointId;
+                    // Trigger route finding if both points are selected
+                    handleRouteSelection();
+                }
+            });
+            
+            navigationMarkers.push(marker);
+        });
     }
 }
 
@@ -343,6 +411,137 @@ const recommendedRoutes = {
             trails: ["Campbells"]
         }
     },
+    "SkylineExpressTop-PetesExpressBottom": {
+        easy: {
+            name: "Gentle Route",
+            description: "A smooth descent via The Slot",
+            trails: ["Cloud9","Cloud9Catwalk2", "Cloud9Catwalk"]
+        },
+        quick: {
+            name: "Direct Route",
+            description: "Fastest way down via The Slot",
+            trails: ["HeavyMetal"]
+        },
+        adventure: {
+            name: "Expert's Choice",
+            description: "Challenging terrain via Campbells",
+            trails: ["LoversLeap", "BigRockParkRunout"]
+        }
+    },
+    "SkylineExpressTop-OrientExpressBottom": {
+        easy: {
+            name: "Gentle Route",
+            description: "A smooth descent via The Slot",
+            trails: ["Cloud9", "Cloud9Catwalk", "Cloud9Catwalk2", "ChinaSpur", "SilkRoad3"]
+        },
+        quick: {
+            name: "Direct Route",
+            description: "Fastest way down via The Slot",
+            trails: ["Cloud9", "Cloud9Catwalk", "Cloud9Catwalk2", "ChinaSpur", "SilkRoad3"]
+        },
+        adventure: {
+            name: "Expert's Choice",
+            description: "Challenging terrain via Campbells",
+            trails: ["Cloud9", "Cloud9Catwalk", "Cloud9Catwalk2", "ChinaSpur", "SilkRoad3"]
+        }
+    },
+    "SkylineExpressTop-PetesExpressTop": {
+        easy: {
+            name: "Gentle Route",
+            description: "A smooth descent via The Slot",
+            trails: ["Cloud9","Cloud9Catwalk2", "Cloud9Catwalk"],
+            lifts: ["PetesExpressLift"]
+        },
+        quick: {
+            name: "Direct Route",
+            description: "Fastest way down via The Slot",
+            trails: ["HeavyMetal"],
+            lifts: ["PetesExpressLift"]
+        },
+        adventure: {
+            name: "Expert's Choice",
+            description: "Challenging terrain via Campbells",
+            trails: ["LoversLeap", "BigRockParkRunout"],
+            lifts: ["PetesExpressLift"]
+        }
+    },
+    "SkylineExpressTop-TeaCupBottom": {
+        easy: {
+            name: "Gentle Route",
+            description: "A smooth descent via The Slot",
+            trails: ["Cloud9","Cloud9Catwalk2", "Cloud9Catwalk", "Cloud9runout", "Chinabowlrunout"],
+            lifts: ["Teacupexpress"]
+        },
+        quick: {
+            name: "Direct Route",
+            description: "Fastest way down via The Slot",
+            trails: ["TheDivide"],
+            lifts: ["Teacupexpress"]
+        },
+        adventure: {
+            name: "Expert's Choice",
+            description: "Challenging terrain via Campbells",
+            trails: ["LoversLeap", "BigRockParkRunout", "Cloud9runout", "Chinabowlrunout"],
+            lifts: ["Teacupexpress"]
+        }
+    },
+    "PetesExpressTop-SkylineExpressBottom": {
+        easy: {
+            name: "Gentle Route",
+            description: "A smooth descent via The Slot",
+            trails: ["GrandReview", "GrandReview2", "ChinaSpur", "SilkRoad3", "Chinabowlrunout"]
+        },
+        quick: {
+            name: "Direct Route",
+            description: "Fastest way down via The Slot",
+            trails: ["Hornsilver", "BigRockParkRunout", "Cloud9runout", "Chinabowlrunout"]
+        },
+        adventure: {
+            name: "Expert's Choice",
+            description: "Challenging terrain via Campbells",
+            trails: ["Resolution", "BigRockParkRunout", "Cloud9runout", "Chinabowlrunout"]
+        }
+    },
+    "PetesExpressTop-PetesExpressBottom": {
+        easy: {
+            name: "Gentle Route",
+            description: "A smooth descent via The Slot",
+            trails: ["GrandReview", "GrandReview2"],
+            lifts: ["PetesExpressLift"]
+        },
+        quick: {
+            name: "Direct Route",
+            description: "Fastest way down via The Slot",
+            trails: ["GrandReview", "TheStar"],
+            lifts: ["PetesExpressLift"]
+        },
+        adventure: {
+            name: "Expert's Choice",
+            description: "Challenging terrain via Campbells",
+            trails: ["Resolution", "BigRockParkRunout"],
+            lifts: ["PetesExpressLift"]
+        }
+    },
+    "PetesExpressTop-OrientExpressBottom": {
+        easy: {
+            name: "Gentle Route",
+            description: "A smooth descent via The Slot",
+            trails: ["GrandReview", "GrandReview2", "ChinaSpur", "SilkRoad3"],
+            lifts: []
+        },
+        quick: {
+            name: "Direct Route",
+            description: "Fastest way down via The Slot",
+            trails: ["GrandReview", "GrandReview2", "ChinaSpur", "SilkRoad3"],
+            lifts: []
+        },
+        adventure: {
+            name: "Expert's Choice",
+            description: "Challenging terrain via Campbells",
+            trails: ["Hornsilver", "Cloud9Catwalk2", "ChinaSpur", "SilkRoad3"],
+            lifts: []
+        }
+    },
     "HighNoonTop-TeaCupBottom": {
         easy: {
             name: "Gentle Route",
@@ -467,3 +666,29 @@ window.showRecommendedRoute = function(type) {
         }
     }
 };
+
+function resetNavigationSelections() {
+    // Clear dropdown selections
+    const startPoint = document.getElementById('startPoint');
+    const endPoint = document.getElementById('endPoint');
+    startPoint.value = '';
+    endPoint.value = '';
+    
+    // Reset all trails to original properties
+    Object.keys(trailData).forEach(trailId => {
+        const layerId = `${trailId}-layer`;
+        if (map.getLayer(layerId)) {
+            map.setPaintProperty(layerId, 'line-opacity', 1);
+            map.setPaintProperty(layerId, 'line-width', 6);
+        }
+    });
+
+    // Reset all lifts to original properties
+    Object.keys(liftData).forEach(liftId => {
+        const layerId = `${liftId}-layer`;
+        if (map.getLayer(layerId)) {
+            map.setPaintProperty(layerId, 'line-opacity', 1);
+            map.setPaintProperty(layerId, 'line-width', 4);
+        }
+    });
+}
