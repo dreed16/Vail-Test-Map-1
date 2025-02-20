@@ -606,13 +606,13 @@ document.getElementById('toggleFeatures').addEventListener('change', function() 
     }
 });
 
-// Individual difficulty toggles
-['green', 'blue', 'black'].forEach(difficulty => {
-    const checkbox = document.querySelector(`input[name="mountainFeatures${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}"]`);
+// Individual difficulty toggles for mountain features
+['Green', 'Blue', 'Black'].forEach(difficulty => {
+    const checkbox = document.getElementById(`toggle${difficulty}Features`);
     if (checkbox) {
         checkbox.addEventListener('change', function() {
             console.log(`${difficulty} features checkbox clicked! Checked:`, this.checked);
-            toggleFeaturesByDifficulty(difficulty, this.checked);
+            toggleFeaturesByDifficulty(difficulty.toLowerCase(), this.checked);
         });
     }
 });
@@ -693,13 +693,13 @@ function toggleFeaturesByDifficulty(difficulty, show) {
     });
 }
 
-// Update the event listeners to use this function
+// Handle difficulty toggles for trails
 ['Green', 'Blue', 'Black'].forEach(difficulty => {
-    const checkbox = document.getElementById(`toggle${difficulty}Features`);
-    if (checkbox) {
+    const checkbox = document.getElementById(`toggle${difficulty}Trails`);
+    if (checkbox) {  // Add safety check
         checkbox.addEventListener('change', function() {
-            console.log(`${difficulty} features checkbox clicked! Checked:`, this.checked);
-            toggleFeaturesByDifficulty(difficulty, this.checked);
+            console.log(`${difficulty} trails checkbox clicked! Checked:`, this.checked);
+            toggleTrailsByDifficulty(difficulty.toLowerCase());
         });
     }
 });
