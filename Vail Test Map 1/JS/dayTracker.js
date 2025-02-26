@@ -4,6 +4,9 @@ class TrailTracker {
         this.isTracking = false;
         this.trackedTrails = new Set();
         this.trailClickListener = null;
+        
+        // Load saved trails for current user on initialization
+        this.loadSavedTrails();
     }
 
     startTracking() {
@@ -78,6 +81,49 @@ class TrailTracker {
     undimTrail(trailId) {
         map.setPaintProperty(`${trailId}-layer`, 'line-opacity', 1);
     }
+
+    loadSavedTrails() {
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        if (currentUser) {
+            try {
+                const savedTrails = JSON.parse(localStorage.getItem(`${currentUser.username}_${this.type}Trails`)) || [];
+                console.log(`Loading ${this.type} trails for ${currentUser.username}:`, savedTrails);
+                
+                // Clear existing trails first
+                this.trackedTrails.clear();
+                const trailsList = document.getElementById(`${this.type}TrailsList`);
+                trailsList.innerHTML = '';
+
+                // Add saved trails
+                savedTrails.forEach(trail => {
+                    if (trailData[trail]) {
+                        this.addTrailToList(trail, trailData[trail].name || trail);
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading saved trails:', error);
+            }
+        }
+    }
+
+    saveTrails() {
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        if (currentUser) {
+            const trailsArray = Array.from(this.trackedTrails);
+            console.log(`Saving ${this.type} trails for ${currentUser.username}:`, trailsArray);
+            localStorage.setItem(`${currentUser.username}_${this.type}Trails`, JSON.stringify(trailsArray));
+            alert(`${this.type.charAt(0).toUpperCase() + this.type.slice(1)} trails saved!`);
+        }
+    }
+
+    pushTrailsTo(targetTracker) {
+        // Add all current trails to the target tracker
+        this.trackedTrails.forEach(trailId => {
+            if (trailData[trailId]) {
+                targetTracker.addTrailToList(trailId, trailData[trailId].name || trailId);
+            }
+        });
+    }
 }
 
 // Create instances for each tracker type
@@ -100,6 +146,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Setup each tracker button
     ['daily', 'monthly', 'season'].forEach(type => {
         const button = document.getElementById(`${type}TrackerButton`);
+        const saveButton = document.getElementById(`${type}SaveButton`);
+        
         button.addEventListener('click', () => {
             const tracker = trackers[type];
             if (!tracker.isTracking) {
@@ -109,14 +157,46 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 
                 tracker.startTracking();
-                button.textContent = `Stop ${type.charAt(0).toUpperCase() + type.slice(1)} Tracker`;
-                button.style.background = '#f44336';
+                button.classList.add('active');
+                button.textContent = `${type.charAt(0).toUpperCase() + type.slice(1)} Tracker`;
             } else {
                 tracker.stopTracking();
+                button.classList.remove('active');
                 button.textContent = `${type.charAt(0).toUpperCase() + type.slice(1)} Tracker`;
-                button.style.background = 'none';
             }
             trackingOptions.style.display = 'none';
         });
+
+        // Update save button handler
+        saveButton.addEventListener('click', () => {
+            trackers[type].saveTrails();
+        });
+    });
+
+    // Add push button handlers
+    document.getElementById('pushToMonthly').addEventListener('click', () => {
+        const dailyTracker = trackers['daily'];
+        const monthlyTracker = trackers['monthly'];
+        
+        if (dailyTracker.trackedTrails.size > 0) {
+            dailyTracker.pushTrailsTo(monthlyTracker);
+            monthlyTracker.saveTrails();
+            alert('Trails pushed to monthly tracker!');
+        } else {
+            alert('No daily trails to push!');
+        }
+    });
+
+    document.getElementById('pushToSeason').addEventListener('click', () => {
+        const monthlyTracker = trackers['monthly'];
+        const seasonTracker = trackers['season'];
+        
+        if (monthlyTracker.trackedTrails.size > 0) {
+            monthlyTracker.pushTrailsTo(seasonTracker);
+            seasonTracker.saveTrails();
+            alert('Trails pushed to season tracker!');
+        } else {
+            alert('No monthly trails to push!');
+        }
     });
 });
