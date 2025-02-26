@@ -106,27 +106,124 @@ body {
 }
 
 #navigationMenu {
+    display: none;  /* Initially hidden */
     position: absolute;
-    top: 10px;
-    right: 10px;
-    background: white;
+    background-color: white;
     padding: 10px;
-    border-radius: 4px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    z-index: 1;
-    max-width: 200px; /* Adjust this value to make it smaller/larger */
+    border: 1px solid #ccc;
+    z-index: 1000;
 }
 
-#navigationMenu select {
-    width: 100%;
-    margin-bottom: 5px;
-    padding: 4px;
-    font-size: 12px; /* Smaller font size */
+.login-container {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: white;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    z-index: 1000;
 }
 
-#resetNavigation {
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.login-form input {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
+
+.login-form button {
+    padding: 5px 10px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.login-form button:hover {
+    background: #45a049;
+}
+
+.tracked-trails-list {
+    max-height: 200px;
+    overflow-y: auto;
+    margin: 10px 0;
+    padding: 5px;
+    background: #f5f5f5;
+    border-radius: 3px;
+}
+
+.trail-item {
+    padding: 5px;
+    margin: 2px 0;
+    background: white;
+    border-radius: 3px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.trail-item button {
+    padding: 2px 6px;
+    background: #f44336;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.tracking-menu {
+    position: relative;
     width: 100%;
-    padding: 4px;
-    font-size: 12px;
-    margin-top: 5px;
+}
+
+.tracking-options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border-radius: 3px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    z-index: 1000;
+}
+
+.tracker-option {
+    width: 100%;
+    padding: 8px;
+    border: none;
+    background: none;
+    text-align: left;
+    cursor: pointer;
+}
+
+.tracker-option:hover {
+    background: #f5f5f5;
+}
+
+.user-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.logout-button {
+    padding: 5px 10px;
+    background: #f44336;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 0.9em;
+}
+
+.logout-button:hover {
+    background: #d32f2f;
 }

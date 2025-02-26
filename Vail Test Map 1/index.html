@@ -55,6 +55,51 @@
     </style>
 </head>
 <body>
+    <!-- Login Container -->
+    <div id="loginContainer" class="login-container">
+        <!-- Login form (shown when logged out) -->
+        <div id="loginForm" class="login-form">
+            <h2>Login</h2>
+            <input type="text" id="username" placeholder="Username">
+            <input type="password" id="password" placeholder="Password">
+            <button id="loginButton">Login</button>
+            <button id="createAccount">Create Account</button>
+        </div>
+        
+        <!-- User info (shown when logged in) -->
+        <div id="userInfo" class="user-info" style="display: none;">
+            <div class="user-header">
+                <h2>Welcome, <span id="displayUsername"></span>!</h2>
+                <button id="logoutButton" class="logout-button">Logout</button>
+            </div>
+            
+            <!-- Replace day tracker button with tracking menu -->
+            <div class="tracking-menu">
+                <button id="trackingMenuButton" class="feature-button">Tracking ▼</button>
+                <div id="trackingOptions" class="tracking-options" style="display: none;">
+                    <button id="dailyTrackerButton" class="tracker-option">Daily Tracker</button>
+                    <button id="monthlyTrackerButton" class="tracker-option">Monthly Tracker</button>
+                    <button id="seasonTrackerButton" class="tracker-option">Season Tracker</button>
+                </div>
+            </div>
+            
+            <!-- Separate containers for each tracker -->
+            <div id="dailyTrailsContainer" class="tracked-trails-container" style="display: none;">
+                <h3>Today's Trails:</h3>
+                <div id="dailyTrailsList" class="tracked-trails-list"></div>
+            </div>
+            
+            <div id="monthlyTrailsContainer" class="tracked-trails-container" style="display: none;">
+                <h3>This Month's Trails:</h3>
+                <div id="monthlyTrailsList" class="tracked-trails-list"></div>
+            </div>
+            
+            <div id="seasonTrailsContainer" class="tracked-trails-container" style="display: none;">
+                <h3>This Season's Trails:</h3>
+                <div id="seasonTrailsList" class="tracked-trails-list"></div>
+            </div>
+        </div>
+    </div>
     <div id="map"></div>
     <div class="control-panel">
         <button onclick="toggleTrails()">Toggle</button>
@@ -156,5 +201,8 @@
     <!-- Load JavaScript files -->
     <script src="JS/wayfinding.js"></script>
     <script src="JS/main.js"></script>
+    <script src="JS/trailData.js"></script>
+    <script src="JS/auth.js"></script>
+    <script src="JS/dayTracker.js"></script>
 </body>
 </html>
