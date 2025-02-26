@@ -145,6 +145,12 @@ var routeDefinitions = {
         trails: ["Cloud9", "SkreeField", "Steepndeep", "LoversLeap", "IronMask", "LittleOllie", "HeavyMetal", "BigRockPark", "BigRockParkRunout", "Cloud9Catwalk", "Cloud9Catwalk2"],
         lifts: ["PetesExpressLift"]
     },
+    "PetesExpressTop-SkylineExpressTop": {
+        routeNumber: 7,
+        name: "Pete's Express Top to Skyline Express Bottom",
+        trails: ["GrandReview", "GrandReview2", "SilkRoad3", "BigRockParkRunout", "TheStar", "Hornsilver", "Resolution", "Cloud9Catwalk2", "Cloud9runout", "Chinabowlrunout", "ChinaSpur"],
+        lifts: ["PetesExpressLift", "Skylineexpress"]
+    },
     "HighNoonTop-OrientExpressBottom": {
         routeNumber: 20,
         name: "High Noon Top to Orient Express Bottom",
@@ -500,6 +506,26 @@ const recommendedRoutes = {
             name: "Expert's Choice",
             description: "Challenging terrain via Campbells",
             trails: ["Resolution", "BigRockParkRunout", "Cloud9runout", "Chinabowlrunout"]
+        }
+    },
+    "PetesExpressTop-SkylineExpressTop": {
+        easy: {
+            name: "Gentle Route",
+            description: "A smooth descent via The Slot",
+            trails: ["GrandReview", "GrandReview2", "ChinaSpur", "SilkRoad3", "Chinabowlrunout"],
+            lifts: ["Skylineexpress"]
+        },
+        quick: {
+            name: "Direct Route",
+            description: "Fastest way down via The Slot",
+            trails: ["Hornsilver", "BigRockParkRunout", "Cloud9runout", "Chinabowlrunout"],
+            lifts: ["Skylineexpress"]
+        },
+        adventure: {
+            name: "Expert's Choice",
+            description: "Challenging terrain via Campbells",
+            trails: ["Resolution", "BigRockParkRunout", "Cloud9runout", "Chinabowlrunout"],
+            lifts: ["Skylineexpress"]
         }
     },
     "PetesExpressTop-PetesExpressBottom": {
