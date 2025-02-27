@@ -4,6 +4,7 @@ class ActivityTracker {
         this.isTracking = false;
         this.trackedTrails = new Set();
         this.trackedLifts = new Set();
+        this.trackedMountainFeatures = new Set();
         this.clickListener = null;
         this.currentSessionId = 'current';
         
@@ -38,104 +39,173 @@ class ActivityTracker {
 
     startTracking() {
         console.log(`Starting ${this.type} tracking...`);
-        this.isTracking = true;
         
-        // Show the container
         const container = document.getElementById(`${this.type}TrailsContainer`);
         container.style.display = 'block';
         
-        // If loading a saved session, make sure tracked features are visible
-        if (this.currentSessionId !== 'current') {
-            this.undimTrackedFeatures();
-        }
-
-        // Add click listener to map
-        this.clickListener = (e) => {
-            const features = map.queryRenderedFeatures(e.point, {
-                layers: [
-                    ...Object.keys(trailData).map(trail => `${trail}-layer`),
-                    ...Object.keys(liftData).map(lift => `${lift}-layer`)
-                ]
-            });
+        if (!this.isTracking) {
+            this.isTracking = true;
             
-            if (features.length > 0) {
-                const featureId = features[0].layer.id.replace('-layer', '');
-                const isLift = liftData.hasOwnProperty(featureId);
-                const featureData = isLift ? liftData[featureId] : trailData[featureId];
-                const featureName = featureData.name || featureId;
+            // Dim all features when starting tracking
+            this.dimAllFeatures();
+            
+            // Undim any previously tracked features
+            this.undimTrackedFeatures();
+            
+            this.clickListener = (e) => {
+                // First check trails and lifts
+                const mapFeatures = map.queryRenderedFeatures(e.point, {
+                    layers: [
+                        ...Object.keys(trailData).map(trail => `${trail}-layer`),
+                        ...Object.keys(liftData).map(lift => `${lift}-layer`)
+                    ]
+                });
                 
-                if (isLift) {
-                    if (this.trackedLifts.has(featureId)) {
-                        this.removeFeature(featureId, featureName, 'lift');
+                if (mapFeatures.length > 0) {
+                    const featureId = mapFeatures[0].layer.id.replace('-layer', '');
+                    const isLift = liftData.hasOwnProperty(featureId);
+                    const featureData = isLift ? liftData[featureId] : trailData[featureId];
+                    const featureName = featureData.name || featureId;
+                    
+                    if (isLift) {
+                        if (this.trackedLifts.has(featureId)) {
+                            this.removeFeature(featureId, featureName, 'lift');
+                        } else {
+                            this.addFeatureToList(featureId, featureName, 'lift');
+                        }
                     } else {
-                        this.addFeatureToList(featureId, featureName, 'lift');
+                        if (this.trackedTrails.has(featureId)) {
+                            this.removeFeature(featureId, featureName, 'trail');
+                        } else {
+                            this.addFeatureToList(featureId, featureName, 'trail');
+                        }
                     }
-                } else {
-                    if (this.trackedTrails.has(featureId)) {
-                        this.removeFeature(featureId, featureName, 'trail');
-                    } else {
-                        this.addFeatureToList(featureId, featureName, 'trail');
-                    }
+                    return;
                 }
-            }
-        };
-        
-        map.on('click', this.clickListener);
-    }
 
-    addFeatureToList(featureId, featureName, featureType) {
-        const collection = featureType === 'lift' ? this.trackedLifts : this.trackedTrails;
-        
-        if (!collection.has(featureId)) {
-            collection.add(featureId);
-            this.undimFeature(featureId, featureType);
+                // If no trail/lift found, check for mountain features
+                const clickedLng = e.lngLat.lng;
+                const clickedLat = e.lngLat.lat;
+                console.log("Checking mountain features at:", [clickedLng, clickedLat]);
 
-            const trailsList = document.getElementById(`${this.type}TrailsList`);
-            const featureItem = document.createElement('div');
-            featureItem.className = 'trail-item';
-            featureItem.dataset.featureId = featureId;
-            featureItem.dataset.featureType = featureType;
-            featureItem.innerHTML = `
-                ${featureName} ${featureType === 'lift' ? '🚡' : '🏂'}
-                <button onclick="trackers['${this.type}'].removeFeature('${featureId}', '${featureName}', '${featureType}', this.parentElement)">✕</button>
-            `;
-            trailsList.appendChild(featureItem);
+                try {
+                    // Check if mountainFeatureData is available
+                    if (typeof mountainFeatureData === 'undefined') {
+                        console.error('Mountain features data not loaded');
+                        return;
+                    }
+
+                    const CLICK_RADIUS = 0.001; // Increased radius for easier detection
+                    
+                    Object.entries(mountainFeatureData).forEach(([featureId, feature]) => {
+                        const featureLng = feature.coordinates[0];
+                        const featureLat = feature.coordinates[1];
+                        
+                        const distance = Math.sqrt(
+                            Math.pow(clickedLng - featureLng, 2) + 
+                            Math.pow(clickedLat - featureLat, 2)
+                        );
+                        
+                        console.log(`Checking ${featureId}:`, {
+                            clicked: [clickedLng, clickedLat],
+                            feature: [featureLng, featureLat],
+                            distance: distance
+                        });
+
+                        if (distance < CLICK_RADIUS) {
+                            console.log(`Found mountain feature: ${featureId}`);
+                            if (this.trackedMountainFeatures.has(featureId)) {
+                                this.removeFeature(featureId, featureId, 'mountainFeature');
+                            } else {
+                                this.addFeatureToList(featureId, featureId, 'mountainFeature');
+                            }
+                        }
+                    });
+                } catch (error) {
+                    console.error('Error checking mountain features:', error);
+                }
+            };
+            
+            map.on('click', this.clickListener);
         }
     }
 
-    removeFeature(featureId, featureName, featureType, element) {
-        const collection = featureType === 'lift' ? this.trackedLifts : this.trackedTrails;
-        collection.delete(featureId);
-        this.dimFeature(featureId, featureType);
-        if (element) element.remove();
+    addFeatureToList(featureId, featureName, type) {
+        console.log(`Adding ${type}: ${featureId}`);
+        
+        if (type === 'trail') {
+            this.trackedTrails.add(featureId);
+            this.undimFeature(featureId, type);
+        } else if (type === 'lift') {
+            this.trackedLifts.add(featureId);
+            this.undimFeature(featureId, type);
+        } else if (type === 'mountainFeature') {
+            console.log('Adding mountain feature to tracked list:', featureId);
+            this.trackedMountainFeatures.add(featureId);
+            // We'll handle visual feedback for mountain features later
+        }
+        
+        this.updateFeaturesList();
     }
 
-    dimFeature(featureId, featureType) {
-        map.setPaintProperty(`${featureId}-layer`, 'line-opacity', 0.3);
+    removeFeature(featureId, featureName, type) {
+        console.log(`Removing ${type}: ${featureId}`);
+        
+        if (type === 'trail') {
+            this.trackedTrails.delete(featureId);
+            this.dimFeature(featureId, type);
+        } else if (type === 'lift') {
+            this.trackedLifts.delete(featureId);
+            this.dimFeature(featureId, type);
+        } else if (type === 'mountainFeature') {
+            this.trackedMountainFeatures.delete(featureId);
+            // We'll add dimming functionality for mountain features later
+        }
+        
+        this.updateFeaturesList();
     }
 
-    undimFeature(featureId, featureType) {
-        map.setPaintProperty(`${featureId}-layer`, 'line-opacity', 1);
+    dimFeature(featureId, type) {
+        const layer = `${featureId}-layer`;
+        if (map.getLayer(layer)) {
+            map.setPaintProperty(layer, 'line-opacity', 0.3);
+        }
+    }
+
+    undimFeature(featureId, type) {
+        const layer = `${featureId}-layer`;
+        if (map.getLayer(layer)) {
+            map.setPaintProperty(layer, 'line-opacity', 1);
+        }
     }
 
     stopTracking() {
         console.log(`Stopping ${this.type} tracking...`);
         this.isTracking = false;
-        document.getElementById(`${this.type}TrailsContainer`).style.display = 'none';
         
+        // Remove click listener
         if (this.clickListener) {
             map.off('click', this.clickListener);
         }
-
-        // Dim all features when stopping tracking
-        this.dimAllFeatures();
         
-        // Reset to current session
-        const selector = document.getElementById(`${this.type}Sessions`);
-        selector.value = 'current';
-        this.trackedTrails.clear();
-        this.trackedLifts.clear();
-        this.updateFeaturesList();
+        // Restore all features to full opacity
+        Object.keys(trailData).forEach(trailId => {
+            const layer = `${trailId}-layer`;
+            if (map.getLayer(layer)) {
+                map.setPaintProperty(layer, 'line-opacity', 1);
+            }
+        });
+        
+        Object.keys(liftData).forEach(liftId => {
+            const layer = `${liftId}-layer`;
+            if (map.getLayer(layer)) {
+                map.setPaintProperty(layer, 'line-opacity', 1);
+            }
+        });
+
+        // Hide the container
+        const container = document.getElementById(`${this.type}TrailsContainer`);
+        container.style.display = 'none';
     }
 
     pushFeaturesTo(targetTracker) {
@@ -159,7 +229,8 @@ class ActivityTracker {
         if (currentUser) {
             const saveData = {
                 trails: Array.from(this.trackedTrails),
-                lifts: Array.from(this.trackedLifts)
+                lifts: Array.from(this.trackedLifts),
+                mountainFeatures: Array.from(this.trackedMountainFeatures)
             };
             localStorage.setItem(`${currentUser.username}_${this.type}Features`, JSON.stringify(saveData));
             alert(`${this.type.charAt(0).toUpperCase() + this.type.slice(1)} features saved!`);
@@ -170,11 +241,12 @@ class ActivityTracker {
         const currentUser = JSON.parse(localStorage.getItem('currentUser'));
         if (currentUser) {
             try {
-                const savedData = JSON.parse(localStorage.getItem(`${currentUser.username}_${this.type}Features`)) || { trails: [], lifts: [] };
+                const savedData = JSON.parse(localStorage.getItem(`${currentUser.username}_${this.type}Features`)) || { trails: [], lifts: [], mountainFeatures: [] };
                 
                 // Clear existing features
                 this.trackedTrails.clear();
                 this.trackedLifts.clear();
+                this.trackedMountainFeatures.clear();
                 const featuresList = document.getElementById(`${this.type}TrailsList`);
                 featuresList.innerHTML = '';
 
@@ -189,6 +261,13 @@ class ActivityTracker {
                 savedData.lifts.forEach(liftId => {
                     if (liftData[liftId]) {
                         this.addFeatureToList(liftId, liftData[liftId].name || liftId, 'lift');
+                    }
+                });
+
+                // Add saved mountain features
+                savedData.mountainFeatures.forEach(featureId => {
+                    if (window.mountainFeatures[featureId]) {
+                        this.addFeatureToList(featureId, window.mountainFeatures[featureId].name || featureId, 'mountainFeature');
                     }
                 });
             } catch (error) {
@@ -287,7 +366,10 @@ class ActivityTracker {
         const currentUser = JSON.parse(localStorage.getItem('currentUser'));
         if (!currentUser) return;
 
-        if (!features && this.trackedTrails.size === 0 && this.trackedLifts.size === 0) {
+        if (!features && 
+            this.trackedTrails.size === 0 && 
+            this.trackedLifts.size === 0 && 
+            this.trackedMountainFeatures.size === 0) {
             alert('No features tracked in current session!');
             return;
         }
@@ -297,22 +379,23 @@ class ActivityTracker {
             name: customName,
             trails: features ? features.trails : Array.from(this.trackedTrails),
             lifts: features ? features.lifts : Array.from(this.trackedLifts),
+            mountainFeatures: features ? features.mountainFeatures : Array.from(this.trackedMountainFeatures),
             date: customDate.toISOString()
         };
 
-        // Save new session
+        // Save session
         const sessions = JSON.parse(localStorage.getItem(`${currentUser.username}_${this.type}_sessions`)) || {};
         sessions[sessionId] = sessionData;
         localStorage.setItem(`${currentUser.username}_${this.type}_sessions`, JSON.stringify(sessions));
 
-        // Update dropdown and sort options
+        // Update dropdown
         this.loadSessions();
         
         // Select the new session
         const selector = document.getElementById(`${this.type}Sessions`);
         selector.value = sessionId;
         
-        // Load the new session to ensure proper highlighting
+        // Load the new session
         this.loadSession(sessionId);
     }
 
@@ -324,11 +407,14 @@ class ActivityTracker {
             
             // Update save button state
             const saveButton = document.getElementById(`save${this.type.charAt(0).toUpperCase() + this.type.slice(1)}Session`);
-            saveButton.disabled = sessionId === 'current';
+            if (saveButton) {
+                saveButton.disabled = sessionId === 'current';
+            }
 
             // Clear current tracking sets
             this.trackedTrails.clear();
             this.trackedLifts.clear();
+            this.trackedMountainFeatures.clear();
             
             if (sessionId !== 'current') {
                 const sessions = JSON.parse(localStorage.getItem(`${currentUser.username}_${this.type}_sessions`)) || {};
@@ -336,14 +422,19 @@ class ActivityTracker {
                 
                 if (session) {
                     // Load tracked features
-                    session.trails.forEach(trail => this.trackedTrails.add(trail));
-                    session.lifts.forEach(lift => this.trackedLifts.add(lift));
+                    if (Array.isArray(session.trails)) {
+                        session.trails.forEach(trail => this.trackedTrails.add(trail));
+                    }
+                    if (Array.isArray(session.lifts)) {
+                        session.lifts.forEach(lift => this.trackedLifts.add(lift));
+                    }
+                    if (Array.isArray(session.mountainFeatures)) {
+                        session.mountainFeatures.forEach(feature => this.trackedMountainFeatures.add(feature));
+                    }
                     
-                    // Always update visibility when loading a session
+                    // Update visibility
                     this.dimAllFeatures();
                     this.undimTrackedFeatures();
-                } else {
-                    console.error(`Session ${sessionId} not found`);
                 }
             } else {
                 // If loading 'current' session, dim all features
@@ -397,30 +488,60 @@ class ActivityTracker {
                 }
             });
 
+        // Add mountain features with icons
+        Array.from(this.trackedMountainFeatures)
+            .forEach(featureId => {
+                const listItem = document.createElement('div');
+                listItem.className = 'feature-list-item';
+                listItem.innerHTML = `
+                    <span class="feature-icon">🏔️</span>
+                    <span class="feature-name">${featureId}</span>
+                `;
+                featuresList.appendChild(listItem);
+            });
+
         // Show empty state message if no features
         if (featuresList.children.length === 0) {
             const emptyState = document.createElement('div');
             emptyState.className = 'empty-state';
-            emptyState.textContent = 'No trails or lifts tracked';
+            emptyState.textContent = 'No features tracked';
             featuresList.appendChild(emptyState);
         }
     }
 
     dimAllFeatures() {
-        Object.keys(trailData).forEach(trail => {
-            this.dimFeature(trail, 'trail');
+        // Dim all trails
+        Object.keys(trailData).forEach(trailId => {
+            const layer = `${trailId}-layer`;
+            if (map.getLayer(layer)) {
+                map.setPaintProperty(layer, 'line-opacity', 0.3);
+            }
         });
-        Object.keys(liftData).forEach(lift => {
-            this.dimFeature(lift, 'lift');
+
+        // Dim all lifts
+        Object.keys(liftData).forEach(liftId => {
+            const layer = `${liftId}-layer`;
+            if (map.getLayer(layer)) {
+                map.setPaintProperty(layer, 'line-opacity', 0.3);
+            }
         });
     }
 
     undimTrackedFeatures() {
-        this.trackedTrails.forEach(trail => {
-            this.undimFeature(trail, 'trail');
+        // Undim tracked trails
+        this.trackedTrails.forEach(trailId => {
+            const layer = `${trailId}-layer`;
+            if (map.getLayer(layer)) {
+                map.setPaintProperty(layer, 'line-opacity', 1);
+            }
         });
-        this.trackedLifts.forEach(lift => {
-            this.undimFeature(lift, 'lift');
+
+        // Undim tracked lifts
+        this.trackedLifts.forEach(liftId => {
+            const layer = `${liftId}-layer`;
+            if (map.getLayer(layer)) {
+                map.setPaintProperty(layer, 'line-opacity', 1);
+            }
         });
     }
 
@@ -476,7 +597,7 @@ class ActivityTracker {
         const currentUser = JSON.parse(localStorage.getItem('currentUser'));
         if (!currentUser) return;
 
-        if (this.trackedTrails.size === 0 && this.trackedLifts.size === 0) {
+        if (this.trackedTrails.size === 0 && this.trackedLifts.size === 0 && this.trackedMountainFeatures.size === 0) {
             alert('No features tracked in current session!');
             return;
         }
@@ -495,6 +616,7 @@ class ActivityTracker {
             ...currentSession,
             trails: Array.from(this.trackedTrails),
             lifts: Array.from(this.trackedLifts),
+            mountainFeatures: Array.from(this.trackedMountainFeatures),
             lastModified: new Date().toISOString()
         };
 
@@ -570,7 +692,8 @@ class ActivityTracker {
                 const sessionName = newSessionName.value.trim() || defaultName;
                 destTracker.saveNewSession(sessionName, new Date(), {
                     trails: Array.from(this.trackedTrails),
-                    lifts: Array.from(this.trackedLifts)
+                    lifts: Array.from(this.trackedLifts),
+                    mountainFeatures: Array.from(this.trackedMountainFeatures)
                 });
                 modal.style.display = 'none';
                 alert(`Features pushed to new session: "${sessionName}"`);
@@ -578,7 +701,8 @@ class ActivityTracker {
                 // Push to existing session
                 destTracker.pushToExistingSession(select.value, {
                     trails: Array.from(this.trackedTrails),
-                    lifts: Array.from(this.trackedLifts)
+                    lifts: Array.from(this.trackedLifts),
+                    mountainFeatures: Array.from(this.trackedMountainFeatures)
                 });
                 modal.style.display = 'none';
                 const selectedOption = select.options[select.selectedIndex];
@@ -605,12 +729,14 @@ class ActivityTracker {
             // Merge features
             const updatedTrails = new Set([...session.trails, ...features.trails]);
             const updatedLifts = new Set([...session.lifts, ...features.lifts]);
+            const updatedMountainFeatures = new Set([...session.mountainFeatures, ...features.mountainFeatures]);
 
             // Update session
             sessions[sessionId] = {
                 ...session,
                 trails: Array.from(updatedTrails),
                 lifts: Array.from(updatedLifts),
+                mountainFeatures: Array.from(updatedMountainFeatures),
                 lastModified: new Date().toISOString()
             };
 
