@@ -10,6 +10,16 @@ class ActivityTracker {
         
         // Load saved sessions
         this.loadSessions();
+        
+        // Add delete button event listener based on type
+        const deleteButtonId = 
+            this.type === 'daily' ? 'deleteSession' : 
+            this.type === 'monthly' ? 'deleteMonthlySession' : 
+            'deleteSeasonSession';
+        const deleteButton = document.getElementById(deleteButtonId);
+        if (deleteButton) {
+            deleteButton.addEventListener('click', () => this.deleteCurrentSession());
+        }
     }
 
     initializeTracker() {
@@ -282,34 +292,40 @@ class ActivityTracker {
             const sessions = JSON.parse(localStorage.getItem(`${currentUser.username}_${this.type}_sessions`)) || {};
             const selector = document.getElementById(`${this.type}Sessions`);
             
-            // Clear existing options except "Current Session"
-            selector.innerHTML = '<option value="current">Current Session</option>';
+            // Update this line to handle all three types
+            const deleteButtonId = 
+                this.type === 'daily' ? 'deleteSession' : 
+                this.type === 'monthly' ? 'deleteMonthlySession' : 
+                'deleteSeasonSession';
             
-            // Add saved sessions to dropdown
-            Object.entries(sessions)
-                .sort(([,a], [,b]) => new Date(b.date) - new Date(a.date))
-                .forEach(([sessionId, session]) => {
-                    const option = document.createElement('option');
-                    option.value = sessionId;
-                    option.textContent = session.name;
-                    selector.appendChild(option);
+            const deleteButton = document.getElementById(deleteButtonId);
+            
+            if (selector) {
+                selector.innerHTML = '<option value="current">New Session</option>';
+                
+                // Add saved sessions to dropdown
+                Object.entries(sessions)
+                    .sort(([,a], [,b]) => new Date(b.date) - new Date(a.date))
+                    .forEach(([sessionId, session]) => {
+                        const option = document.createElement('option');
+                        option.value = sessionId;
+                        option.textContent = session.name;
+                        selector.appendChild(option);
+                    });
+
+                // Update delete button visibility
+                if (deleteButton) {
+                    deleteButton.style.display = selector.value === 'current' ? 'none' : 'inline-block';
+                }
+
+                // Add change event listener
+                selector.addEventListener('change', (e) => {
+                    if (deleteButton) {
+                        deleteButton.style.display = e.target.value === 'current' ? 'none' : 'inline-block';
+                    }
+                    this.loadSession(e.target.value);
                 });
-
-            // Add delete button container after selector
-            let controlsDiv = document.querySelector(`#${this.type}SessionControls`);
-            if (!controlsDiv) {
-                controlsDiv = document.createElement('div');
-                controlsDiv.id = `${this.type}SessionControls`;
-                controlsDiv.className = 'session-controls';
-                selector.parentNode.insertBefore(controlsDiv, selector.nextSibling);
             }
-
-            // Update delete button visibility based on selection
-            selector.addEventListener('change', (e) => {
-                this.loadSession(e.target.value);
-                controlsDiv.innerHTML = e.target.value !== 'current' ? 
-                    `<button class="session-delete-button" onclick="trackers['${this.type}'].deleteSession('${e.target.value}')">Delete Session</button>` : '';
-            });
         }
     }
 
@@ -374,6 +390,7 @@ class ActivityTracker {
             return;
         }
 
+        // Generate a unique session ID using timestamp
         const sessionId = `${this.type}_${Date.now()}`;
         const sessionData = {
             name: customName,
@@ -383,20 +400,27 @@ class ActivityTracker {
             date: customDate.toISOString()
         };
 
-        // Save session
+        // Get existing sessions and add new one
         const sessions = JSON.parse(localStorage.getItem(`${currentUser.username}_${this.type}_sessions`)) || {};
         sessions[sessionId] = sessionData;
         localStorage.setItem(`${currentUser.username}_${this.type}_sessions`, JSON.stringify(sessions));
 
-        // Update dropdown
+        // Reload sessions list
         this.loadSessions();
         
         // Select the new session
         const selector = document.getElementById(`${this.type}Sessions`);
-        selector.value = sessionId;
-        
-        // Load the new session
-        this.loadSession(sessionId);
+        if (selector) {
+            selector.value = sessionId;
+            this.loadSession(sessionId);
+        }
+
+        // Show delete button for the new session
+        const deleteButtonId = this.type === 'daily' ? 'deleteSession' : 'deleteMonthlySession';
+        const deleteButton = document.getElementById(deleteButtonId);
+        if (deleteButton) {
+            deleteButton.style.display = 'inline-block';
+        }
     }
 
     loadSession(sessionId) {
@@ -405,6 +429,13 @@ class ActivityTracker {
         if (currentUser) {
             this.currentSessionId = sessionId;
             
+            // Update delete button visibility based on type
+            const deleteButtonId = this.type === 'daily' ? 'deleteSession' : 'deleteMonthlySession';
+            const deleteButton = document.getElementById(deleteButtonId);
+            if (deleteButton) {
+                deleteButton.style.display = sessionId === 'current' ? 'none' : 'inline-block';
+            }
+
             // Update save button state
             const saveButton = document.getElementById(`save${this.type.charAt(0).toUpperCase() + this.type.slice(1)}Session`);
             if (saveButton) {
@@ -628,123 +659,266 @@ class ActivityTracker {
     showPushDialog(destinationType) {
         const modal = document.getElementById('pushSessionModal');
         const select = document.getElementById('pushDestinationSelect');
-        const newSessionFields = document.getElementById('newSessionFields');
-        const newSessionName = document.getElementById('newSessionName');
         const confirmButton = document.getElementById('pushSessionConfirm');
         const cancelButton = document.getElementById('pushSessionCancel');
-
-        // Get destination tracker
-        const destTracker = trackers[destinationType];
-
-        // Load existing sessions into select
-        select.innerHTML = '<option value="new">Create New Session</option>';
-        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-        let hasExistingSessions = false;
+        const newSessionFields = document.getElementById('newSessionFields');
+        const newSessionName = document.getElementById('newSessionName');
         
+        // Clear select
+        select.innerHTML = '';
+        
+        // Get existing sessions and populate the dropdown
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
         if (currentUser) {
             const sessions = JSON.parse(localStorage.getItem(`${currentUser.username}_${destinationType}_sessions`)) || {};
-            const sortedSessions = Object.entries(sessions)
-                .sort(([,a], [,b]) => new Date(b.date) - new Date(a.date));
             
-            hasExistingSessions = sortedSessions.length > 0;
-            
-            sortedSessions.forEach(([sessionId, session]) => {
-                const option = document.createElement('option');
-                option.value = sessionId;
-                option.textContent = session.name;
-                select.appendChild(option);
-            });
-        }
-
-        // Set default name for new session
-        const date = new Date();
-        let defaultName = '';
-        if (destinationType === 'monthly') {
-            defaultName = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-        } else if (destinationType === 'season') {
-            const year = date.getFullYear();
-            defaultName = `${year}-${year + 1} Season`;
-        }
-        newSessionName.value = defaultName;
-
-        // If no existing sessions, hide the selector and show new session fields
-        if (!hasExistingSessions) {
-            select.style.display = 'none';
-            newSessionFields.style.display = 'block';
-        } else {
-            select.style.display = 'block';
-            // Show/hide new session fields based on selection
-            select.addEventListener('change', () => {
-                newSessionFields.style.display = select.value === 'new' ? 'block' : 'none';
-                if (select.value === 'new') {
-                    newSessionName.value = defaultName;
+            // Filter sessions based on destination type
+            const validSessions = Object.entries(sessions).filter(([sessionId, session]) => {
+                if (destinationType === 'monthly') {
+                    // For pushing to monthly, show monthly sessions
+                    return sessionId.startsWith('monthly_');
+                } else if (destinationType === 'season') {
+                    // For pushing to season, show season sessions
+                    return sessionId.startsWith('season_');
                 }
+                return false;
             });
+
+            // Add existing sessions first
+            validSessions
+                .sort(([,a], [,b]) => new Date(b.date) - new Date(a.date))
+                .forEach(([sessionId, session]) => {
+                    const option = document.createElement('option');
+                    option.value = sessionId;
+                    option.textContent = session.name;
+                    select.appendChild(option);
+                });
         }
 
-        // Show modal
-        modal.style.display = 'flex';
+        // Add "Create New Session" at the bottom
+        const newOption = document.createElement('option');
+        newOption.value = 'new';
+        newOption.textContent = 'Create New Session';
+        select.appendChild(newOption);
+
+        // Initialize new session fields visibility
+        newSessionFields.style.display = 'none';
+
+        // Show/hide new session fields based on selection
+        select.addEventListener('change', () => {
+            newSessionFields.style.display = select.value === 'new' ? 'block' : 'none';
+        });
 
         // Handle push confirmation
-        const pushHandler = () => {
-            if (select.value === 'new' || !hasExistingSessions) {
-                // Create new session with default name if none provided
-                const sessionName = newSessionName.value.trim() || defaultName;
-                destTracker.saveNewSession(sessionName, new Date(), {
-                    trails: Array.from(this.trackedTrails),
-                    lifts: Array.from(this.trackedLifts),
-                    mountainFeatures: Array.from(this.trackedMountainFeatures)
-                });
-                modal.style.display = 'none';
-                alert(`Features pushed to new session: "${sessionName}"`);
+        confirmButton.onclick = () => {
+            if (select.value === 'new') {
+                // Create new session
+                if (!newSessionName.value.trim()) {
+                    alert('Please enter a name for the new session');
+                    return;
+                }
+                
+                const destTracker = new ActivityTracker(destinationType);
+                destTracker.saveNewSession(
+                    newSessionName.value,
+                    new Date(),
+                    {
+                        trails: Array.from(this.trackedTrails),
+                        lifts: Array.from(this.trackedLifts),
+                        mountainFeatures: Array.from(this.trackedMountainFeatures)
+                    }
+                );
+                alert(`Successfully created new ${destinationType} session: ${newSessionName.value}`);
             } else {
                 // Push to existing session
-                destTracker.pushToExistingSession(select.value, {
-                    trails: Array.from(this.trackedTrails),
-                    lifts: Array.from(this.trackedLifts),
-                    mountainFeatures: Array.from(this.trackedMountainFeatures)
-                });
-                modal.style.display = 'none';
-                const selectedOption = select.options[select.selectedIndex];
-                alert(`Features pushed to "${selectedOption.textContent}"`);
+                const sessions = JSON.parse(localStorage.getItem(`${currentUser.username}_${destinationType}_sessions`));
+                const targetSession = sessions[select.value];
+                
+                // Merge features
+                const updatedTrails = new Set([...targetSession.trails, ...this.trackedTrails]);
+                const updatedLifts = new Set([...targetSession.lifts, ...this.trackedLifts]);
+                const updatedMountainFeatures = new Set([...targetSession.mountainFeatures, ...this.trackedMountainFeatures]);
+                
+                targetSession.trails = Array.from(updatedTrails);
+                targetSession.lifts = Array.from(updatedLifts);
+                targetSession.mountainFeatures = Array.from(updatedMountainFeatures);
+                
+                sessions[select.value] = targetSession;
+                localStorage.setItem(`${currentUser.username}_${destinationType}_sessions`, JSON.stringify(sessions));
+                alert(`Successfully added features to ${targetSession.name}`);
             }
-        };
-
-        const cancelHandler = () => {
+            
             modal.style.display = 'none';
         };
 
-        confirmButton.addEventListener('click', pushHandler, { once: true });
-        cancelButton.addEventListener('click', cancelHandler, { once: true });
+        // Handle cancel
+        cancelButton.onclick = () => {
+            modal.style.display = 'none';
+        };
+
+        // Show the modal
+        modal.style.display = 'block';
     }
 
-    pushToExistingSession(sessionId, features) {
-        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-        if (!currentUser) return;
+    deleteCurrentSession() {
+        if (this.currentSessionId === 'current') return;
 
-        const sessions = JSON.parse(localStorage.getItem(`${currentUser.username}_${this.type}_sessions`)) || {};
-        const session = sessions[sessionId];
+        // Show confirmation dialog
+        if (confirm('Are you sure you want to delete this session?')) {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (currentUser) {
+                // Get existing sessions
+                const sessions = JSON.parse(localStorage.getItem(`${currentUser.username}_${this.type}_sessions`)) || {};
+                
+                // Delete the current session
+                delete sessions[this.currentSessionId];
+                
+                // Save updated sessions back to localStorage
+                localStorage.setItem(`${currentUser.username}_${this.type}_sessions`, JSON.stringify(sessions));
+                
+                // Reset to new session
+                this.currentSessionId = 'current';
+                
+                // Clear tracked features
+                this.trackedTrails.clear();
+                this.trackedLifts.clear();
+                this.trackedMountainFeatures.clear();
+                
+                // Update features list
+                this.updateFeaturesList();
+                
+                // Reload sessions dropdown
+                this.loadSessions();
+                
+                // Select "New Session" in dropdown
+                const selector = document.getElementById(`${this.type}Sessions`);
+                if (selector) {
+                    selector.value = 'current';
+                }
+                
+                // Hide delete button - Updated this part
+                const deleteButtonId = 
+                    this.type === 'daily' ? 'deleteSession' : 
+                    this.type === 'monthly' ? 'deleteMonthlySession' : 
+                    'deleteSeasonSession';
+                const deleteButton = document.getElementById(deleteButtonId);
+                if (deleteButton) {
+                    deleteButton.style.display = 'none';
+                }
 
-        if (session) {
-            // Merge features
-            const updatedTrails = new Set([...session.trails, ...features.trails]);
-            const updatedLifts = new Set([...session.lifts, ...features.lifts]);
-            const updatedMountainFeatures = new Set([...session.mountainFeatures, ...features.mountainFeatures]);
+                // Reset trail visibility
+                this.stopTracking();
+                this.startTracking();
+            }
+        }
+    }
 
-            // Update session
-            sessions[sessionId] = {
-                ...session,
-                trails: Array.from(updatedTrails),
-                lifts: Array.from(updatedLifts),
-                mountainFeatures: Array.from(updatedMountainFeatures),
-                lastModified: new Date().toISOString()
+    pushToMonthly() {
+        console.log('Starting pushToMonthly...');
+        
+        // If no features are tracked, show alert and return
+        if (this.trackedTrails.size === 0 && this.trackedLifts.size === 0 && this.trackedMountainFeatures.size === 0) {
+            alert('No features tracked in current session!');
+            return;
+        }
+
+        // Get the push dialog selector value
+        const pushSelector = document.querySelector('.push-features-dialog select');
+        console.log('Push selector value:', pushSelector.value);
+        
+        if (pushSelector.value === 'current' || pushSelector.value === 'Create New Session') {
+            console.log('Creating new monthly session...');
+            // Prompt for new monthly session name
+            const monthName = prompt('Enter a name for the new monthly session (e.g., "March 2025"):');
+            if (!monthName) {
+                console.log('User cancelled new session creation');
+                return;
+            }
+
+            // Create new monthly session
+            const monthlyTracker = new ActivityTracker('monthly');
+            const features = {
+                trails: Array.from(this.trackedTrails),
+                lifts: Array.from(this.trackedLifts),
+                mountainFeatures: Array.from(this.trackedMountainFeatures)
             };
 
-            // Save updated sessions
-            localStorage.setItem(`${currentUser.username}_${this.type}_sessions`, JSON.stringify(sessions));
+            monthlyTracker.saveNewSession(monthName, new Date(), features);
+            alert(`Successfully created new monthly session: ${monthName}`);
+        } else {
+            // Handle existing session...
+            const monthlySelector = document.getElementById('monthlySessions');
+            const selectedSession = pushSelector.options[pushSelector.selectedIndex].text;
             
-            // Reload sessions in dropdown
-            this.loadSessions();
+            const confirmMerge = confirm(`Add these features to "${selectedSession}"?`);
+            if (!confirmMerge) return;
+
+            // Rest of existing merge code...
+        }
+    }
+
+    populatePushDestinations(select) {
+        // Clear existing options except "Create New Session"
+        select.innerHTML = '<option value="current">Create New Session</option>';
+        
+        // Add existing monthly sessions
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        if (currentUser) {
+            const monthlySessions = JSON.parse(localStorage.getItem(`${currentUser.username}_monthly_sessions`)) || {};
+            Object.entries(monthlySessions)
+                .sort(([,a], [,b]) => new Date(b.date) - new Date(a.date))
+                .forEach(([sessionId, session]) => {
+                    const option = document.createElement('option');
+                    option.value = sessionId;
+                    option.textContent = session.name;
+                    select.appendChild(option);
+                });
+        }
+    }
+
+    executePushToMonthly(destinationId) {
+        console.log('Executing push to monthly with destination:', destinationId);
+        
+        if (this.trackedTrails.size === 0 && this.trackedLifts.size === 0 && this.trackedMountainFeatures.size === 0) {
+            alert('No features tracked in current session!');
+            return;
+        }
+
+        if (destinationId === 'current') {
+            // Create new monthly session
+            const monthName = prompt('Enter a name for the new monthly session (e.g., "March 2025"):');
+            if (!monthName) return;
+
+            const monthlyTracker = new ActivityTracker('monthly');
+            const features = {
+                trails: Array.from(this.trackedTrails),
+                lifts: Array.from(this.trackedLifts),
+                mountainFeatures: Array.from(this.trackedMountainFeatures)
+            };
+
+            monthlyTracker.saveNewSession(monthName, new Date(), features);
+            alert(`Successfully created new monthly session: ${monthName}`);
+        } else {
+            // Handle pushing to existing session
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (currentUser) {
+                const monthlySessions = JSON.parse(localStorage.getItem(`${currentUser.username}_monthly_sessions`)) || {};
+                const monthlySession = monthlySessions[destinationId];
+
+                if (monthlySession) {
+                    const updatedTrails = new Set([...monthlySession.trails, ...this.trackedTrails]);
+                    const updatedLifts = new Set([...monthlySession.lifts, ...this.trackedLifts]);
+                    const updatedMountainFeatures = new Set([...monthlySession.mountainFeatures, ...this.trackedMountainFeatures]);
+
+                    monthlySession.trails = Array.from(updatedTrails);
+                    monthlySession.lifts = Array.from(updatedLifts);
+                    monthlySession.mountainFeatures = Array.from(updatedMountainFeatures);
+
+                    monthlySessions[destinationId] = monthlySession;
+                    localStorage.setItem(`${currentUser.username}_monthly_sessions`, JSON.stringify(monthlySessions));
+                    alert(`Successfully added features to ${monthlySession.name}`);
+                }
+            }
         }
     }
 }

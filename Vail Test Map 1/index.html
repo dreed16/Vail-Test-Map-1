@@ -136,9 +136,12 @@
             <div id="dailyTrailsContainer" class="tracked-trails-container" style="display: none;">
                 <div class="tracker-header">
                     <h3>Today's Trails:</h3>
-                    <select id="dailySessions" class="session-selector">
-                        <option value="current">Current Session</option>
-                    </select>
+                    <div class="session-controls">
+                        <select id="dailySessions" class="session-selector">
+                            <option value="current">New Session</option>
+                        </select>
+                        <button id="deleteSession" class="delete-button" style="display: none;">Delete Session</button>
+                    </div>
                 </div>
                 <div id="dailyTrailsList" class="tracked-trails-list"></div>
                 <div class="tracker-buttons">
@@ -151,9 +154,12 @@
             <div id="monthlyTrailsContainer" class="tracked-trails-container" style="display: none;">
                 <div class="tracker-header">
                     <h3>Monthly Trails:</h3>
-                    <select id="monthlySessions" class="session-selector">
-                        <option value="current">Current Session</option>
-                    </select>
+                    <div class="session-controls">
+                        <select id="monthlySessions" class="session-selector">
+                            <option value="current">New Session</option>
+                        </select>
+                        <button id="deleteMonthlySession" class="delete-button" style="display: none;">Delete Session</button>
+                    </div>
                 </div>
                 <div id="monthlyTrailsList" class="tracked-trails-list"></div>
                 <div class="tracker-buttons">
@@ -166,9 +172,12 @@
             <div id="seasonTrailsContainer" class="tracked-trails-container" style="display: none;">
                 <div class="tracker-header">
                     <h3>Season Trails:</h3>
-                    <select id="seasonSessions" class="session-selector">
-                        <option value="current">Current Session</option>
-                    </select>
+                    <div class="session-controls">
+                        <select id="seasonSessions" class="session-selector">
+                            <option value="current">New Session</option>
+                        </select>
+                        <button id="deleteSeasonSession" class="delete-button" style="display: none;">Delete Session</button>
+                    </div>
                 </div>
                 <div id="seasonTrailsList" class="tracked-trails-list"></div>
                 <div class="tracker-buttons">

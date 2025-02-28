@@ -704,3 +704,30 @@ function toggleFeaturesByDifficulty(difficulty, show) {
     }
 });
 
+// Add this near the top where other trackers are initialized
+const trackers = {
+    'daily': new ActivityTracker('daily'),
+    'monthly': new ActivityTracker('monthly'),
+    'season': new ActivityTracker('season')  // Make sure this line exists
+};
+
+// Add this to your event listener setup
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize all delete buttons
+    const deleteButtons = {
+        'daily': document.getElementById('deleteSession'),
+        'monthly': document.getElementById('deleteMonthlySession'),
+        'season': document.getElementById('deleteSeasonSession')
+    };
+
+    // Set up each delete button
+    Object.entries(deleteButtons).forEach(([type, button]) => {
+        if (button) {
+            button.style.display = 'none'; // Initially hidden
+            button.addEventListener('click', () => {
+                trackers[type].deleteCurrentSession();
+            });
+        }
+    });
+});
+
