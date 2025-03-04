@@ -18,7 +18,7 @@ const createCustomMarker = (color) => {
 
 
 // Initialize your variables
-let mountainMarkers = [];
+const mountainMarkers = [];
 
 // Debug checks
 if (typeof mountainFeatureData === 'undefined') {
@@ -38,7 +38,7 @@ console.log('mountainFeatureData loaded:', {
 mapboxgl.accessToken = 'pk.eyJ1IjoiZHJlZWR2YWlsIiwiYSI6ImNtNzFpZm1vZDBjamwyaW9iNXB4d2Y3MXMifQ.SX00x_QQAbJWREWA2j_C8Q';
 console.log('Token set');
 
-var map = new mapboxgl.Map({
+const map = new mapboxgl.Map({
     container: 'map',
     style: 'mapbox://styles/mapbox/satellite-v9',
     center: [-106.336, 39.595],
@@ -147,7 +147,9 @@ map.on('load', function() {
                 .addTo(map);
             
             marker.difficulty = feature.difficulty;
+            marker.featureId = id;
             mountainMarkers.push(marker);
+            console.log('Created marker with ID:', id, marker);
         });
 
         console.log('Created markers:', mountainMarkers.length);
@@ -661,8 +663,9 @@ function createFeatureMarkers(featureData) {
                 .setPopup(new mapboxgl.Popup().setHTML(feature.content))
                 .addTo(map);
             
-            // Store the difficulty with the marker
+            // Store both difficulty and featureId with the marker
             marker.difficulty = feature.difficulty;
+            marker.featureId = id;
             mountainMarkers.push(marker);
             
             console.log('Marker created for:', id);

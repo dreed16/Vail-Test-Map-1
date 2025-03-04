@@ -31,9 +31,39 @@ class ActivityTracker {
             if (!this.isTracking) {
                 this.startTracking();
                 button.textContent = `${this.type.charAt(0).toUpperCase() + this.type.slice(1)} Tracker (Active)`;
+                this.dimAllFeatures();  // Dim features when starting tracking
             } else {
                 this.stopTracking();
                 button.textContent = `${this.type.charAt(0).toUpperCase() + this.type.slice(1)} Tracker`;
+                
+                // Restore full visibility to everything
+                Object.keys(trailData).forEach(trailId => {
+                    const layer = `${trailId}-layer`;
+                    if (map.getLayer(layer)) {
+                        map.setPaintProperty(layer, 'line-opacity', 1);
+                    }
+                });
+                
+                Object.keys(liftData).forEach(liftId => {
+                    const layer = `${liftId}-layer`;
+                    if (map.getLayer(layer)) {
+                        map.setPaintProperty(layer, 'line-opacity', 1);
+                    }
+                });
+                
+                if (mountainMarkers) {
+                    mountainMarkers.forEach(marker => {
+                        const el = marker.getElement();
+                        el.style.cssText += 'opacity: 1 !important;';
+                        el.style.setProperty('opacity', '1', 'important');
+                        
+                        const innerElements = el.getElementsByTagName('*');
+                        for (let inner of innerElements) {
+                            inner.style.cssText += 'opacity: 1 !important;';
+                            inner.style.setProperty('opacity', '1', 'important');
+                        }
+                    });
+                }
             }
         });
 
@@ -50,6 +80,13 @@ class ActivityTracker {
     startTracking() {
         console.log(`Starting ${this.type} tracking...`);
         
+        // Hide all containers first
+        ['daily', 'monthly', 'season'].forEach(type => {
+            const container = document.getElementById(`${type}TrailsContainer`);
+            container.style.display = 'none';
+        });
+        
+        // Show only the current container
         const container = document.getElementById(`${this.type}TrailsContainer`);
         container.style.display = 'block';
         
@@ -152,7 +189,7 @@ class ActivityTracker {
         } else if (type === 'mountainFeature') {
             console.log('Adding mountain feature to tracked list:', featureId);
             this.trackedMountainFeatures.add(featureId);
-            // We'll handle visual feedback for mountain features later
+            this.undimFeature(featureId, type);
         }
         
         this.updateFeaturesList();
@@ -169,23 +206,57 @@ class ActivityTracker {
             this.dimFeature(featureId, type);
         } else if (type === 'mountainFeature') {
             this.trackedMountainFeatures.delete(featureId);
-            // We'll add dimming functionality for mountain features later
+            this.dimFeature(featureId, type);
         }
         
         this.updateFeaturesList();
     }
 
     dimFeature(featureId, type) {
-        const layer = `${featureId}-layer`;
-        if (map.getLayer(layer)) {
-            map.setPaintProperty(layer, 'line-opacity', 0.3);
+        console.log('DIMMING ATTEMPT =================');
+        console.log('Feature ID:', featureId);
+        console.log('Type:', type);
+        
+        if (type === 'trail' || type === 'lift') {
+            const layer = `${featureId}-layer`;
+            if (map.getLayer(layer)) {
+                map.setPaintProperty(layer, 'line-opacity', 0.3);
+            }
+        } else if (type === 'mountainFeature') {
+            console.log('Mountain Markers Array:', mountainMarkers);
+            const marker = mountainMarkers.find(m => m.featureId === featureId);
+            console.log('Found Marker:', marker);
+            if (marker) {
+                console.log('Setting opacity to 0.3');
+                marker.getElement().style.opacity = '0.3';
+            } else {
+                console.log('No marker found for ID:', featureId);
+            }
         }
+        console.log('=====================================');
     }
 
     undimFeature(featureId, type) {
-        const layer = `${featureId}-layer`;
-        if (map.getLayer(layer)) {
-            map.setPaintProperty(layer, 'line-opacity', 1);
+        if (type === 'trail' || type === 'lift') {
+            const layer = `${featureId}-layer`;
+            if (map.getLayer(layer)) {
+                map.setPaintProperty(layer, 'line-opacity', 1);
+            }
+        } else if (type === 'mountainFeature') {
+            const marker = mountainMarkers.find(m => m.featureId === featureId);
+            if (marker) {
+                const el = marker.getElement();
+                // Set full opacity with !important
+                el.style.cssText += 'opacity: 1 !important;';
+                el.style.setProperty('opacity', '1', 'important');
+                
+                // Also undim inner elements
+                const innerElements = el.getElementsByTagName('*');
+                for (let inner of innerElements) {
+                    inner.style.cssText += 'opacity: 1 !important;';
+                    inner.style.setProperty('opacity', '1', 'important');
+                }
+            }
         }
     }
 
@@ -198,11 +269,12 @@ class ActivityTracker {
             map.off('click', this.clickListener);
         }
         
-        // Restore all features to full opacity
+        // Restore ALL trails and lifts to full opacity
         Object.keys(trailData).forEach(trailId => {
             const layer = `${trailId}-layer`;
             if (map.getLayer(layer)) {
                 map.setPaintProperty(layer, 'line-opacity', 1);
+                map.setPaintProperty(layer, 'line-color', trailData[trailId].color || '#000000');
             }
         });
         
@@ -210,8 +282,24 @@ class ActivityTracker {
             const layer = `${liftId}-layer`;
             if (map.getLayer(layer)) {
                 map.setPaintProperty(layer, 'line-opacity', 1);
+                map.setPaintProperty(layer, 'line-color', liftData[liftId].color || '#000000');
             }
         });
+
+        // Restore mountain features to full opacity using the same approach that worked for dimming
+        if (typeof mountainMarkers !== 'undefined' && mountainMarkers.length > 0) {
+            mountainMarkers.forEach(marker => {
+                const el = marker.getElement();
+                el.style.cssText += 'opacity: 1 !important;';
+                el.style.setProperty('opacity', '1', 'important');
+                
+                const innerElements = el.getElementsByTagName('*');
+                for (let inner of innerElements) {
+                    inner.style.cssText += 'opacity: 1 !important;';
+                    inner.style.setProperty('opacity', '1', 'important');
+                }
+            });
+        }
 
         // Hide the container
         const container = document.getElementById(`${this.type}TrailsContainer`);
@@ -468,8 +556,34 @@ class ActivityTracker {
                     this.undimTrackedFeatures();
                 }
             } else {
-                // If loading 'current' session, dim all features
-                this.dimAllFeatures();
+                // For 'current' session, restore full visibility to everything
+                Object.keys(trailData).forEach(trailId => {
+                    const layer = `${trailId}-layer`;
+                    if (map.getLayer(layer)) {
+                        map.setPaintProperty(layer, 'line-opacity', 1);
+                    }
+                });
+                
+                Object.keys(liftData).forEach(liftId => {
+                    const layer = `${liftId}-layer`;
+                    if (map.getLayer(layer)) {
+                        map.setPaintProperty(layer, 'line-opacity', 1);
+                    }
+                });
+                
+                if (mountainMarkers) {
+                    mountainMarkers.forEach(marker => {
+                        const el = marker.getElement();
+                        el.style.cssText += 'opacity: 1 !important;';
+                        el.style.setProperty('opacity', '1', 'important');
+                        
+                        const innerElements = el.getElementsByTagName('*');
+                        for (let inner of innerElements) {
+                            inner.style.cssText += 'opacity: 1 !important;';
+                            inner.style.setProperty('opacity', '1', 'important');
+                        }
+                    });
+                }
             }
             
             // Update the features list
@@ -556,23 +670,40 @@ class ActivityTracker {
                 map.setPaintProperty(layer, 'line-opacity', 0.3);
             }
         });
+
+        // Dim ALL mountain features first
+        console.log('Dimming all mountain features');
+        mountainMarkers.forEach(marker => {
+            const el = marker.getElement();
+            // Try multiple approaches to set opacity
+            el.style.cssText += 'opacity: 0.5 !important;';
+            el.style.setProperty('opacity', '0.5', 'important');
+            
+            // Also try to dim the inner elements
+            const innerElements = el.getElementsByTagName('*');
+            for (let inner of innerElements) {
+                inner.style.cssText += 'opacity: 0.5 !important;';
+                inner.style.setProperty('opacity', '0.5', 'important');
+            }
+            
+            console.log('Set opacity for marker:', marker.featureId);
+        });
     }
 
     undimTrackedFeatures() {
         // Undim tracked trails
         this.trackedTrails.forEach(trailId => {
-            const layer = `${trailId}-layer`;
-            if (map.getLayer(layer)) {
-                map.setPaintProperty(layer, 'line-opacity', 1);
-            }
+            this.undimFeature(trailId, 'trail');
         });
 
         // Undim tracked lifts
         this.trackedLifts.forEach(liftId => {
-            const layer = `${liftId}-layer`;
-            if (map.getLayer(layer)) {
-                map.setPaintProperty(layer, 'line-opacity', 1);
-            }
+            this.undimFeature(liftId, 'lift');
+        });
+
+        // Undim tracked mountain features
+        this.trackedMountainFeatures.forEach(featureId => {
+            this.undimFeature(featureId, 'mountainFeature');
         });
     }
 
@@ -921,14 +1052,73 @@ class ActivityTracker {
             }
         }
     }
+
+    initializeTrackingDropdown() {
+        // Get the existing elements instead of creating new ones
+        const exitButton = document.createElement('button');
+        exitButton.id = 'exitTrackingButton';
+        exitButton.className = 'tracker-option';
+        exitButton.textContent = 'Exit Tracking';
+
+        const divider = document.createElement('hr');
+        divider.className = 'tracker-divider';
+
+        const trackingOptions = document.getElementById('trackingOptions');
+        trackingOptions.appendChild(divider);
+        trackingOptions.appendChild(exitButton);
+        
+        // Add click handler for exit tracking
+        exitButton.addEventListener('click', () => {
+            // Restore full visibility to everything
+            Object.keys(trailData).forEach(trailId => {
+                const layer = `${trailId}-layer`;
+                if (map.getLayer(layer)) {
+                    map.setPaintProperty(layer, 'line-opacity', 1);
+                }
+            });
+            
+            Object.keys(liftData).forEach(liftId => {
+                const layer = `${liftId}-layer`;
+                if (map.getLayer(layer)) {
+                    map.setPaintProperty(layer, 'line-opacity', 1);
+                }
+            });
+            
+            if (mountainMarkers) {
+                mountainMarkers.forEach(marker => {
+                    const el = marker.getElement();
+                    el.style.cssText += 'opacity: 1 !important;';
+                    el.style.setProperty('opacity', '1', 'important');
+                    
+                    const innerElements = el.getElementsByTagName('*');
+                    for (let inner of innerElements) {
+                        inner.style.cssText += 'opacity: 1 !important;';
+                        inner.style.setProperty('opacity', '1', 'important');
+                    }
+                });
+            }
+            
+            // Stop all trackers
+            Object.values(trackers).forEach(tracker => {
+                if (tracker.isTracking) {
+                    tracker.stopTracking();
+                }
+            });
+            
+            // Hide all tracking containers
+            ['daily', 'monthly', 'season'].forEach(type => {
+                const container = document.getElementById(`${type}TrailsContainer`);
+                if (container) {
+                    container.style.display = 'none';
+                }
+            });
+
+            // Hide the tracking options menu
+            trackingOptions.style.display = 'none';
+        });
+    }
 }
 
-// Initialize trackers
-const trackers = {
-    daily: new ActivityTracker('daily'),
-    monthly: new ActivityTracker('monthly'),
-    season: new ActivityTracker('season')
-};
 
 document.addEventListener('DOMContentLoaded', () => {
     // Tracking menu toggle
@@ -1018,5 +1208,55 @@ document.addEventListener('DOMContentLoaded', () => {
                 saveButton.disabled = e.target.value === 'current';
             });
         }
+    });
+
+    // Add this where you set up your other tracking button listeners
+    document.getElementById('exitTrackingButton').addEventListener('click', () => {
+        // Restore full visibility to everything
+        Object.keys(trailData).forEach(trailId => {
+            const layer = `${trailId}-layer`;
+            if (map.getLayer(layer)) {
+                map.setPaintProperty(layer, 'line-opacity', 1);
+            }
+        });
+        
+        Object.keys(liftData).forEach(liftId => {
+            const layer = `${liftId}-layer`;
+            if (map.getLayer(layer)) {
+                map.setPaintProperty(layer, 'line-opacity', 1);
+            }
+        });
+        
+        if (mountainMarkers) {
+            mountainMarkers.forEach(marker => {
+                const el = marker.getElement();
+                el.style.cssText += 'opacity: 1 !important;';
+                el.style.setProperty('opacity', '1', 'important');
+                
+                const innerElements = el.getElementsByTagName('*');
+                for (let inner of innerElements) {
+                    inner.style.cssText += 'opacity: 1 !important;';
+                    inner.style.setProperty('opacity', '1', 'important');
+                }
+            });
+        }
+        
+        // Stop all trackers
+        Object.values(trackers).forEach(tracker => {
+            if (tracker.isTracking) {
+                tracker.stopTracking();
+            }
+        });
+        
+        // Hide all tracking containers
+        ['daily', 'monthly', 'season'].forEach(type => {
+            const container = document.getElementById(`${type}TrailsContainer`);
+            if (container) {
+                container.style.display = 'none';
+            }
+        });
+
+        // Hide the tracking options menu
+        document.getElementById('trackingOptions').style.display = 'none';
     });
 });

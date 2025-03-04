@@ -102,6 +102,11 @@
             border-radius: 4px;
             cursor: pointer;
         }
+        .tracker-divider {
+            margin: 5px 0;
+            border: none;
+            border-top: 1px solid #ccc;
+        }
     </style>
 </head>
 <body>
@@ -129,6 +134,8 @@
                     <button id="dailyTrackerButton" class="tracker-option">Daily Tracker</button>
                     <button id="monthlyTrackerButton" class="tracker-option">Monthly Tracker</button>
                     <button id="seasonTrackerButton" class="tracker-option">Season Tracker</button>
+                    <hr class="tracker-divider">
+                    <button id="exitTrackingButton" class="tracker-option">Exit Tracking</button>
                 </div>
             </div>
 
@@ -286,11 +293,10 @@
     <script src="Data/mountaincams.js"></script>
     
     <!-- Load JavaScript files -->
+    <script src="JS/dayTracker.js"></script>
     <script src="JS/wayfinding.js"></script>
     <script src="JS/main.js"></script>
-    <script src="JS/trailData.js"></script>
     <script src="JS/auth.js"></script>
-    <script src="JS/dayTracker.js"></script>
 
     <!-- Add this modal dialog to your HTML -->
     <div id="saveSessionModal" class="modal" style="display: none;">
