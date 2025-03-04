@@ -11,7 +11,8 @@ var trailData = {
             [-106.33130581392386,39.59801825867885]
         ],
         color: '#000000',
-        difficulty: 'black'
+        difficulty: 'black',
+        parentTrail: 'DragonsTeeth'
     },
         'JadeGlade': { 
         coordinates: [
@@ -24,7 +25,8 @@ var trailData = {
             [-106.33237932092017, 39.5967263333705]
         ],
         color: '#000000',
-        difficulty: 'black'
+        difficulty: 'black',
+        parentTrail: 'JadeGlade'
     },
     'SilkRoad': { 
         coordinates: [
@@ -37,7 +39,8 @@ var trailData = {
             [-106.31535848920245,39.59984724473259]
         ],
         difficulty: 'blue',
-        color: '#0000FF'
+        color: '#0000FF',
+        parentTrail: 'SilkRoad'
     },
     'SilkRoad2': { 
         coordinates: [
@@ -60,7 +63,8 @@ var trailData = {
             [-106.32592515227383,39.58686638719382]
         ],
         difficulty: 'blue',
-        color: '#0000FF'
+        color: '#0000FF',
+        parentTrail: 'SilkRoad'
     },
     'SilkRoad3': { 
         coordinates: [
@@ -69,7 +73,8 @@ var trailData = {
             [-106.33202344872058,39.585794813749885]
         ],
         difficulty: 'blue',
-        color: '#0000FF'
+        color: '#0000FF',
+        parentTrail: 'SilkRoad'
     },
     'OrientExpressTrail': { 
         coordinates: [
@@ -82,7 +87,8 @@ var trailData = {
             [-106.32291139823022,39.58890346095947]
         ],
         difficulty: 'black',
-        color: '#000000'
+        color: '#000000',
+        parentTrail: 'OrientExpressTrail'
     },
     'Rasputinsrevenge': { 
         coordinates: [
@@ -95,7 +101,8 @@ var trailData = {
             [-106.31923337863525,39.5927286187611]
         ],
         difficulty: 'black',
-        color: '#000000'
+        color: '#000000',
+        parentTrail: 'Rasputinsrevenge'
     },
     'RedSquare': { 
         coordinates: [
@@ -108,7 +115,8 @@ var trailData = {
             [-106.31866039066918,39.59439579438853]
         ],
         difficulty: 'black',
-        color: '#000000'
+        color: '#000000',
+        parentTrail: 'RedSquare'
     },
     'OuterMongoliaBowl': { 
         coordinates: [
@@ -121,7 +129,8 @@ var trailData = {
             [-106.30612371127309,39.58914653702459]
         ],
         difficulty: 'black',
-        color: '#000000'
+        color: '#000000',
+        parentTrail: 'OuterMongoliaBowl'
     },
     'GorkyPark': { 
         coordinates: [
@@ -134,7 +143,8 @@ var trailData = {
             [-106.3187343899681,39.59070141710984]
         ],
         difficulty: 'black',
-        color: '#000000'
+        color: '#000000',
+        parentTrail: 'GorkyPark'
     },
     'BolshoiBallroom': { 
         coordinates: [
@@ -146,7 +156,8 @@ var trailData = {
                 [-106.31484598495133,39.597020741294756]
         ],
         difficulty: 'black',
-        color: '#000000'
+        color: '#000000',
+        parentTrail: 'BolshoiBallroom'
     },
     'InnerMongoliaBowl': { 
         coordinates: [
@@ -158,25 +169,60 @@ var trailData = {
                 [-106.30792218142221,39.59668416747974]
                     ],
         difficulty: 'black',
-        color: '#000000'
+        color: '#000000',
+        parentTrail: 'InnerMongoliaBowl'
     },
-
-    'SleepyTimeRoad': { 
+    'SleepyTimeRoad1': { 
         coordinates: [
                 [-106.35606890285922,39.60471593997872],
-                [-106.3505874254397,39.6042846391654],
-                [-106.3463426235185,39.60320615797832],
-                [-106.34274705232006,39.60151764093206],
-                [-106.34231767062953,39.59994233160447],
-                [-106.3441216567242,39.59542845599796],
-                [-106.34515727815311,39.593624382703496],
-                [-106.34680933809939,39.591905611144966],
-                [-106.34839064811338,39.590913257886484],
-                [-106.3495562680591,39.589237878082855]
-          
+                [-106.35266812718339,39.60467055679331],
+                [-106.34911734759547,39.60385432960024]
         ],
         difficulty: 'blue',
-        color: '#0000FF'
+        color: '#0000FF',
+        parentTrail: 'SleepyTimeRoad'
+    },
+    'SleepyTimeRoad2': { 
+        coordinates: [
+                [-106.34911734759547,39.60385432960024],
+                [-106.34563187189846,39.60293579695002],
+                [-106.34339547338837, 39.601816069980515]
+        ],
+        difficulty: 'blue',
+        color: '#0000FF',
+        parentTrail: 'SleepyTimeRoad'
+    },
+    'SleepyTimeRoad3': { 
+        coordinates: [
+                [-106.34339547338837, 39.601816069980515],
+                [-106.34271594794646, 39.60125856121786],
+                [-106.3423759958737, 39.600604544899795]
+        ],
+        difficulty: 'blue',
+        color: '#0000FF',
+        parentTrail: 'SleepyTimeRoad'
+    },
+    'SleepyTimeRoad4': { 
+        coordinates: [
+                [-106.3423759958737, 39.600604544899795],
+                [-106.34237202477678, 39.59947619093998],
+                [-106.3428302557684, 39.59858003045818],
+                [-106.34349002772439, 39.5966759570741]
+        ],
+        difficulty: 'blue',
+        color: '#0000FF',
+        parentTrail: 'SleepyTimeRoad'
+    },
+    'SleepyTimeRoad5': { 
+        coordinates: [
+                [-106.34349002772439, 39.5966759570741],
+                [-106.34412990205703, 39.595222571868646],
+                [-106.34555225623352, 39.59318781614644],
+                [-106.3493538061878, 39.58949611436114]
+        ],
+        difficulty: 'blue',
+        color: '#0000FF',
+        parentTrail: 'SleepyTimeRoad'
     },
     'SleepyTimeRoadLeftFork': { 
         coordinates: [
@@ -195,7 +241,8 @@ var trailData = {
             [-106.33236095807321,39.58593923491941]
         ],
         difficulty: 'blue',
-        color: '#0000FF'
+        color: '#0000FF',
+        parentTrail: 'SleepyTimeRoad'
     },
     'SleepyTimeRoadRightFork': { 
         coordinates: [
@@ -209,7 +256,8 @@ var trailData = {
             [-106.34843150722615,39.59690354558532]
         ],
         difficulty: 'blue',
-        color: '#0000FF'
+        color: '#0000FF',
+        parentTrail: 'SleepyTimeRoad'
     },
     'GenghisKhan': { 
         coordinates: [
@@ -222,7 +270,8 @@ var trailData = {
             [-106.33361219563729, 39.59469205915491]
         ],
         difficulty: 'black',
-        color: '#000000'
+        color: '#000000',
+        parentTrail: 'GenghisKhan'
     },
     'OverYonder': { 
         coordinates: [
@@ -235,7 +284,8 @@ var trailData = {
             [-106.3483717378382,39.596013311949235]
         ],
         difficulty: 'black',
-        color: '#000000'
+        color: '#000000',
+        parentTrail: 'OverYonder'
     },
     'Yonder': { 
         coordinates: [
@@ -248,7 +298,8 @@ var trailData = {
             [-106.33704564863534,39.602133817674996]
         ],
         difficulty: 'black',
-        color: '#000000'
+        color: '#000000',
+        parentTrail: 'Yonder'
     },
     'Headwall': { 
         coordinates: [
@@ -261,7 +312,8 @@ var trailData = {
             [-106.34921414379075,39.60373965512446]
         ],
         difficulty: 'black',
-        color: '#000000'
+        color: '#000000',
+        parentTrail: 'Headwall'
     },
     'MiltsFace': { 
         coordinates: [
@@ -274,7 +326,8 @@ var trailData = {
             [-106.35067905035888,39.600808503895905]
         ],
         difficulty: 'black',
-        color: '#000000'
+        color: '#000000',
+        parentTrail: 'MiltsFace'
     },
     'CowsFace': { 
         coordinates: [
@@ -287,7 +340,8 @@ var trailData = {
             [-106.34982525861625,39.59567142100542]
         ],
         difficulty: 'black',
-        color: '#000000'
+        color: '#000000',
+        parentTrail: 'CowsFace'
     },
     'Campbells': { 
         coordinates: [
@@ -300,7 +354,8 @@ var trailData = {
             [-106.34887818737322,39.59715549098814]
         ],
         difficulty: 'black',
-        color: '#000000'
+        color: '#000000',
+        parentTrail: 'Campbells'
     },
     'ChickenYard': { 
         coordinates: [
@@ -313,7 +368,8 @@ var trailData = {
             [-106.35469562526505,39.59253023550244]
         ],
         difficulty: 'black',  // Assuming blue based on name, let me know if different
-        color: '#000000'
+        color: '#000000',
+        parentTrail: 'ChickenYard'
     },
     'TheSlot': { 
         coordinates: [
@@ -325,7 +381,8 @@ var trailData = {
             [-106.34844027497086,39.59740067241066]
         ],
         difficulty: 'blue',
-        color: '#0000FF'
+        color: '#0000FF',
+        parentTrail: 'TheSlot'
     },
     'SunUpCatwalk': { 
         coordinates: [
@@ -337,7 +394,8 @@ var trailData = {
             [-106.36058823271333, 39.590888603041435]
         ],
         difficulty: 'blue',
-        color: '#0000FF'
+        color: '#0000FF',
+        parentTrail: 'SunUpCatwalk'
     },
     'ApresVous': { 
         coordinates: [
@@ -354,7 +412,8 @@ var trailData = {
             [-106.3523569839152,39.59403499523444]
         ],
         difficulty: 'black',
-        color: '#000000'
+        color: '#000000',
+        parentTrail: 'ApresVous'
     },
     'Forever': { 
         coordinates: [
@@ -371,7 +430,8 @@ var trailData = {
             [-106.36466678033834,39.594975226581454]
         ],
         difficulty: 'black',  // Assuming black based on length/steepness, let me know if different
-        color: '#000000'
+        color: '#000000',
+        parentTrail: 'Forever'
     },
     'Wow': { 
         coordinates: [
@@ -388,7 +448,8 @@ var trailData = {
             [-106.36590866011223,39.59757321995622]
         ],
         difficulty: 'black',  // Assuming black based on steepness, let me know if different
-        color: '#000000'
+        color: '#000000',
+        parentTrail: 'Wow'
     },
     'Windows': { 
         coordinates: [
@@ -401,7 +462,8 @@ var trailData = {
             [-106.36647617245306,39.60007468913281]
         ],
         difficulty: 'black',
-        color: '#000000'
+        color: '#000000',
+        parentTrail: 'Windows'
     },
     'MorningSideRidge': { 
         coordinates: [
@@ -414,7 +476,8 @@ var trailData = {
             [-106.36708976025852,39.59875421242924]
         ],
         difficulty: 'black',  // Assuming black based on name and location, let me know if different
-        color: '#000000'
+        color: '#000000',
+        parentTrail: 'MorningSideRidge'
     },
     'StraightShot': { 
         coordinates: [
@@ -431,7 +494,8 @@ var trailData = {
             [-106.36134218291144,39.59108098428425]
         ],
         difficulty: 'black',  // Assuming black based on steepness, let me know if different
-        color: '#000000'
+        color: '#000000',
+        parentTrail: 'StraightShot'
     },
     'OS': { 
         coordinates: [
@@ -448,7 +512,8 @@ var trailData = {
             [-106.3647903735342,39.59460632022416]
         ],
         difficulty: 'black',  // Assuming black based on location and path, let me know if different
-        color: '#000000'
+        color: '#000000',
+        parentTrail: 'OS'
     },
     'YonderGully': { 
         coordinates: [
@@ -461,7 +526,8 @@ var trailData = {
             [-106.33704340562252,39.602128916129374]
         ],
         difficulty: 'black',
-        color: '#000000'
+        color: '#000000',
+        parentTrail: 'YonderGully'
     },
     'RickysRidge': { 
         coordinates: [
@@ -474,7 +540,8 @@ var trailData = {
             [-106.36642758938953,39.59779150567536]
         ],
         difficulty: 'black',  // Assuming blue based on name, let me know if different
-        color: '#000000'
+        color: '#000000',
+        parentTrail: 'RickysRidge'
     },
     'Seldom': { 
         coordinates: [
@@ -487,7 +554,8 @@ var trailData = {
             [-106.36591730396673,39.59661250381578]
         ],
         difficulty: 'black',  // Assuming black based on location, let me know if different
-        color: '#000000'
+        color: '#000000',
+        parentTrail: 'Seldom'
     },
     'Never': { 
         coordinates: [
@@ -500,7 +568,8 @@ var trailData = {
             [-106.36543549576909,39.595769659831745]
         ],
         difficulty: 'black',  // Assuming black based on location, let me know if different
-        color: '#000000'
+        color: '#000000',
+        parentTrail: 'Never'
     },
     'Widges': { 
         coordinates: [
@@ -513,7 +582,8 @@ var trailData = {
             [-106.37026460265045,39.597114594220045]
         ],
         difficulty: 'black',  // Assuming black based on location, let me know if different
-        color: '#000000'
+        color: '#000000',
+        parentTrail: 'Widges'
     },
     'Sweetnsour': { 
         coordinates: [
@@ -526,7 +596,8 @@ var trailData = {
             [-106.33344662604492, 39.58908762667821]
         ],
         difficulty: 'black',
-        color: '#000000'
+        color: '#000000',
+        parentTrail: 'Sweetnsour'
     },
     'Chinabowlrunout': { 
         coordinates: [
@@ -539,7 +610,8 @@ var trailData = {
             [-106.339811954621, 39.584058215205744]
         ],
         difficulty: 'blue',
-        color: '#0000FF'
+        color: '#0000FF',
+        parentTrail: 'Chinabowlrunout'
     },
     'PoppyfieldsWest': {
         coordinates: [
@@ -552,7 +624,8 @@ var trailData = {
             [-106.32747703958593, 39.60102845561829]
         ],
         color: '#0000FF',
-        difficulty: 'blue'
+        difficulty: 'blue',
+        parentTrail: 'PoppyfieldsWest'
     },
     'PoppyfieldsEast': { 
         coordinates: [
@@ -565,7 +638,8 @@ var trailData = {
             [-106.32879368407545, 39.599416867373066]
         ],
         color: '#0000FF',
-        difficulty: 'blue'
+        difficulty: 'blue',
+        parentTrail: 'PoppyfieldsEast'
     },
     'Chopstix': { 
         coordinates: [
@@ -578,7 +652,8 @@ var trailData = {
             [-106.32867749443223, 39.59955827121601]
         ], 
         color: '#0000FF',
-        difficulty: 'blue' 
+        difficulty: 'blue',
+        parentTrail: 'Chopstix'
     },
     'ShangriLa': { 
         coordinates: [
@@ -591,7 +666,9 @@ var trailData = {
             [-106.33332426137922, 39.59485715833674]
         ], 
         color: '#000000',
-        difficulty: 'black' 
+        difficulty: 'black',
+        parentTrail: 'ShangriLa'
+         
     },
     'ShangriLaGlades': {
         coordinates: [
@@ -604,7 +681,8 @@ var trailData = {
             [-106.33274787380067, 39.58994356568138]
         ],
         color: '#000000',
-        difficulty: 'black'
+        difficulty: 'black',
+        parentTrail: 'ShangriLaGlades'
     },
     'RedZinger': {
         coordinates: [
@@ -617,7 +695,8 @@ var trailData = {
             [-106.34160259253032,39.591152092197774]
         ],
         difficulty: 'blue',
-        color: '#0000FF'
+        color: '#0000FF',
+        parentTrail: 'RedZinger'
     },
     'EmperorsChoice': {
         coordinates: [
@@ -630,7 +709,8 @@ var trailData = {
             [-106.34103374147472,39.59105886496474]
         ],
         difficulty: 'black',
-        color: '#000000'
+        color: '#000000',
+        parentTrail: 'EmperorsChoice'
     },
     'MorningThunder': {
         coordinates: [
@@ -643,7 +723,8 @@ var trailData = {
             [-106.34254379843672,39.58962216551578]
         ],
         difficulty: 'black',
-        color: '#000000'
+        color: '#000000',
+        parentTrail: 'MorningThunder'
     },
     'TeaCupGlades': {
         coordinates: [
@@ -656,7 +737,8 @@ var trailData = {
             [-106.3402251680436,39.584711941342846]
         ],
         difficulty: 'black',
-        color: '#000000'
+        color: '#000000',
+        parentTrail: 'TeaCupGlades'
     },
     'MarmotValley': {
         coordinates: [
@@ -669,7 +751,8 @@ var trailData = {
             [-106.33994321846883,39.5849478093738]
         ],
         difficulty: 'black',
-        color: '#000000'
+        color: '#000000',
+        parentTrail: 'MarmotValley'
     },
     'Encore': {
         coordinates: [
@@ -682,7 +765,8 @@ var trailData = {
             [-106.34053273002627, 39.58299812018379]
         ],
         difficulty: 'black',  // Adjust difficulty if needed
-        color: '#000000'     // Black color for black trails
+        color: '#000000',
+        parentTrail: 'Encore'
     },
     'TheDivide': {
         coordinates: [
@@ -695,7 +779,8 @@ var trailData = {
             [-106.33946889789503, 39.5837207730512]
         ],
         difficulty: 'black',  // Adjust difficulty if needed
-        color: '#000000'     // Black color for black trails
+        color: '#000000',
+        parentTrail: 'TheDivide'
     },
     'HeavyMetal': {
         coordinates: [
@@ -708,7 +793,8 @@ var trailData = {
             [-106.3282963817682, 39.57971990299805]
         ],
         difficulty: 'black',  // Adjust difficulty if needed
-        color: '#000000'     // Black color for black trails
+        color: '#000000',
+        parentTrail: 'HeavyMetal'
     },
     'LittleOllie': {
         coordinates: [
@@ -721,7 +807,8 @@ var trailData = {
             [-106.32724217689137, 39.57815357132603]
         ],
         difficulty: 'black',  // Adjust difficulty if needed
-        color: '#000000'     // Black color for black trails
+        color: '#000000',
+        parentTrail: 'LittleOllie'
     },
     'IronMask': {
         coordinates: [
@@ -734,7 +821,8 @@ var trailData = {
             [-106.32641725178152, 39.57675135668197]
         ],
         difficulty: 'black',  // Adjust difficulty if needed
-        color: '#000000'     // Black color for black trails
+        color: '#000000',
+        parentTrail: 'IronMask'
     },
     'LoversLeap': {
         coordinates: [
@@ -747,7 +835,8 @@ var trailData = {
             [-106.32473079389487, 39.574259289369024]
         ],
         difficulty: 'black',  // Adjust difficulty if needed
-        color: '#000000'     // Black color for black trails
+        color: '#000000',
+        parentTrail: 'LoversLeap'
     },
     'Steepndeep': {
         coordinates: [
@@ -760,7 +849,8 @@ var trailData = {
             [-106.32553658445829, 39.571344333065895]
         ],
         difficulty: 'black',  // Adjust difficulty if needed
-        color: '#000000'     // Black color for black trails
+        color: '#000000',
+        parentTrail: 'Steepndeep'
     },
     'Resolution': {
         coordinates: [
@@ -773,7 +863,8 @@ var trailData = {
             [-106.3243608781351, 39.57486475155187]
         ],
         difficulty: 'black',  // Adjust difficulty if needed
-        color: '#000000'     // Black color for black trails
+        color: '#000000',
+        parentTrail: 'Resolution'
     },
     'BigRockPark': {
         coordinates: [
@@ -786,7 +877,8 @@ var trailData = {
             [-106.32463732510138, 39.574602271129066]
         ],
         difficulty: 'blue',  // Adjust difficulty if needed
-        color: '#0000FF'    // Blue color for blue trails
+        color: '#0000FF',
+        parentTrail: 'BigRockPark'
     },
     'BigRockParkRunout': {
         coordinates: [
@@ -799,7 +891,8 @@ var trailData = {
             [-106.32765528992795, 39.57954530683426]
         ],
         difficulty: 'blue',  // Keeping the blue difficulty
-        color: '#0000FF'    // Keeping the blue color
+        color: '#0000FF',
+        parentTrail: 'BigRockPark'
     },
     'SkreeField': {
         coordinates: [
@@ -812,7 +905,8 @@ var trailData = {
             [-106.32451738415456, 39.57398769665892]
         ],
         difficulty: 'black',  // Adjust difficulty if needed
-        color: '#000000'     // Black color for black trails
+        color: '#000000',
+        parentTrail: 'SkreeField'
     },
     'Cloud9': {
         coordinates: [
@@ -825,7 +919,8 @@ var trailData = {
             [-106.31919729984979, 39.56838464918502]
         ],
         difficulty: 'blue',  // Adjust difficulty if needed
-        color: '#0000FF'     // Black color for black trails
+        color: '#0000FF',
+        parentTrail: 'Cloud9'
     },
     'Cloud9Catwalk': {
         coordinates: [
@@ -838,7 +933,8 @@ var trailData = {
             [-106.31998553766111, 39.57454265425284]
         ],
         difficulty: 'blue',  // Keeping the blue difficulty
-        color: '#0000FF'     // Keeping the blue color
+        color: '#0000FF',
+        parentTrail: 'Cloud9'
     },
     'Cloud9Catwalk2': {
         coordinates: [
@@ -851,7 +947,8 @@ var trailData = {
             [-106.32760405113878, 39.57973910391303]
         ],
         difficulty: 'blue',  // Keeping the blue difficulty
-        color: '#0000FF'     // Keeping the blue color
+        color: '#0000FF',
+        parentTrail: 'Cloud9'
     },
     'ChinaSpur': {
         coordinates: [
@@ -863,7 +960,8 @@ var trailData = {
             [-106.32573883625021, 39.58662662117712]
         ],
         difficulty: 'blue',  // Adjust difficulty if needed
-        color: '#0000FF'    // Blue color for blue trails
+        color: '#0000FF',
+        parentTrail: 'ChinaSpur'
     },
     'Cloud9runout': {
         coordinates: [
@@ -875,7 +973,8 @@ var trailData = {
             [-106.33226563862945, 39.584941075297024]
         ],
         difficulty: 'blue',  // Adjust difficulty if needed
-        color: '#0000FF'    // Blue color for blue trails
+        color: '#0000FF',
+        parentTrail: 'Cloud9'
     },
     'WFO': {
         coordinates: [
@@ -888,7 +987,8 @@ var trailData = {
             [-106.35629819408152,39.59103228182079]
         ],
         difficulty: 'black',
-        color: '#000000'
+        color: '#000000',
+        parentTrail: 'WFO'
     },
     'GrandReview': {
         coordinates: [
@@ -897,7 +997,8 @@ var trailData = {
             [-106.31561072689209, 39.57815411332888]
         ],
         difficulty: 'blue',  // Adjust difficulty if needed
-        color: '#0000FF'    // Blue color for blue trails
+        color: '#0000FF',
+        parentTrail: 'GrandReview'
     },
     'GrandReview2': {
         coordinates: [
@@ -907,7 +1008,8 @@ var trailData = {
             [-106.3259412178187, 39.58104737563218]
         ],
         difficulty: 'blue',  // Adjust difficulty if needed
-        color: '#0000FF'    // Blue color for blue trails
+        color: '#0000FF',
+        parentTrail: 'GrandReview'
     },
     'InTheWuides': {
         coordinates: [
@@ -920,7 +1022,8 @@ var trailData = {
             [-106.34229694928428, 39.57069552257602]
         ],
         difficulty: 'blue',  // Adjust difficulty if needed
-        color: '#0000FF'     // Black color for black trails
+        color: '#0000FF',
+        parentTrail: 'InTheWuides'
     },
     'CJsGlade': {
         coordinates: [
@@ -933,7 +1036,8 @@ var trailData = {
             [-106.34210379866472, 39.571280436869046]
         ],
         difficulty: 'black',  // Adjust difficulty if needed
-        color: '#000000'     // Black color for black trails
+        color: '#000000',
+        parentTrail: 'CJsGlade'
     },
     'ChampagneGlade': {
         coordinates: [
@@ -946,7 +1050,8 @@ var trailData = {
             [-106.34194170027273, 39.569908150388926]
         ],
         difficulty: 'black',  // Adjust difficulty if needed
-        color: '#000000'     // Black color for black trails
+        color: '#000000',
+        parentTrail: 'ChampagneGlade'
     },
     'Hornsilver': {
         coordinates: [
@@ -959,7 +1064,8 @@ var trailData = {
             [-106.31977379427634, 39.57485875463951]
         ],
         difficulty: 'black',  // Adjust difficulty if needed
-        color: '#000000'    // Blue color for blue trails
+        color: '#000000',
+        parentTrail: 'Hornsilver'
     },
     'KellysToalRoad': {
         coordinates: [
@@ -972,7 +1078,8 @@ var trailData = {
             [-106.34103156232405, 39.58253103318464]
         ],
         difficulty: 'blue',  // Adjust difficulty if needed
-        color: '#0000FF'     // Blue color for blue trails
+        color: '#0000FF',
+        parentTrail: 'KellysToalRoad'
     },
     'TheStar': {
         coordinates: [
@@ -985,7 +1092,8 @@ var trailData = {
             [-106.32500186334245, 39.578646285611796]
         ],
         difficulty: 'blue',  // Adjust difficulty if needed
-        color: '#0000FF'    // Blue color for blue trails
+        color: '#0000FF',
+        parentTrail: 'TheStar'
     },
     'Poppyfields': { 
         coordinates: [
@@ -998,6 +1106,7 @@ var trailData = {
             [-106.33312111419269, 39.587455074697544]
         ],
         color: '#0000FF',
-        difficulty: 'blue'
+        difficulty: 'blue',
+        parentTrail: 'Poppyfields'
     }
 };

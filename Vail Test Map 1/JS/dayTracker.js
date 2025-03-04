@@ -8,6 +8,9 @@ class ActivityTracker {
         this.clickListener = null;
         this.currentSessionId = 'current';
         
+        // Add this line
+        this.initializeStatsButton();
+        
         // Load saved sessions
         this.loadSessions();
         
@@ -178,21 +181,75 @@ class ActivityTracker {
     }
 
     addFeatureToList(featureId, featureName, type) {
-        console.log(`Adding ${type}: ${featureId}`);
-        
-        if (type === 'trail') {
-            this.trackedTrails.add(featureId);
-            this.undimFeature(featureId, type);
-        } else if (type === 'lift') {
-            this.trackedLifts.add(featureId);
-            this.undimFeature(featureId, type);
-        } else if (type === 'mountainFeature') {
-            console.log('Adding mountain feature to tracked list:', featureId);
-            this.trackedMountainFeatures.add(featureId);
-            this.undimFeature(featureId, type);
+        if (type === 'trail' && trailData[featureId]?.parentTrail) {
+            // Create and show modal
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.style.display = 'block';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Add Trail</h2>
+                        <span class="close">&times;</span>
+                    </div>
+                    <div class="modal-body">
+                        <p>Would you like to add:</p>
+                        <button id="addSegment" class="btn btn-primary mb-2">Just this segment</button>
+                        <button id="addFullTrail" class="btn btn-success">Full trail</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Handle segment only choice
+            const addSegmentBtn = modal.querySelector('#addSegment');
+            addSegmentBtn.onclick = () => {
+                this.trackedTrails.add(featureId);
+                this.undimFeature(featureId, type);
+                this.updateFeaturesList();
+                modal.remove();
+            };
+            
+            // Handle full trail choice
+            const addFullTrailBtn = modal.querySelector('#addFullTrail');
+            addFullTrailBtn.onclick = () => {
+                // Add all segments of the parent trail
+                const parentTrail = trailData[featureId].parentTrail;
+                Object.entries(trailData).forEach(([id, data]) => {
+                    if (data.parentTrail === parentTrail) {
+                        this.trackedTrails.add(id);
+                        this.undimFeature(id, type);
+                    }
+                });
+                this.updateFeaturesList();
+                modal.remove();
+            };
+            
+            // Close button functionality
+            const closeBtn = modal.querySelector('.close');
+            closeBtn.onclick = () => modal.remove();
+            
+            // Click outside to close
+            window.onclick = (event) => {
+                if (event.target === modal) {
+                    modal.remove();
+                }
+            };
+        } else {
+            // Handle non-trail features as before
+            if (type === 'trail') {
+                this.trackedTrails.add(featureId);
+                this.undimFeature(featureId, type);
+            } else if (type === 'lift') {
+                this.trackedLifts.add(featureId);
+                this.undimFeature(featureId, type);
+            } else if (type === 'mountainFeature') {
+                this.trackedMountainFeatures.add(featureId);
+                this.undimFeature(featureId, type);
+            }
+            this.updateFeaturesList();
         }
-        
-        this.updateFeaturesList();
     }
 
     removeFeature(featureId, featureName, type) {
@@ -310,7 +367,9 @@ class ActivityTracker {
         // Push trails
         this.trackedTrails.forEach(trailId => {
             if (trailData[trailId]) {
-                targetTracker.addFeatureToList(trailId, trailData[trailId].name || trailId, 'trail');
+                // Use parentTrail if it exists, otherwise use trailId
+                const displayName = trailData[trailId].parentTrail || trailId;
+                targetTracker.addFeatureToList(trailId, displayName, 'trail');
             }
         });
         
@@ -595,22 +654,30 @@ class ActivityTracker {
         const featuresList = document.getElementById(`${this.type}TrailsList`);
         featuresList.innerHTML = '';
 
-        // Add trails with icons
+        // Create a Set to track unique parent trails
+        const uniqueParentTrails = new Set();
+        
+        // Add trails with icons (modified to prevent duplicates)
         Array.from(this.trackedTrails)
             .sort((a, b) => {
-                const nameA = trailData[a]?.name || a;
-                const nameB = trailData[b]?.name || b;
+                const nameA = trailData[a]?.parentTrail || a;
+                const nameB = trailData[b]?.parentTrail || b;
                 return nameA.localeCompare(nameB);
             })
             .forEach(trailId => {
                 if (trailData[trailId]) {
-                    const listItem = document.createElement('div');
-                    listItem.className = 'feature-list-item';
-                    listItem.innerHTML = `
-                        <span class="feature-icon">🏂</span>
-                        <span class="feature-name">${trailData[trailId].name || trailId}</span>
-                    `;
-                    featuresList.appendChild(listItem);
+                    const parentTrail = trailData[trailId].parentTrail || trailId;
+                    // Only add if we haven't seen this parent trail yet
+                    if (!uniqueParentTrails.has(parentTrail)) {
+                        uniqueParentTrails.add(parentTrail);
+                        const listItem = document.createElement('div');
+                        listItem.className = 'feature-list-item';
+                        listItem.innerHTML = `
+                            <span class="feature-icon">🏂</span>
+                            <span class="feature-name">${parentTrail}</span>
+                        `;
+                        featuresList.appendChild(listItem);
+                    }
                 }
             });
 
@@ -1116,6 +1183,60 @@ class ActivityTracker {
             // Hide the tracking options menu
             trackingOptions.style.display = 'none';
         });
+    }
+
+    showStats() {
+        // First, remove any existing stats modals
+        const existingModals = document.querySelectorAll('#statsModal');
+        existingModals.forEach(modal => modal.remove());
+        
+        // Create modal div
+        const statsModal = document.createElement('div');
+        statsModal.className = 'modal';
+        statsModal.id = 'statsModal';
+        statsModal.style.display = 'block';
+        
+        // Calculate stats from current session
+        const totalRuns = this.trackedTrails.size;
+        const testVertical = totalRuns * 1000; // Placeholder calculation
+        
+        statsModal.innerHTML = `
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Session Statistics</h2>
+                    <span class="close">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Total Runs:</strong> ${totalRuns}</p>
+                    <p><strong>Vertical Feet:</strong> ${testVertical.toLocaleString()}</p>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(statsModal);
+        
+        // Add close button functionality
+        const closeBtn = statsModal.querySelector('.close');
+        closeBtn.onclick = function() {
+            statsModal.remove();
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target === statsModal) {
+                statsModal.remove();
+            }
+        }
+    }
+
+    initializeStatsButton() {
+        // Remove any existing event listeners
+        const statsButton = document.getElementById(`view${this.type.charAt(0).toUpperCase() + this.type.slice(1)}StatsButton`);
+        if (statsButton) {
+            const newButton = statsButton.cloneNode(true);
+            statsButton.parentNode.replaceChild(newButton, statsButton);
+            newButton.addEventListener('click', () => this.showStats());
+        }
     }
 }
 
