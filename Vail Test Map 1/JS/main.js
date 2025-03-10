@@ -6,7 +6,7 @@ const createCustomMarker = (color) => {
     // Create the marker SVG
     element.innerHTML = `
         <svg width="32" height="32" viewBox="0 0 32 32">
-            <image href="/Vail Test Map 1/images/cliff-drop.png" width="32" height="32"/>
+            <image href="./Images/cliff-drop.png" width="32" height="32"/>
             <circle cx="16" cy="16" r="15" fill="none" stroke="${color}" stroke-width="2"/>
         </svg>
     `;
