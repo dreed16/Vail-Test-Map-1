@@ -272,7 +272,6 @@ function toggleNavigation() {
             const layerId = `${trailId}-layer`;
             if (map.getLayer(layerId)) {
                 map.setPaintProperty(layerId, 'line-opacity', 1);
-                map.setPaintProperty(layerId, 'line-width', 6);
             }
         });
         
@@ -393,7 +392,6 @@ function handleRouteSelection() {
             if (map.getLayer(layerId)) {
                 console.log('Highlighting trail:', trailId);
                 map.setPaintProperty(layerId, 'line-opacity', 1);
-                map.setPaintProperty(layerId, 'line-width', 6);
             }
         });
 
@@ -676,7 +674,6 @@ window.showRecommendedRoute = function(type) {
                         if (map.getLayer(splitLayerId)) {
                             console.log(`Highlighting split trail: ${trailId} (${pathType})`);
                             map.setPaintProperty(splitLayerId, 'line-opacity', 1);
-                            map.setPaintProperty(splitLayerId, 'line-width', 6);
                         }
                     });
                 } else {
@@ -685,7 +682,6 @@ window.showRecommendedRoute = function(type) {
                     if (map.getLayer(layerId)) {
                         console.log('Highlighting regular trail:', trailId);
                         map.setPaintProperty(layerId, 'line-opacity', 1);
-                        map.setPaintProperty(layerId, 'line-width', 6);
                     }
                 }
             } catch (error) {
@@ -701,7 +697,6 @@ window.showRecommendedRoute = function(type) {
                     if (map.getLayer(liftLayerId)) {
                         console.log('Highlighting lift:', liftId);
                         map.setPaintProperty(liftLayerId, 'line-opacity', 1);
-                        map.setPaintProperty(liftLayerId, 'line-width', 6);
                     }
                 } catch (error) {
                     console.error('Error highlighting lift:', liftId, error);
@@ -723,7 +718,6 @@ function resetNavigationSelections() {
         const layerId = `${trailId}-layer`;
         if (map.getLayer(layerId)) {
             map.setPaintProperty(layerId, 'line-opacity', 1);
-            map.setPaintProperty(layerId, 'line-width', 6);
         }
     });
 

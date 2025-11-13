@@ -12,6 +12,12 @@ var liftData = {
         popupContent: "<strong>Wapiti</strong><br><strong>Type:</strong> High-Speed Quad<br><strong>Vertical Rise:</strong> 1,400 ft<br><strong> Time:</strong> 9 mins<br>" +
                       "<iframe width='200' height='113' src='https://www.youtube.com/embed/nkeJFKI1Y9o?enablejsapi=1JVCOQWtmuaPkoaYp' frameborder='0' allowfullscreen></iframe>"
     },
+    'GameCreekExpress': {
+        coordinates: [[-106.38524840078642, 39.609128108868475], [-106.37122350660105, 39.60446376004637]],
+        color: '#FF0000',
+        popupContent: "<strong>Game Creek Express</strong><br><strong>Type:</strong> High-Speed Quad<br><strong>Vertical Rise:</strong> 1,400 ft<br><strong> Time:</strong> 9 mins<br>" +
+                      "<iframe width='200' height='113' src='https://www.youtube.com/embed/nkeJFKI1Y9o?enablejsapi=1JVCOQWtmuaPkoaYp' frameborder='0' allowfullscreen></iframe>"
+    },
     'SunUpExpress': {
         coordinates: [[-106.348416, 39.597273], [-106.336842, 39.602036]],
         color: '#FF0000',

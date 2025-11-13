@@ -536,7 +536,7 @@ var trailPopups = {
         content: "<strong>Pickeroon</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
             "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?enablejsapi=1' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
     },
-    'Cookeshack': {
+    'Cookshack': {
         content: "<strong>Cookeshack</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
             "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?enablejsapi=1' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
     },
@@ -596,8 +596,56 @@ var trailPopups = {
         content: "<strong>Bwana</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
             "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?enablejsapi=1' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
     },
-    'CubsWay': {
+    'CubsWayBottom': {
         content: "<strong>Cub's Way</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?enablejsapi=1' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'CubsWayTop': {
+        content: "<strong>Cub's Way</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?enablejsapi=1' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'SimbaTop': {
+        content: "<strong>Simba</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?enablejsapi=1' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'SimbaMiddle': {
+        content: "<strong>Simba</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?enablejsapi=1' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'SimbaBottom': {
+        content: "<strong>Simba</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?enablejsapi=1' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'SafariTop': {
+        content: "<strong>Safari</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?enablejsapi=1' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'SafariBottom': {
+        content: "<strong>Safari</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?enablejsapi=1' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'Cheetah': {
+        content: "<strong>Cheetah</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?enablejsapi=1' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'CascadeWay': {
+        content: "<strong>Cascade Way</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?enablejsapi=1' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'PonyExpress': {
+        content: "<strong>Pony Express</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?enablejsapi=1' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'BriskWalk': {
+        content: "<strong>Brisk Walk</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?enablejsapi=1' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'Rivacatwalk': {
+        content: "<strong>Riva Catwalk</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?enablejsapi=1' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'Pride': {
+        content: "<strong>Pride</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
             "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?enablejsapi=1' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
     },
     'Columbine': {
@@ -638,6 +686,54 @@ var trailPopups = {
     },
     'Headfirst': {
         content: "<strong>Headfirst</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?enablejsapi=1' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'LostBoy': {
+        content: "<strong>Lost Boy</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?enablejsapi=1' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'TheWoods': {
+        content: "<strong>The Woods</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?enablejsapi=1' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'ShowBoat': {
+        content: "<strong>Showboat</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?enablejsapi=1' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'Wildcard': {
+        content: "<strong>Wildcard</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?enablejsapi=1' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'DuecesWild': {
+        content: "<strong>Dueces Wild</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?enablejsapi=1' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'Faro': {
+        content: "<strong>Faro</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?enablejsapi=1' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'Ouzu': {
+        content: "<strong>Ouzu</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?enablejsapi=1' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'OuzuGlades': {
+        content: "<strong>Ouzu Glades</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?enablejsapi=1' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'ClubWalk': {
+        content: "<strong>Club Walk</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?enablejsapi=1' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'GameTrail': {
+        content: "<strong>Game Trail</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?enablejsapi=1' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'Baccarat': {
+        content: "<strong>Baccarat</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?enablejsapi=1' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
+    'DealersChoice': {
+        content: "<strong>Dealer's Choice</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
             "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?enablejsapi=1' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
     },
     'Challenege': {

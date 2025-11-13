@@ -1,3 +1,43 @@
+// Function to smooth trail coordinates using Catmull-Rom spline interpolation
+function smoothCoordinates(coordinates, tension = 0.5) {
+    if (coordinates.length < 2) return coordinates;
+    if (coordinates.length === 2) return coordinates;
+    
+    const smoothed = [coordinates[0]]; // Keep first point
+    
+    for (let i = 0; i < coordinates.length - 1; i++) {
+        const p0 = coordinates[Math.max(0, i - 1)];
+        const p1 = coordinates[i];
+        const p2 = coordinates[i + 1];
+        const p3 = coordinates[Math.min(coordinates.length - 1, i + 2)];
+        
+        // Add interpolated points between p1 and p2
+        for (let t = 0.25; t < 1; t += 0.25) {
+            const t2 = t * t;
+            const t3 = t2 * t;
+            
+            const x = 0.5 * (
+                (2 * p1[0]) +
+                (-p0[0] + p2[0]) * t +
+                (2 * p0[0] - 5 * p1[0] + 4 * p2[0] - p3[0]) * t2 +
+                (-p0[0] + 3 * p1[0] - 3 * p2[0] + p3[0]) * t3
+            );
+            
+            const y = 0.5 * (
+                (2 * p1[1]) +
+                (-p0[1] + p2[1]) * t +
+                (2 * p0[1] - 5 * p1[1] + 4 * p2[1] - p3[1]) * t2 +
+                (-p0[1] + 3 * p1[1] - 3 * p2[1] + p3[1]) * t3
+            );
+            
+            smoothed.push([x, y]);
+        }
+    }
+    
+    smoothed.push(coordinates[coordinates.length - 1]); // Keep last point
+    return smoothed;
+}
+
 // Custom marker creator - at the very top of main.js
 const createCustomMarker = (color) => {
     const element = document.createElement('div');
@@ -172,14 +212,15 @@ map.on('load', function() {
             ['main', 'leftFork', 'rightFork'].forEach(pathType => {
                 const sourceId = `${trail}-${pathType}`;
                 if (!map.getSource(sourceId)) {
-                    // Add source
+                    // Add source with smoothed coordinates
+                    const smoothedCoords = smoothCoordinates(trailData[trail].coordinates[pathType]);
                     map.addSource(sourceId, {
                         type: 'geojson',
                         data: {
                             type: 'Feature',
                             geometry: {
                                 type: 'LineString',
-                                coordinates: trailData[trail].coordinates[pathType]
+                                coordinates: smoothedCoords
                             }
                         }
                     });
@@ -195,7 +236,15 @@ map.on('load', function() {
                         },
                         'paint': {
                             'line-color': trailData[trail].color,
-                            'line-width': 6
+                            'line-width': [
+                                'interpolate',
+                                ['linear'],
+                                ['zoom'],
+                                10, 0.9,
+                                12, 1.8,
+                                14, 3.6,
+                                16, 5.4
+                            ]
                         }
                     });
                 }
@@ -203,13 +252,15 @@ map.on('load', function() {
         } else {
             // Original code for regular trails
             if (!map.getSource(trail)) {
+                // Smooth coordinates before adding to map
+                const smoothedCoords = smoothCoordinates(trailData[trail].coordinates);
                 map.addSource(trail, {
                     type: 'geojson',
                     data: {
                         type: 'Feature',
                         geometry: {
                             type: 'LineString',
-                            coordinates: trailData[trail].coordinates
+                            coordinates: smoothedCoords
                         }
                     }
                 });
@@ -223,7 +274,15 @@ map.on('load', function() {
                     },
                     'paint': {
                         'line-color': trailData[trail].color,
-                        'line-width': 6
+                        'line-width': [
+                            'interpolate',
+                            ['linear'],
+                            ['zoom'],
+                            10, 0.9,
+                            12, 1.8,
+                            14, 3.6,
+                            16, 5.4
+                        ]
                     }
                 });
             }
