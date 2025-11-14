@@ -27,6 +27,10 @@ var trailPopups = {
         content: "<strong>Silk Road</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
             "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?enablejsapi=1' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
     },
+    'Pronto': {
+        content: "<strong>Pronto</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
+            "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?enablejsapi=1' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+    },
     'Steepndeep': {
         content: "<strong>Silk Road</strong><br><strong>Rating:</strong> Black<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
             "<iframe width='200' height='113' src='https://www.youtube.com/embed/kR-SCpBAOmM?enablejsapi=1' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"

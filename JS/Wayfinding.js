@@ -267,11 +267,22 @@ function toggleNavigation() {
         navigationMarkers.forEach(marker => marker.remove());
         navigationMarkers = [];
         
-        // Reset all trails and lifts to original properties
+        // Reset trail opacity only (widths stay at zoom-based values from initial load)
         Object.keys(trailData).forEach(trailId => {
-            const layerId = `${trailId}-layer`;
-            if (map.getLayer(layerId)) {
-                map.setPaintProperty(layerId, 'line-opacity', 1);
+            if (trailData[trailId].coordinates.main) {
+                // Handle split trails
+                ['main', 'leftFork', 'rightFork'].forEach(pathType => {
+                    const layerId = `${trailId}-${pathType}-layer`;
+                    if (map.getLayer(layerId)) {
+                        map.setPaintProperty(layerId, 'line-opacity', 1);
+                    }
+                });
+            } else {
+                // Handle regular trails
+                const layerId = `${trailId}-layer`;
+                if (map.getLayer(layerId)) {
+                    map.setPaintProperty(layerId, 'line-opacity', 1);
+                }
             }
         });
         
@@ -360,14 +371,27 @@ function handleRouteSelection() {
 
     console.log('Handling route selection:', routeKey);
 
-    // First, dim ALL trails and lifts
+    // First, dim ALL trails and lifts (only opacity, keep zoom-based widths)
     Object.keys(trailData).forEach(trailId => {
-        const layerId = `${trailId}-layer`;
-        if (map.getLayer(layerId)) {
-            console.log('Dimming trail:', trailId);
-            map.setLayoutProperty(layerId, 'visibility', 'visible');
-            map.setPaintProperty(layerId, 'line-opacity', 0.25);
-            map.setPaintProperty(layerId, 'line-width', 3);
+        if (trailData[trailId].coordinates.main) {
+            // Handle split trails
+            ['main', 'leftFork', 'rightFork'].forEach(pathType => {
+                const layerId = `${trailId}-${pathType}-layer`;
+                if (map.getLayer(layerId)) {
+                    map.setLayoutProperty(layerId, 'visibility', 'visible');
+                    map.setPaintProperty(layerId, 'line-opacity', 0.25);
+                    // Don't change width - keep zoom-based interpolation
+                }
+            });
+        } else {
+            // Handle regular trails
+            const layerId = `${trailId}-layer`;
+            if (map.getLayer(layerId)) {
+                console.log('Dimming trail:', trailId);
+                map.setLayoutProperty(layerId, 'visibility', 'visible');
+                map.setPaintProperty(layerId, 'line-opacity', 0.25);
+                // Don't change width - keep zoom-based interpolation
+            }
         }
     });
 
@@ -386,12 +410,25 @@ function handleRouteSelection() {
         const route = routeDefinitions[routeKey];
         console.log('Highlighting route trails:', route.trails);
         
-        // Highlight route trails
+        // Highlight route trails (only opacity, keep zoom-based widths)
         route.trails.forEach(trailId => {
-            const layerId = `${trailId}-layer`;
-            if (map.getLayer(layerId)) {
-                console.log('Highlighting trail:', trailId);
-                map.setPaintProperty(layerId, 'line-opacity', 1);
+            if (trailData[trailId].coordinates.main) {
+                // Handle split trails
+                ['main', 'leftFork', 'rightFork'].forEach(pathType => {
+                    const layerId = `${trailId}-${pathType}-layer`;
+                    if (map.getLayer(layerId)) {
+                        map.setPaintProperty(layerId, 'line-opacity', 1);
+                        // Don't change width - keep zoom-based interpolation
+                    }
+                });
+            } else {
+                // Handle regular trails
+                const layerId = `${trailId}-layer`;
+                if (map.getLayer(layerId)) {
+                    console.log('Highlighting trail:', trailId);
+                    map.setPaintProperty(layerId, 'line-opacity', 1);
+                    // Don't change width - keep zoom-based interpolation
+                }
             }
         });
 
@@ -625,9 +662,9 @@ window.showRecommendedRoute = function(type) {
                     ['main', 'leftFork', 'rightFork'].forEach(pathType => {
                         const splitLayerId = `${trailId}-${pathType}-layer`;
                         if (map.getLayer(splitLayerId)) {
-                            console.log(`Dimming split trail: ${trailId} (${pathType})`);
-                            map.setPaintProperty(splitLayerId, 'line-opacity', 0.5);
-                            map.setPaintProperty(splitLayerId, 'line-width', 3);
+                        console.log(`Dimming split trail: ${trailId} (${pathType})`);
+                        map.setPaintProperty(splitLayerId, 'line-opacity', 0.5);
+                        // Don't change width - keep zoom-based interpolation
                         }
                     });
                 } else {
@@ -636,7 +673,7 @@ window.showRecommendedRoute = function(type) {
                     if (map.getLayer(layerId)) {
                         console.log('Dimming regular trail:', trailId);
                         map.setPaintProperty(layerId, 'line-opacity', 0.5);
-                        map.setPaintProperty(layerId, 'line-width', 3);
+                        // Don't change width - keep zoom-based interpolation
                     }
                 }
             } catch (error) {
@@ -651,7 +688,7 @@ window.showRecommendedRoute = function(type) {
                 if (map.getLayer(liftLayerId)) {
                     console.log('Dimming lift:', liftId);
                     map.setPaintProperty(liftLayerId, 'line-opacity', 0.5);
-                    map.setPaintProperty(liftLayerId, 'line-width', 3);
+                    // Don't change width - keep zoom-based interpolation
                 }
             } catch (error) {
                 console.error('Error dimming lift:', liftId, error);
@@ -674,6 +711,7 @@ window.showRecommendedRoute = function(type) {
                         if (map.getLayer(splitLayerId)) {
                             console.log(`Highlighting split trail: ${trailId} (${pathType})`);
                             map.setPaintProperty(splitLayerId, 'line-opacity', 1);
+                            // Don't change width - keep zoom-based interpolation
                         }
                     });
                 } else {
@@ -682,6 +720,7 @@ window.showRecommendedRoute = function(type) {
                     if (map.getLayer(layerId)) {
                         console.log('Highlighting regular trail:', trailId);
                         map.setPaintProperty(layerId, 'line-opacity', 1);
+                        // Don't change width - keep zoom-based interpolation
                     }
                 }
             } catch (error) {
@@ -697,6 +736,7 @@ window.showRecommendedRoute = function(type) {
                     if (map.getLayer(liftLayerId)) {
                         console.log('Highlighting lift:', liftId);
                         map.setPaintProperty(liftLayerId, 'line-opacity', 1);
+                        // Don't change width - keep zoom-based interpolation
                     }
                 } catch (error) {
                     console.error('Error highlighting lift:', liftId, error);
@@ -713,20 +753,31 @@ function resetNavigationSelections() {
     startPoint.value = '';
     endPoint.value = '';
     
-    // Reset all trails to original properties
+    // Reset all trails to original properties (opacity only, widths stay zoom-based)
     Object.keys(trailData).forEach(trailId => {
-        const layerId = `${trailId}-layer`;
-        if (map.getLayer(layerId)) {
-            map.setPaintProperty(layerId, 'line-opacity', 1);
+        if (trailData[trailId].coordinates.main) {
+            // Handle split trails
+            ['main', 'leftFork', 'rightFork'].forEach(pathType => {
+                const layerId = `${trailId}-${pathType}-layer`;
+                if (map.getLayer(layerId)) {
+                    map.setPaintProperty(layerId, 'line-opacity', 1);
+                }
+            });
+        } else {
+            // Handle regular trails
+            const layerId = `${trailId}-layer`;
+            if (map.getLayer(layerId)) {
+                map.setPaintProperty(layerId, 'line-opacity', 1);
+            }
         }
     });
 
-    // Reset all lifts to original properties
+    // Reset all lifts to original properties (opacity only, widths stay zoom-based)
     Object.keys(liftData).forEach(liftId => {
         const layerId = `${liftId}-layer`;
         if (map.getLayer(layerId)) {
             map.setPaintProperty(layerId, 'line-opacity', 1);
-            map.setPaintProperty(layerId, 'line-width', 4);
+            // Don't change width - keep zoom-based interpolation
         }
     });
 }

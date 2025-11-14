@@ -1,3 +1,47 @@
+// Function to calculate parallel line coordinates for double black trails
+// Using a larger offset to maintain visible separation at all zoom levels
+// Offset is in degrees: ~0.0001 = ~11 meters, ~0.0002 = ~22 meters
+function createParallelLines(coordinates, offsetDistance = 0.0002) {
+    if (coordinates.length < 2) return { left: coordinates, right: coordinates };
+    
+    const leftCoords = [];
+    const rightCoords = [];
+    
+    for (let i = 0; i < coordinates.length; i++) {
+        let prevPoint, nextPoint, angle;
+        
+        if (i === 0) {
+            // First point: use direction to next point
+            nextPoint = coordinates[i + 1];
+            angle = Math.atan2(nextPoint[1] - coordinates[i][1], nextPoint[0] - coordinates[i][0]);
+        } else if (i === coordinates.length - 1) {
+            // Last point: use direction from previous point
+            prevPoint = coordinates[i - 1];
+            angle = Math.atan2(coordinates[i][1] - prevPoint[1], coordinates[i][0] - prevPoint[0]);
+        } else {
+            // Middle point: use average direction
+            prevPoint = coordinates[i - 1];
+            nextPoint = coordinates[i + 1];
+            const angle1 = Math.atan2(coordinates[i][1] - prevPoint[1], coordinates[i][0] - prevPoint[0]);
+            const angle2 = Math.atan2(nextPoint[1] - coordinates[i][1], nextPoint[0] - coordinates[i][0]);
+            angle = (angle1 + angle2) / 2;
+        }
+        
+        // Perpendicular angle (90 degrees)
+        const perpAngle = angle + Math.PI / 2;
+        
+        // Calculate offset
+        const offsetX = Math.cos(perpAngle) * offsetDistance;
+        const offsetY = Math.sin(perpAngle) * offsetDistance;
+        
+        // Create left and right parallel points
+        leftCoords.push([coordinates[i][0] - offsetX, coordinates[i][1] - offsetY]);
+        rightCoords.push([coordinates[i][0] + offsetX, coordinates[i][1] + offsetY]);
+    }
+    
+    return { left: leftCoords, right: rightCoords };
+}
+
 // Function to smooth trail coordinates using Catmull-Rom spline interpolation
 function smoothCoordinates(coordinates, tension = 0.5) {
     if (coordinates.length < 2) return coordinates;
@@ -68,12 +112,12 @@ let navigationActive = false;
 
 // Debug checks
 if (typeof mountainFeatureData === 'undefined') {
-    console.error('mountainFeatureData is not defined! Check if Mountainfeatures.js is loaded correctly');
+    console.error('mountainFeatureData is not defined! Check if VailMountainFeatures.js is loaded correctly');
 } else {
     console.log('mountainFeatureData is loaded:', Object.keys(mountainFeatureData).length, 'features found');
 }
 
-// Use the mountainFeatureData from your Mountainfeatures.js file
+// Use the mountainFeatureData from your VailMountainFeatures.js file
 console.log('Mountain Feature Data:', mountainFeatureData); // Debug log
 
 console.log('Script starting');
@@ -87,10 +131,10 @@ console.log('Token set');
 const map = new mapboxgl.Map({
     container: 'map',
     style: 'mapbox://styles/mapbox/satellite-v9',
-    center: [-106.336, 39.595],
-    zoom: 15,
-    bearing: 0,
-    pitch: 45
+    center: [-106.08341101274623, 39.47262655904069],  // Centered on Breckenridge
+    zoom: 14,  // Zoomed in on Breckenridge
+    bearing: -80,  // North at top
+    pitch: 45  // 45 degree angle view
 });
 console.log('Map initialized');
 
@@ -225,27 +269,73 @@ map.on('load', function() {
                         }
                     });
 
-                    // Add layer
+                    // For all trails, use a border/highlight effect
+                    // Extreme trails get red border, double black trails get yellow border, others get white border
+                    // Catwalks don't get a border - just dashed colored line
+                    const isExtreme = trailData[trail].difficulty === 'extreme' || trailData[trail].isExtreme === true;
+                    const isDoubleBlack = trailData[trail].difficulty === 'doubleBlack' || trailData[trail].isDoubleBlack === true;
+                    const isCatwalk = trailData[trail].isCatwalk === true || trailData[trail].type === 'catwalk';
+                    const borderColor = isExtreme ? '#FF0000' : (isDoubleBlack ? '#FFB84D' : '#FFFFFF');  // Red for extreme, yellow-orange for double black, white for others
+                    
+                    // Only add border layer for non-catwalk trails
+                    if (!isCatwalk) {
+                        // Build paint properties for border layer
+                        const borderPaint = {
+                            'line-color': borderColor,
+                            'line-width': [
+                                'interpolate',
+                                ['linear'],
+                                ['zoom'],
+                                10, 1.5,   // Wider border
+                                12, 2.5,
+                                14, 4.5,
+                                16, 6.5
+                            ],
+                            'line-translate': [0, 0]  // Ensure no offset
+                        };
+                        
+                        // Bottom layer: border/highlight (wider)
+                        map.addLayer({
+                            'id': `${trail}-${pathType}-layer-border`,
+                            'type': 'line',
+                            'source': sourceId,
+                            'layout': {
+                                'line-join': 'round',
+                                'line-cap': 'square'  // Use 'square' for better alignment
+                            },
+                            'paint': borderPaint
+                        });
+                    }
+                    
+                    // Build paint properties for main layer
+                    const mainPaint = {
+                        'line-color': trailData[trail].color,
+                        'line-width': [
+                            'interpolate',
+                            ['linear'],
+                            ['zoom'],
+                            10, 0.9,
+                            12, 1.8,
+                            14, 3.6,
+                            16, 5.4
+                        ],
+                        'line-translate': [0, 0]  // Ensure no offset
+                    };
+                    // Add dash array for catwalks
+                    if (isCatwalk) {
+                        mainPaint['line-dasharray'] = [4, 3];
+                    }
+                    
+                    // Top layer: colored line (narrower, centered on white for non-catwalks)
                     map.addLayer({
                         'id': `${trail}-${pathType}-layer`,
                         'type': 'line',
                         'source': sourceId,
                         'layout': {
                             'line-join': 'round',
-                            'line-cap': 'round'
+                            'line-cap': isCatwalk ? 'round' : 'square'  // Round caps for catwalks look better
                         },
-                        'paint': {
-                            'line-color': trailData[trail].color,
-                            'line-width': [
-                                'interpolate',
-                                ['linear'],
-                                ['zoom'],
-                                10, 0.9,
-                                12, 1.8,
-                                14, 3.6,
-                                16, 5.4
-                            ]
-                        }
+                        'paint': mainPaint
                     });
                 }
             });
@@ -264,26 +354,73 @@ map.on('load', function() {
                         }
                     }
                 });
+                // For all trails, use a border/highlight effect
+                // Extreme trails get red border, double black trails get yellow border, others get white border
+                // Catwalks don't get a border - just dashed colored line
+                const isExtreme = trailData[trail].difficulty === 'extreme' || trailData[trail].isExtreme === true;
+                const isDoubleBlack = trailData[trail].difficulty === 'doubleBlack' || trailData[trail].isDoubleBlack === true;
+                const isCatwalk = trailData[trail].isCatwalk === true || trailData[trail].type === 'catwalk';
+                const borderColor = isExtreme ? '#FF0000' : (isDoubleBlack ? '#FFB84D' : '#FFFFFF');  // Red for extreme, yellow-orange for double black, white for others
+                
+                // Only add border layer for non-catwalk trails
+                if (!isCatwalk) {
+                    // Build paint properties for border layer
+                    const borderPaint = {
+                        'line-color': borderColor,
+                        'line-width': [
+                            'interpolate',
+                            ['linear'],
+                            ['zoom'],
+                            10, 1.5,   // Wider border
+                            12, 2.5,
+                            14, 4.5,
+                            16, 6.5
+                        ],
+                        'line-translate': [0, 0]  // Ensure no offset
+                    };
+                    
+                    // Bottom layer: border/highlight (wider)
+                    map.addLayer({
+                        'id': `${trail}-layer-border`,
+                        'type': 'line',
+                        'source': trail,
+                        'layout': {
+                            'line-join': 'round',
+                            'line-cap': 'square'  // Use 'square' for better alignment
+                        },
+                        'paint': borderPaint
+                    });
+                }
+                
+                // Build paint properties for main layer
+                const mainPaint = {
+                    'line-color': trailData[trail].color,
+                    'line-width': [
+                        'interpolate',
+                        ['linear'],
+                        ['zoom'],
+                        10, 0.9,
+                        12, 1.8,
+                        14, 3.6,
+                        16, 5.4
+                    ],
+                    'line-translate': [0, 0]  // Ensure no offset
+                };
+                // Add dash array for catwalks
+                if (isCatwalk) {
+                    mainPaint['line-dasharray'] = [4, 3];
+                }
+                
+                // Top layer: colored line (narrower, centered on white for non-catwalks)
                 map.addLayer({
                     'id': `${trail}-layer`,
                     'type': 'line',
                     'source': trail,
                     'layout': {
                         'line-join': 'round',
-                        'line-cap': 'round'
+                        'line-cap': isCatwalk ? 'round' : 'square'  // Round caps for catwalks look better
                     },
-                    'paint': {
-                        'line-color': trailData[trail].color,
-                        'line-width': [
-                            'interpolate',
-                            ['linear'],
-                            ['zoom'],
-                            10, 0.9,
-                            12, 1.8,
-                            14, 3.6,
-                            16, 5.4
-                        ]
-                    }
+                    'paint': mainPaint
                 });
             }
         }
@@ -291,10 +428,42 @@ map.on('load', function() {
 
     // Add click handlers for all trails
     Object.keys(trailData).forEach(function(trail) {
+        const isDoubleBlack = trailData[trail].difficulty === 'doubleBlack' || trailData[trail].isDoubleBlack === true;
+        
         if (trailData[trail].coordinates.main) {
             // Handle split trails
             ['main', 'leftFork', 'rightFork'].forEach(pathType => {
-                map.on('click', `${trail}-${pathType}-layer`, function(e) {
+                // All trails now have border and main layers
+                const layerIds = [`${trail}-${pathType}-layer`, `${trail}-${pathType}-layer-border`];
+                
+                layerIds.forEach(layerId => {
+                    map.on('click', layerId, function(e) {
+                        const popupContent = trailPopups[trail] ? 
+                            trailPopups[trail].content : 
+                            `<strong>${trail}</strong><br>Difficulty: ${trailData[trail].difficulty}`;
+                        
+                        new mapboxgl.Popup()
+                            .setLngLat(e.lngLat)
+                            .setHTML(popupContent)
+                            .addTo(map);
+                    });
+
+                    // Hover effects for split trails
+                    map.on('mouseenter', layerId, function() {
+                        map.getCanvas().style.cursor = 'pointer';
+                    });
+                    map.on('mouseleave', layerId, function() {
+                        map.getCanvas().style.cursor = '';
+                    });
+                });
+            });
+        } else {
+            // Handle regular trails
+            // All trails now have border and main layers
+            const layerIds = [`${trail}-layer`, `${trail}-layer-border`];
+            
+            layerIds.forEach(layerId => {
+                map.on('click', layerId, function(e) {
                     const popupContent = trailPopups[trail] ? 
                         trailPopups[trail].content : 
                         `<strong>${trail}</strong><br>Difficulty: ${trailData[trail].difficulty}`;
@@ -305,33 +474,13 @@ map.on('load', function() {
                         .addTo(map);
                 });
 
-                // Hover effects for split trails
-                map.on('mouseenter', `${trail}-${pathType}-layer`, function() {
+                // Hover effects for regular trails
+                map.on('mouseenter', layerId, function() {
                     map.getCanvas().style.cursor = 'pointer';
                 });
-                map.on('mouseleave', `${trail}-${pathType}-layer`, function() {
+                map.on('mouseleave', layerId, function() {
                     map.getCanvas().style.cursor = '';
                 });
-            });
-        } else {
-            // Handle regular trails
-            map.on('click', `${trail}-layer`, function(e) {
-                const popupContent = trailPopups[trail] ? 
-                    trailPopups[trail].content : 
-                    `<strong>${trail}</strong><br>Difficulty: ${trailData[trail].difficulty}`;
-                
-                new mapboxgl.Popup()
-                    .setLngLat(e.lngLat)
-                    .setHTML(popupContent)
-                    .addTo(map);
-            });
-
-            // Hover effects for regular trails
-            map.on('mouseenter', `${trail}-layer`, function() {
-                map.getCanvas().style.cursor = 'pointer';
-            });
-            map.on('mouseleave', `${trail}-layer`, function() {
-                map.getCanvas().style.cursor = '';
             });
         }
     });
@@ -340,6 +489,28 @@ map.on('load', function() {
     Object.keys(liftData).forEach(function(lift) {
         console.log('Processing lift:', lift);
         if (!map.getSource(lift)) {
+            const isHikeTo = liftData[lift].isHikeTo === true || liftData[lift].type === 'hikeTo';
+            const lineColor = isHikeTo ? '#000000' : (liftData[lift].color || '#FF0000');  // Black for hike-to, red for regular lifts
+            const dashArray = isHikeTo ? [2, 2] : [4, 3];  // Smaller dashes for hike-to
+            // Thinner line width for hike-to terrain
+            const lineWidth = isHikeTo ? [
+                'interpolate',
+                ['linear'],
+                ['zoom'],
+                10, 1.0,   // Thinner when zoomed out
+                12, 1.5,
+                14, 2.0,
+                16, 2.5   // Thinner when zoomed in
+            ] : [
+                'interpolate',
+                ['linear'],
+                ['zoom'],
+                10, 1.5,   // Thinner when zoomed out
+                12, 2.5,
+                14, 3.5,
+                16, 4.5   // Slightly thicker when zoomed in
+            ];
+            
             map.addSource(lift, {
                 type: 'geojson',
                 data: { type: 'Feature', geometry: { type: 'LineString', coordinates: liftData[lift].coordinates } }
@@ -349,9 +520,9 @@ map.on('load', function() {
                 type: 'line',
                 source: lift,
                 paint: {
-                    'line-color': liftData[lift].color,
-                    'line-width': 4,
-                    'line-dasharray': [4, 3]
+                    'line-color': lineColor,
+                    'line-width': lineWidth,
+                    'line-dasharray': dashArray
                 },
                 layout: { 'visibility': 'visible' }
             });
@@ -437,7 +608,7 @@ map.on('load', function() {
         console.error('Error initializing features:', error);
     }
 
-    // Update trail colors to ensure they match trailData (in case trailData.js was updated)
+    // Update trail colors to ensure they match trailData (in case VailTrailData.js was updated)
     // Delay to ensure all layers are fully created
     setTimeout(function() {
         updateTrailColors();
@@ -492,19 +663,29 @@ function toggleTrails() {
     }
     
     Object.keys(trailData).forEach(function(trail) {
+        const isDoubleBlack = trailData[trail].difficulty === 'doubleBlack' || trailData[trail].isDoubleBlack === true;
+        
         if (trailData[trail].coordinates.main) {
-            // Handle split trails
+            // Handle split trails - all trails now have border and main layers
             ['main', 'leftFork', 'rightFork'].forEach(pathType => {
-                const layerId = `${trail}-${pathType}-layer`;
-                if (map.getLayer(layerId)) {
-                    map.setLayoutProperty(layerId, 'visibility', trailsVisible ? 'visible' : 'none');
+                const borderLayerId = `${trail}-${pathType}-layer-border`;
+                const mainLayerId = `${trail}-${pathType}-layer`;
+                if (map.getLayer(borderLayerId)) {
+                    map.setLayoutProperty(borderLayerId, 'visibility', trailsVisible ? 'visible' : 'none');
+                }
+                if (map.getLayer(mainLayerId)) {
+                    map.setLayoutProperty(mainLayerId, 'visibility', trailsVisible ? 'visible' : 'none');
                 }
             });
         } else {
-            // Handle regular trails
-            const layerId = `${trail}-layer`;
-            if (map.getLayer(layerId)) {
-                map.setLayoutProperty(layerId, 'visibility', trailsVisible ? 'visible' : 'none');
+            // Handle regular trails - all trails now have border and main layers
+            const borderLayerId = `${trail}-layer-border`;
+            const mainLayerId = `${trail}-layer`;
+            if (map.getLayer(borderLayerId)) {
+                map.setLayoutProperty(borderLayerId, 'visibility', trailsVisible ? 'visible' : 'none');
+            }
+            if (map.getLayer(mainLayerId)) {
+                map.setLayoutProperty(mainLayerId, 'visibility', trailsVisible ? 'visible' : 'none');
             }
         }
     });
@@ -651,22 +832,44 @@ function updateTrailColors() {
     console.log('Updating trail colors from trailData...');
     Object.keys(trailData).forEach(function(trail) {
         const trailColor = trailData[trail].color;
+        const isExtreme = trailData[trail].difficulty === 'extreme' || trailData[trail].isExtreme === true;
+        const isDoubleBlack = trailData[trail].difficulty === 'doubleBlack' || trailData[trail].isDoubleBlack === true;
+        const isCatwalk = trailData[trail].isCatwalk === true || trailData[trail].type === 'catwalk';
+        const borderColor = isExtreme ? '#FF0000' : (isDoubleBlack ? '#FFB84D' : '#FFFFFF');  // Red for extreme, yellow-orange for double black, white for others
         
         if (trailData[trail].coordinates.main) {
             // Handle split trails
             ['main', 'leftFork', 'rightFork'].forEach(pathType => {
-                const layerId = `${trail}-${pathType}-layer`;
-                if (map.getLayer(layerId)) {
-                    map.setPaintProperty(layerId, 'line-color', trailColor);
+                // Update the main layer color
+                const mainLayerId = `${trail}-${pathType}-layer`;
+                if (map.getLayer(mainLayerId)) {
+                    map.setPaintProperty(mainLayerId, 'line-color', trailColor);
                     console.log(`Updated color for ${trail}-${pathType}: ${trailColor}`);
+                }
+                // Update the border layer color (only if not a catwalk)
+                if (!isCatwalk) {
+                    const borderLayerId = `${trail}-${pathType}-layer-border`;
+                    if (map.getLayer(borderLayerId)) {
+                        map.setPaintProperty(borderLayerId, 'line-color', borderColor);
+                        console.log(`Updated border color for ${trail}-${pathType}: ${borderColor}`);
+                    }
                 }
             });
         } else {
             // Handle regular trails
-            const layerId = `${trail}-layer`;
-            if (map.getLayer(layerId)) {
-                map.setPaintProperty(layerId, 'line-color', trailColor);
+            // Update the main layer color
+            const mainLayerId = `${trail}-layer`;
+            if (map.getLayer(mainLayerId)) {
+                map.setPaintProperty(mainLayerId, 'line-color', trailColor);
                 console.log(`Updated color for ${trail}: ${trailColor}`);
+            }
+            // Update the border layer color (only if not a catwalk)
+            if (!isCatwalk) {
+                const borderLayerId = `${trail}-layer-border`;
+                if (map.getLayer(borderLayerId)) {
+                    map.setPaintProperty(borderLayerId, 'line-color', borderColor);
+                    console.log(`Updated border color for ${trail}: ${borderColor}`);
+                }
             }
         }
     });
@@ -675,26 +878,52 @@ function updateTrailColors() {
 
 function toggleTrailsByDifficulty(difficulty) {
     Object.keys(trailData).forEach(trail => {
-        if (trailData[trail].difficulty === difficulty) {
+        // Handle both 'black' and 'doubleBlack' for black trails, and 'extreme'
+        const trailDifficulty = trailData[trail].difficulty;
+        const isExtreme = trailDifficulty === 'extreme' || trailData[trail].isExtreme === true;
+        const isDoubleBlack = trailDifficulty === 'doubleBlack' || trailData[trail].isDoubleBlack === true;
+        // Match difficulty - but don't show double black when regular black is toggled, and don't show extreme when others are toggled
+        const matchesDifficulty = (difficulty === 'black' && trailDifficulty === 'black' && !isDoubleBlack && !isExtreme) || 
+                                  (difficulty === 'doubleBlack' && isDoubleBlack && !isExtreme) ||
+                                  (difficulty === 'extreme' && isExtreme) ||
+                                  (trailDifficulty === difficulty && !isDoubleBlack && !isExtreme);
+        
+        if (matchesDifficulty) {
+            // Handle camelCase for doubleBlack and extreme
+            let checkboxId;
+            if (difficulty === 'doubleBlack') {
+                checkboxId = 'toggleDoubleBlackTrails';
+            } else if (difficulty === 'extreme') {
+                checkboxId = 'toggleExtremeTrails';
+            } else {
+                checkboxId = `toggle${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}Trails`;
+            }
+            const checkbox = document.getElementById(checkboxId);
+            const isVisible = checkbox ? checkbox.checked : true;
+            
             // Check if it's a split trail
             if (trailData[trail].coordinates.main) {
-                // Handle split trail visibility
+                // Handle split trail visibility - all trails have border and main layers
                 ['main', 'leftFork', 'rightFork'].forEach(pathType => {
-                    const checkbox = document.getElementById(`toggle${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}Trails`);
-                    map.setLayoutProperty(
-                        `${trail}-${pathType}-layer`,
-                        'visibility',
-                        checkbox.checked ? 'visible' : 'none'  // Changed this line
-                    );
+                    const borderLayerId = `${trail}-${pathType}-layer-border`;
+                    const mainLayerId = `${trail}-${pathType}-layer`;
+                    if (map.getLayer(borderLayerId)) {
+                        map.setLayoutProperty(borderLayerId, 'visibility', isVisible ? 'visible' : 'none');
+                    }
+                    if (map.getLayer(mainLayerId)) {
+                        map.setLayoutProperty(mainLayerId, 'visibility', isVisible ? 'visible' : 'none');
+                    }
                 });
             } else {
-                // Handle regular trail visibility
-                const checkbox = document.getElementById(`toggle${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}Trails`);
-                map.setLayoutProperty(
-                    `${trail}-layer`,
-                    'visibility',
-                    checkbox.checked ? 'visible' : 'none'  // Changed this line
-                );
+                // Handle regular trail visibility - all trails have border and main layers
+                const borderLayerId = `${trail}-layer-border`;
+                const mainLayerId = `${trail}-layer`;
+                if (map.getLayer(borderLayerId)) {
+                    map.setLayoutProperty(borderLayerId, 'visibility', isVisible ? 'visible' : 'none');
+                }
+                if (map.getLayer(mainLayerId)) {
+                    map.setLayoutProperty(mainLayerId, 'visibility', isVisible ? 'visible' : 'none');
+                }
             }
         }
     });
@@ -777,7 +1006,32 @@ document.getElementById('toggleTrails').addEventListener('change', function() {
     if (!this.checked) {
         difficultyDropdown.querySelectorAll('input[type="checkbox"]').forEach(cb => {
             cb.checked = false;
-            toggleTrailsByDifficulty(cb.id.replace('toggle', '').replace('Trails', '').toLowerCase());
+            // Handle camelCase for DoubleBlack
+            let difficulty = cb.id.replace('toggle', '').replace('Trails', '');
+            if (difficulty === 'DoubleBlack') {
+                difficulty = 'doubleBlack';
+            } else {
+                difficulty = difficulty.toLowerCase();
+            }
+            toggleTrailsByDifficulty(difficulty);
+        });
+    }
+});
+
+// Add event listeners for individual difficulty checkboxes
+        ['Green', 'Blue', 'Black', 'DoubleBlack', 'Extreme'].forEach(difficulty => {
+    const checkbox = document.getElementById(`toggle${difficulty}Trails`);
+    if (checkbox) {
+        checkbox.addEventListener('change', function() {
+            let difficultyLower;
+            if (difficulty === 'DoubleBlack') {
+                difficultyLower = 'doubleBlack';
+            } else if (difficulty === 'Extreme') {
+                difficultyLower = 'extreme';
+            } else {
+                difficultyLower = difficulty.toLowerCase();
+            }
+            toggleTrailsByDifficulty(difficultyLower);
         });
     }
 });

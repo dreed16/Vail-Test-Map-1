@@ -1,5 +1,5 @@
-// Trail data
-console.log('trailData.js loaded - Headwall color:', '#00FF00');
+// Vail Trail data
+console.log('VailTrailData.js loaded - Headwall color:', '#00FF00');
 var trailData = {
     'DragonsTeeth': { 
         coordinates: [
@@ -368,9 +368,10 @@ var trailData = {
             [-106.36725778340858,39.60529085332473],
             [-106.36891521312737,39.605688178320804]
         ],
-        difficulty: 'blue',
-        color: '#0000FF',
-        parentTrail: 'Headwall'
+        difficulty: 'black',
+        color: '#000000',
+        parentTrail: 'WindowsRoad',
+        isCatwalk: true
     },
     'PrimaTop': { 
         coordinates: [
@@ -382,7 +383,7 @@ var trailData = {
             [-106.35437652383322,39.62002307157269],
             [-106.35570997284256,39.62172037380063]
         ],
-        difficulty: 'black',
+        difficulty: 'doubleBlack',
         color: '#000000',
         parentTrail: 'Headwall'
     },
@@ -399,6 +400,14 @@ var trailData = {
         difficulty: 'blue',
         color: '#0000FF',
         parentTrail: 'Headwall'
+    },
+    'Pronto': { 
+        coordinates: [
+            [-106.3535814033521,39.61833498149346],[-106.35338584759323,39.61847058768717],[-106.35326404765195,39.61851018247842],[-106.35306763517771,39.61851931132878],[-106.35264950818502,39.61856270490898],[-106.35216332193701,39.618611167341044],[-106.3512493310984,39.61876167074169]
+        ],
+        difficulty: 'doubleBlack',
+        color: '#000000',
+        parentTrail: 'Pronto'
     },
     'RivaRidgeTop': { 
         coordinates: [
@@ -550,7 +559,7 @@ var trailData = {
             [-106.35237650993825,39.6149707663547],
             [-106.35129279001711,39.61553784355618]
         ],
-        difficulty: 'black',
+        difficulty: 'doubleBlack',
         color: '#000000',
         parentTrail: 'PrimaCornice'
     },
@@ -776,7 +785,8 @@ var trailData = {
         ],
         difficulty: 'green',
         color: '#00FF00',
-        parentTrail: 'TransMontane'
+        parentTrail: 'TransMontane',
+        isCatwalk: true
     },
     'NorthFaceCatWalkLeft': { 
         coordinates: [
@@ -790,7 +800,8 @@ var trailData = {
         ],
         difficulty: 'green',
         color: '#00FF00',
-        parentTrail: ' NorthFaceCatWalkLeft'
+        parentTrail: ' NorthFaceCatWalkLeft',
+        isCatwalk: true
     },
     'NorthFaceCatWalkRight': { 
         coordinates: [
@@ -804,7 +815,8 @@ var trailData = {
         ],
         difficulty: 'blue',
         color: '#0000FF',
-        parentTrail: ' NorthFaceCatWalkRight'
+        parentTrail: ' NorthFaceCatWalkRight',
+        isCatwalk: true
     },
     'SkidRoad': { 
         coordinates: [
@@ -818,7 +830,8 @@ var trailData = {
         ],
         difficulty: 'blue',
         color: '#0000FF',
-        parentTrail: 'SkidRoad'
+        parentTrail: 'SkidRoad',
+        isCatwalk: true
     },
     'Compromise': { 
         coordinates: [
@@ -832,7 +845,8 @@ var trailData = {
         ],
         difficulty: 'blue',
         color: '#0000FF',
-        parentTrail: 'Compromise'
+        parentTrail: 'Compromise',
+        isCatwalk: true
     },
     'Christmas': { 
         coordinates: [
@@ -984,7 +998,7 @@ var trailData = {
             [-106.36743431159177,39.6242132475015],
             [-106.36684064976467,39.626521658547546]
         ],
-        difficulty: 'black',
+        difficulty: 'doubleBlack',
         color: '#000000',
         parentTrail: 'CadysCafeBottom'
     },
@@ -998,7 +1012,7 @@ var trailData = {
             [-106.36795525128066,39.622234114593425],
             [-106.3676882492881,39.62235223591014]
         ],
-        difficulty: 'black',
+        difficulty: 'doubleBlack',
         color: '#000000',
         parentTrail: 'ThePumpHouse'
     },
@@ -1012,7 +1026,7 @@ var trailData = {
             [-106.36947542049563,39.630169511568255],
             [-106.369044511369,39.63051585986267]
         ],
-        difficulty: 'black',
+        difficulty: 'doubleBlack',
         color: '#000000',
         parentTrail: 'ThePumpHouse'
     },
@@ -1026,7 +1040,7 @@ var trailData = {
             [-106.37040328610087,39.631850695009604],
             [-106.37030581415463,39.63231943409565]
         ],
-        difficulty: 'black',
+        difficulty: 'doubleBlack',
         color: '#000000',
         parentTrail: 'FrontsideChutes'
     },
@@ -1364,7 +1378,8 @@ var trailData = {
         ],
         difficulty: 'green',
         color: '#00FF00',
-        parentTrail: 'PostRoad'
+        parentTrail: 'PostRoad',
+        isCatwalk: true
     },
     'GSAlley': { 
         coordinates: [
@@ -1717,7 +1732,8 @@ var trailData = {
         ],
         difficulty: 'blue',
         color: '#0000FF',
-        parentTrail: 'CascadeWay'
+        parentTrail: 'CascadeWay',
+        isCatwalk: true
     },
     'Cheeah': { 
         coordinates: [
@@ -1788,7 +1804,8 @@ var trailData = {
         ],
         difficulty: 'green',
         color: '#00FF00',
-        parentTrail: 'CubsWayBottom'
+        parentTrail: 'CubsWayBottom',
+        isCatwalk: true
     },
     'CubsWayTop': { 
         coordinates: [
@@ -1796,7 +1813,8 @@ var trailData = {
         ],
         difficulty: 'green',
         color: '#00FF00',
-        parentTrail: 'CubsWayTop'
+        parentTrail: 'CubsWayTop',
+        isCatwalk: true
     },
     'Pika': { 
         coordinates: [
@@ -1816,7 +1834,8 @@ var trailData = {
         ],
         difficulty: 'green',
         color: '#00FF00',
-        parentTrail: 'Pika'
+        parentTrail: 'Pika',
+        isCatwalk: true
     },
     'Gitalongroad': { 
         coordinates: [
@@ -1857,7 +1876,8 @@ var trailData = {
         ],
         difficulty: 'green',
         color: '#00FF00',
-        parentTrail: 'Gitalongroad'
+        parentTrail: 'Gitalongroad',
+        isCatwalk: true
     },
     'BriskWalk': { 
         coordinates: [
@@ -1881,7 +1901,8 @@ var trailData = {
         ],
         difficulty: 'green',
         color: '#00FF00',
-        parentTrail: 'BriskWalk'
+        parentTrail: 'BriskWalk',
+        isCatwalk: true
     },
     'EaglesNestRidge': { 
         coordinates: [
@@ -1903,7 +1924,8 @@ var trailData = {
         ],
         difficulty: 'green',
         color: '#00FF00',
-        parentTrail: 'Rivacatwalk'
+        parentTrail: 'Rivacatwalk',
+        isCatwalk: true
     },
     'Cappuccino': { 
         coordinates: [
