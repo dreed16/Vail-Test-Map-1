@@ -389,10 +389,10 @@ map.on('load', function() {
                                 'interpolate',
                                 ['linear'],
                                 ['zoom'],
-                                10, 1.5,   // Wider border
-                                12, 2.5,
-                                14, 4.5,
-                                16, 6.5
+                                10, 1.2,   // Wider border (20% thinner)
+                                12, 2.0,
+                                14, 3.6,
+                                16, 5.2
                             ],
                             'line-translate': [0, 0]  // Ensure no offset
                         };
@@ -420,10 +420,10 @@ map.on('load', function() {
                             'interpolate',
                             ['linear'],
                             ['zoom'],
-                            10, 0.9,
-                            12, 1.8,
-                            14, 3.6,
-                            16, 5.4
+                            10, 0.72,  // 20% thinner
+                            12, 1.44,
+                            14, 2.88,
+                            16, 4.32
                         ],
                         'line-translate': [0, 0]  // Ensure no offset
                     };
@@ -478,10 +478,10 @@ map.on('load', function() {
                             'interpolate',
                             ['linear'],
                             ['zoom'],
-                            10, 1.5,   // Wider border
-                            12, 2.5,
-                            14, 4.5,
-                            16, 6.5
+                            10, 1.2,   // Wider border (20% thinner)
+                            12, 2.0,
+                            14, 3.6,
+                            16, 5.2
                         ],
                         'line-translate': [0, 0]  // Ensure no offset
                     };
@@ -509,10 +509,10 @@ map.on('load', function() {
                         'interpolate',
                         ['linear'],
                         ['zoom'],
-                        10, 0.9,
-                        12, 1.8,
-                        14, 3.6,
-                        16, 5.4
+                        10, 0.72,  // 20% thinner
+                        12, 1.44,
+                        14, 2.88,
+                        16, 4.32
                     ],
                     'line-translate': [0, 0]  // Ensure no offset
                 };
@@ -548,8 +548,10 @@ map.on('load', function() {
                 const sourceId = `${trail}-${pathType}`;
                 const borderLayerId = `${trail}-${pathType}-layer-border`;
                 const mainLayerId = `${trail}-${pathType}-layer`;
+                const highlightLayerId = `${trail}-${pathType}-video-highlight`;
                 
-                // Remove layers
+                // Remove all layers (including video highlights)
+                if (map.getLayer(highlightLayerId)) map.removeLayer(highlightLayerId);
                 if (map.getLayer(borderLayerId)) map.removeLayer(borderLayerId);
                 if (map.getLayer(mainLayerId)) map.removeLayer(mainLayerId);
                 
@@ -560,8 +562,10 @@ map.on('load', function() {
             // Handle regular trails
             const borderLayerId = `${trail}-layer-border`;
             const mainLayerId = `${trail}-layer`;
+            const highlightLayerId = `${trail}-video-highlight`;
             
-            // Remove layers
+            // Remove all layers (including video highlights)
+            if (map.getLayer(highlightLayerId)) map.removeLayer(highlightLayerId);
             if (map.getLayer(borderLayerId)) map.removeLayer(borderLayerId);
             if (map.getLayer(mainLayerId)) map.removeLayer(mainLayerId);
             
@@ -572,22 +576,86 @@ map.on('load', function() {
         loadedTrails.delete(trail);
     }
     
+    // Pre-compute bounding boxes for all trails (one-time cost, huge performance win)
+    // MUST be done before loadTrailsInViewport() is called
+    const trailBoundingBoxes = {};
+    Object.keys(trailData).forEach(function(trail) {
+        let trailCoords = null;
+        if (trailData[trail].coordinates.main) {
+            trailCoords = trailData[trail].coordinates.main;
+        } else {
+            trailCoords = trailData[trail].coordinates;
+        }
+        
+        if (trailCoords && trailCoords.length > 0) {
+            let minLat = Infinity, maxLat = -Infinity;
+            let minLng = Infinity, maxLng = -Infinity;
+            
+            for (let i = 0; i < trailCoords.length; i++) {
+                const coord = trailCoords[i];
+                if (Array.isArray(coord) && coord.length >= 2) {
+                    const [lng, lat] = coord;
+                    if (lat < minLat) minLat = lat;
+                    if (lat > maxLat) maxLat = lat;
+                    if (lng < minLng) minLng = lng;
+                    if (lng > maxLng) maxLng = lng;
+                }
+            }
+            
+            trailBoundingBoxes[trail] = {
+                minLat: minLat,
+                maxLat: maxLat,
+                minLng: minLng,
+                maxLng: maxLng
+            };
+        }
+    });
+    
+    // Optimized viewport check using pre-computed bounding boxes
+    function quickViewportCheck(trail, bounds, bufferPercent = 0.15) {
+        const bbox = trailBoundingBoxes[trail];
+        if (!bbox) return false;
+        
+        // Expand bounds by buffer
+        const latRange = bounds.getNorth() - bounds.getSouth();
+        const lngRange = bounds.getEast() - bounds.getWest();
+        const latBuffer = latRange * bufferPercent;
+        const lngBuffer = lngRange * bufferPercent;
+        
+        const expandedBounds = {
+            north: bounds.getNorth() + latBuffer,
+            south: bounds.getSouth() - latBuffer,
+            east: bounds.getEast() + lngBuffer,
+            west: bounds.getWest() - lngBuffer
+        };
+        
+        // Quick bounding box intersection check (much faster than checking all coordinates)
+        return !(bbox.maxLat < expandedBounds.south || bbox.minLat > expandedBounds.north ||
+                 bbox.maxLng < expandedBounds.west || bbox.minLng > expandedBounds.east);
+    }
+    
     // Load trails that are in viewport, unload ones that aren't
     function loadTrailsInViewport() {
         const bounds = map.getBounds();
         const trailsToKeep = new Set();
         
-        // First, check which trails should be loaded
-        Object.keys(trailData).forEach(function(trail) {
-            // Check if trail is in viewport
-            let trailCoords = null;
-            if (trailData[trail].coordinates.main) {
-                trailCoords = trailData[trail].coordinates.main;
-            } else {
-                trailCoords = trailData[trail].coordinates;
+        // OPTIMIZED: Use pre-computed bounding boxes for fast checks
+        // First, check currently loaded trails (they're most likely to still be visible)
+        loadedTrails.forEach(function(trail) {
+            if (quickViewportCheck(trail, bounds, 0.15)) {
+                trailsToKeep.add(trail);
             }
-            
-            if (isInViewport(trailCoords, bounds, 0.15)) {
+        });
+        
+        // Then check unloaded trails (but only if we have capacity)
+        // Limit to checking max 50 unloaded trails per frame to avoid blocking
+        const unloadedTrails = Object.keys(trailData).filter(t => !loadedTrails.has(t));
+        let checkedCount = 0;
+        const MAX_CHECKS_PER_FRAME = 50;
+        
+        for (let i = 0; i < unloadedTrails.length && checkedCount < MAX_CHECKS_PER_FRAME; i++) {
+            const trail = unloadedTrails[i];
+            if (quickViewportCheck(trail, bounds, 0.15)) {
                 trailsToKeep.add(trail);
                 
                 // Load if not already loaded
@@ -596,7 +664,25 @@ map.on('load', function() {
                     loadedTrails.add(trail);
                 }
             }
-        });
+            checkedCount++;
+        }
+        
+        // If we didn't check all trails, schedule another check
+        if (checkedCount < unloadedTrails.length) {
+            setTimeout(function() {
+                // Check remaining trails
+                for (let i = checkedCount; i < unloadedTrails.length; i++) {
+                    const trail = unloadedTrails[i];
+                    if (quickViewportCheck(trail, bounds, 0.15)) {
+                        if (!loadedTrails.has(trail)) {
+                            loadTrail(trail);
+                            loadedTrails.add(trail);
+                        }
+                        trailsToKeep.add(trail);
+                    }
+                }
+            }, 100);
+        }
         
         // Unload trails that are no longer in viewport
         loadedTrails.forEach(function(trail) {
@@ -610,13 +696,50 @@ map.on('load', function() {
     loadTrailsInViewport();
     
     // Load trails and lifts as map moves (when viewport changes)
+    // Optimized for smooth panning: longer debounce + deferred execution + pre-computed bboxes
     let moveEndTimeout;
+    let lastBounds = null;
+    const BOUNDS_CHANGE_THRESHOLD = 0.1; // Only update if viewport changed by 10% or more (increased from 5%)
+    
     map.on('moveend', function() {
         clearTimeout(moveEndTimeout);
         moveEndTimeout = setTimeout(function() {
-            loadTrailsInViewport();
-            loadLiftsInViewport();
-        }, 200); // Small delay to avoid loading during rapid panning
+            const currentBounds = map.getBounds();
+            
+            // Skip update if viewport hasn't changed significantly
+            if (lastBounds) {
+                const latChange = Math.abs(currentBounds.getNorth() - lastBounds.getNorth()) + 
+                                 Math.abs(currentBounds.getSouth() - lastBounds.getSouth());
+                const lngChange = Math.abs(currentBounds.getEast() - lastBounds.getEast()) + 
+                                 Math.abs(currentBounds.getWest() - lastBounds.getWest());
+                const latRange = currentBounds.getNorth() - currentBounds.getSouth();
+                const lngRange = currentBounds.getEast() - currentBounds.getWest();
+                
+                // If change is less than threshold, skip update
+                if (latChange / latRange < BOUNDS_CHANGE_THRESHOLD && 
+                    lngChange / lngRange < BOUNDS_CHANGE_THRESHOLD) {
+                    return; // Viewport hasn't changed enough
+                }
+            }
+            
+            lastBounds = currentBounds;
+            
+            // Defer expensive operations until browser is idle
+            if (window.requestIdleCallback) {
+                requestIdleCallback(function() {
+                    loadTrailsInViewport();
+                    loadLiftsInViewport();
+                }, { timeout: 1500 }); // Increased timeout
+            } else {
+                // Fallback: use requestAnimationFrame with delay
+                requestAnimationFrame(function() {
+                    setTimeout(function() {
+                        loadTrailsInViewport();
+                        loadLiftsInViewport();
+                    }, 200); // Increased delay
+                });
+            }
+        }, 800); // Increased from 500ms to 800ms for even smoother panning
     });
 
     // Add click handlers for all trails (these work even if trail isn't loaded yet)
@@ -631,14 +754,18 @@ map.on('load', function() {
                 
                 layerIds.forEach(layerId => {
                     map.on('click', layerId, function(e) {
-                        const popupContent = trailPopups[trail] ? 
-                            trailPopups[trail].content : 
-                            `<strong>${trail}</strong><br>Difficulty: ${trailData[trail].difficulty}`;
+                        currentTrailForPopup = trail;
+                        const popupContent = generatePopupContent(trail);
                         
-                        new mapboxgl.Popup()
+                        const popup = new mapboxgl.Popup()
                             .setLngLat(e.lngLat)
                             .setHTML(popupContent)
                             .addTo(map);
+                        
+                        // Add event listeners for custom video buttons after popup is added
+                        setTimeout(() => {
+                            setupCustomVideoButtons(trail, popup);
+                        }, 100);
                     });
 
                     // Hover effects for split trails
@@ -657,14 +784,18 @@ map.on('load', function() {
             
             layerIds.forEach(layerId => {
                 map.on('click', layerId, function(e) {
-                    const popupContent = trailPopups[trail] ? 
-                        trailPopups[trail].content : 
-                        `<strong>${trail}</strong><br>Difficulty: ${trailData[trail].difficulty}`;
+                    currentTrailForPopup = trail;
+                    const popupContent = generatePopupContent(trail);
                     
-                    new mapboxgl.Popup()
+                    const popup = new mapboxgl.Popup()
                         .setLngLat(e.lngLat)
                         .setHTML(popupContent)
                         .addTo(map);
+                    
+                    // Add event listeners for custom video buttons after popup is added
+                    setTimeout(() => {
+                        setupCustomVideoButtons(trail, popup);
+                    }, 100);
                 });
 
                 // Hover effects for regular trails
@@ -878,25 +1009,18 @@ map.on('load', function() {
     }
     
     // Function to update all trail coordinates based on current zoom level
+    // OPTIMIZED: Only update loaded trails (not all trails)
     function updateTrailCoordinatesForZoom() {
         const currentZoom = map.getZoom();
-        const bounds = map.getBounds();
         
-        Object.keys(trailData).forEach(function(trail) {
-            // Check if trail is in viewport before updating (skip off-screen trails)
-            let trailCoords = null;
-            if (trailData[trail].coordinates.main) {
-                // For split trails, check the main path
-                trailCoords = trailData[trail].coordinates.main;
-            } else {
-                // For regular trails, use the coordinates directly
-                trailCoords = trailData[trail].coordinates;
-            }
-            
-            // Skip this trail if it's not in the viewport
-            if (!isInViewport(trailCoords, bounds, 0.2)) {
-                return; // Skip this trail - it's off-screen
-            }
+        // Only update trails that are currently loaded (much faster!)
+        if (!window.loadedTrails || window.loadedTrails.size === 0) {
+            return; // No trails loaded, nothing to update
+        }
+        
+        window.loadedTrails.forEach(function(trail) {
+            // Skip if trail data doesn't exist
+            if (!trailData[trail]) return;
             
             // Trail is visible, proceed with update
             if (trailData[trail].coordinates.main) {
@@ -968,19 +1092,20 @@ map.on('load', function() {
         
         // Add delay to avoid updating during tilt/pan animations
         zoomEndTimeout = setTimeout(function() {
+            const currentLevel = getSimplificationLevel(currentZoom);
             const lastLevel = getSimplificationLevel(lastZoomLevel);
             
             // Update border visibility based on zoom (quick operation)
             updateBorderVisibility();
             
-            // Only update if we crossed a threshold or zoomed significantly (0.3 instead of 0.5 for more sensitivity)
-            if (currentLevel !== lastLevel || Math.abs(currentZoom - lastZoomLevel) > 0.3) {
+            // Only update if we crossed a threshold or zoomed significantly (0.5 for less frequent updates)
+            if (currentLevel !== lastLevel || Math.abs(currentZoom - lastZoomLevel) > 0.5) {
                 // Use requestIdleCallback if available, otherwise requestAnimationFrame with delay
                 if (window.requestIdleCallback) {
                     requestIdleCallback(function() {
                         updateTrailCoordinatesForZoom();
                         lastZoomLevel = currentZoom;
-                    }, { timeout: 2000 }); // Longer timeout to wait for idle
+                    }, { timeout: 2500 }); // Longer timeout to wait for idle
                 } else {
                     // Use setTimeout to delay even requestAnimationFrame
                     setTimeout(function() {
@@ -988,12 +1113,12 @@ map.on('load', function() {
                             updateTrailCoordinatesForZoom();
                             lastZoomLevel = currentZoom;
                         });
-                    }, 300); // 300ms delay to let tilt/pan finish
+                    }, 400); // Increased delay to let tilt/pan finish
                 }
             } else {
                 lastZoomLevel = currentZoom;
             }
-        }, 500); // Wait 500ms after zoom ends before checking (gives time for tilt to finish)
+        }, 600); // Increased from 500ms to 600ms to reduce frequency
     });
 
     // Update trail colors and border visibility on initial load
@@ -1241,6 +1366,123 @@ window.onclick = function(event) {
             dropdown.classList.remove('show');
         }
     }
+}
+
+// Function to setup custom video button event listeners
+function setupCustomVideoButtons(trailId, popup) {
+    // Wait a bit longer for the popup DOM to be ready
+    setTimeout(() => {
+        // Upload button - use event delegation on the popup container
+        const popupContainer = popup._container || popup._content || document.querySelector('.mapboxgl-popup-content');
+        if (popupContainer) {
+            // Remove any existing listeners by cloning
+            const uploadBtn = popupContainer.querySelector('#uploadCustomVideoBtn');
+            if (uploadBtn) {
+                // Remove old listener and add new one
+                const newUploadBtn = uploadBtn.cloneNode(true);
+                uploadBtn.parentNode.replaceChild(newUploadBtn, uploadBtn);
+                
+                newUploadBtn.addEventListener('click', async function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Upload button clicked for trail:', trailId);
+                    const videoUrl = prompt('Paste your YouTube video URL:');
+                    if (videoUrl && window.customVideos && window.customVideos.saveCustomVideo) {
+                        try {
+                            await window.customVideos.saveCustomVideo(trailId, videoUrl);
+                            alert('Video saved successfully!');
+                            // Refresh popup content
+                            const newContent = generatePopupContent(trailId);
+                            popup.setHTML(newContent);
+                            setTimeout(() => {
+                                setupCustomVideoButtons(trailId, popup);
+                            }, 100);
+                            // Update highlights if My Videos mode is on
+                            if (window.updateTrailOpacity) {
+                                window.updateTrailOpacity();
+                            }
+                        } catch (error) {
+                            alert('Error saving video: ' + error.message);
+                            console.error('Error saving video:', error);
+                        }
+                    }
+                });
+            }
+            
+            // Remove button
+            const removeBtn = popupContainer.querySelector('#removeCustomVideoBtn');
+            if (removeBtn) {
+                // Remove old listener and add new one
+                const newRemoveBtn = removeBtn.cloneNode(true);
+                removeBtn.parentNode.replaceChild(newRemoveBtn, removeBtn);
+                
+                newRemoveBtn.addEventListener('click', async function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Remove button clicked for trail:', trailId);
+                    if (confirm('Are you sure you want to remove your custom video?')) {
+                        try {
+                            await window.customVideos.deleteCustomVideo(trailId);
+                            alert('Video removed successfully!');
+                            // Refresh popup content
+                            const newContent = generatePopupContent(trailId);
+                            popup.setHTML(newContent);
+                            setTimeout(() => {
+                                setupCustomVideoButtons(trailId, popup);
+                            }, 100);
+                            // Update highlights if My Videos mode is on
+                            if (window.updateTrailOpacity) {
+                                window.updateTrailOpacity();
+                            }
+                        } catch (error) {
+                            alert('Error removing video: ' + error.message);
+                            console.error('Error removing video:', error);
+                        }
+                    }
+                });
+            }
+        } else {
+            console.warn('Popup container not found for setting up buttons');
+        }
+    }, 200); // Increased delay to ensure DOM is ready
+}
+
+// Function to generate popup content with custom video support
+function generatePopupContent(trailId) {
+    // Check if user has a custom video for this trail
+    const customVideo = window.customVideos && window.customVideos.getCustomVideo ? window.customVideos.getCustomVideo(trailId) : null;
+    const userAuth = window.userAuth;
+    const isLoggedIn = userAuth && userAuth.currentUser;
+    
+    // Get base popup content
+    let content = trailPopups[trailId] ? trailPopups[trailId].content : 
+                  `<strong>${trailId}</strong><br>Difficulty: ${trailData[trailId] ? trailData[trailId].difficulty : 'Unknown'}`;
+    
+    // If user has custom video, replace the iframe
+    if (customVideo && customVideo.videoId) {
+        // Find and replace the iframe in the content
+        const iframeRegex = /<iframe[^>]*>.*?<\/iframe>/gi;
+        const newIframe = `<iframe width='200' height='113' src='https://www.youtube.com/embed/${customVideo.videoId}?enablejsapi=1' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>`;
+        content = content.replace(iframeRegex, newIframe);
+    }
+    
+    // Add custom video buttons if user is logged in
+    if (isLoggedIn) {
+        let buttonsHtml = '<div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #ccc;">';
+        
+        if (customVideo) {
+            // Show remove button
+            buttonsHtml += `<button id="removeCustomVideoBtn" style="background-color: #dc3545; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 3px; margin-right: 5px;">Remove Video</button>`;
+        } else {
+            // Show upload button
+            buttonsHtml += `<button id="uploadCustomVideoBtn" style="background-color: #28a745; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 3px;">Upload Custom Video</button>`;
+        }
+        
+        buttonsHtml += '</div>';
+        content += buttonsHtml;
+    }
+    
+    return content;
 }
 
 // Function to update all trail colors from trailData
@@ -1518,6 +1760,162 @@ document.getElementById('toggleCams').addEventListener('change', function() {
     // Add your mountain cams toggle logic here
     toggleMountainCams();
 });
+
+// My Videos button handler (button instead of checkbox)
+document.addEventListener('DOMContentLoaded', function() {
+    const myVideosButton = document.getElementById('myVideosButton');
+    if (myVideosButton) {
+        let myVideosActive = false;
+        
+        myVideosButton.addEventListener('click', function() {
+            myVideosActive = !myVideosActive;
+            console.log('My Videos button clicked. Active:', myVideosActive);
+            
+            // Update button appearance
+            if (myVideosActive) {
+                this.classList.add('active');
+                this.textContent = 'My Videos (ON)';
+            } else {
+                this.classList.remove('active');
+                this.textContent = 'My Videos';
+            }
+            
+            if (window.customVideos && window.customVideos.setMyVideosMode) {
+                window.customVideos.setMyVideosMode(myVideosActive);
+                console.log('My Videos mode set to:', window.customVideos.getMyVideosMode());
+                console.log('Trails with custom videos:', window.customVideos.getTrailsWithCustomVideos());
+                if (window.updateTrailOpacity) {
+                    window.updateTrailOpacity();
+                } else {
+                    console.error('updateTrailOpacity function not found!');
+                }
+            } else {
+                console.error('window.customVideos not available!');
+            }
+        });
+    } else {
+        console.error('myVideosButton not found!');
+    }
+});
+
+// Function to highlight trails with custom videos (much faster - only updates trails WITH videos)
+function updateTrailOpacity() {
+    if (!window.customVideos || !window.customVideos.getMyVideosMode) {
+        console.warn('updateTrailOpacity: customVideos not available');
+        return;
+    }
+    
+    const myVideosMode = window.customVideos.getMyVideosMode();
+    const trailsWithVideos = window.customVideos.getTrailsWithCustomVideos();
+    
+    console.log('updateTrailOpacity called. Mode:', myVideosMode, 'Trails with videos:', trailsWithVideos.length);
+    
+    if (!myVideosMode) {
+        // Mode is OFF - remove all highlights
+        trailsWithVideos.forEach(trail => {
+            removeVideoHighlight(trail);
+        });
+        return;
+    }
+    
+    // Mode is ON - only highlight trails that have custom videos (much fewer updates!)
+    trailsWithVideos.forEach(trail => {
+        addVideoHighlight(trail);
+    });
+}
+
+// Add a colored outline/glow to trails with custom videos
+function addVideoHighlight(trail) {
+    if (!trailData[trail]) return;
+    
+    const highlightColor = '#00FF00'; // Bright green outline
+    const highlightWidth = 3; // Extra width for the highlight
+    
+    if (trailData[trail].coordinates.main) {
+        // Handle split trails
+        ['main', 'leftFork', 'rightFork'].forEach(pathType => {
+            const sourceId = `${trail}-${pathType}`;
+            const highlightLayerId = `${trail}-${pathType}-video-highlight`;
+            
+            // Only add if it doesn't exist
+            if (!map.getLayer(highlightLayerId) && map.getSource(sourceId)) {
+                map.addLayer({
+                    'id': highlightLayerId,
+                    'type': 'line',
+                    'source': sourceId,
+                    'layout': {
+                        'line-join': 'round',
+                        'line-cap': 'round'
+                    },
+                    'paint': {
+                        'line-color': highlightColor,
+                        'line-width': [
+                            'interpolate',
+                            ['linear'],
+                            ['zoom'],
+                            10, highlightWidth + 1,
+                            12, highlightWidth + 2,
+                            14, highlightWidth + 3,
+                            16, highlightWidth + 4
+                        ],
+                        'line-opacity': 0.8
+                    }
+                }, `${trail}-${pathType}-layer-border`); // Insert before border layer
+            }
+        });
+    } else {
+        // Handle regular trails
+        const highlightLayerId = `${trail}-video-highlight`;
+        
+        // Only add if it doesn't exist
+        if (!map.getLayer(highlightLayerId) && map.getSource(trail)) {
+            map.addLayer({
+                'id': highlightLayerId,
+                'type': 'line',
+                'source': trail,
+                'layout': {
+                    'line-join': 'round',
+                    'line-cap': 'round'
+                },
+                'paint': {
+                    'line-color': highlightColor,
+                    'line-width': [
+                        'interpolate',
+                        ['linear'],
+                        ['zoom'],
+                        10, highlightWidth + 1,
+                        12, highlightWidth + 2,
+                        14, highlightWidth + 3,
+                        16, highlightWidth + 4
+                    ],
+                    'line-opacity': 0.8
+                }
+            }, `${trail}-layer-border`); // Insert before border layer
+        }
+    }
+}
+
+// Remove highlight from trails
+function removeVideoHighlight(trail) {
+    if (trailData[trail].coordinates.main) {
+        // Handle split trails
+        ['main', 'leftFork', 'rightFork'].forEach(pathType => {
+            const highlightLayerId = `${trail}-${pathType}-video-highlight`;
+            if (map.getLayer(highlightLayerId)) {
+                map.removeLayer(highlightLayerId);
+            }
+        });
+    } else {
+        // Handle regular trails
+        const highlightLayerId = `${trail}-video-highlight`;
+        if (map.getLayer(highlightLayerId)) {
+            map.removeLayer(highlightLayerId);
+        }
+    }
+}
+
+// Make updateTrailOpacity globally accessible
+window.updateTrailOpacity = updateTrailOpacity;
 
 // Function to create markers with difficulty-based colors
 function createFeatureMarkers(featureData) {

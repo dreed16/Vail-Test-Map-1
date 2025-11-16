@@ -1026,8 +1026,8 @@ var trailData = {
             [-106.36947542049563,39.630169511568255],
             [-106.369044511369,39.63051585986267]
         ],
-        difficulty: 'doubleBlack',
-        color: '#000000',
+        difficulty: 'pink',
+        color: '#FF00FF',
         parentTrail: 'ThePumpHouse'
     },
     'FrontsideChutes': { 
@@ -2034,8 +2034,8 @@ var trailData = {
             [-106.34850958727114,39.59817837899979],
             [-106.34844027497086,39.59740067241066]
         ],
-        difficulty: 'blue',
-        color: '#0000FF',
+        difficulty: 'pink',
+        color: '#FF00FF',
         parentTrail: 'TheSlot'
     },
     'SunUpCatwalk': { 

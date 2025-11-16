@@ -122,6 +122,94 @@ body {
     z-index: 1000;
 }
 
+.my-videos-button {
+    position: absolute;
+    top: 60px;
+    right: 20px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    z-index: 1000;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.my-videos-button:hover {
+    background-color: #218838;
+}
+
+.my-videos-button.active {
+    background-color: #1e7e34;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.tracking-button {
+    position: absolute;
+    top: 100px;
+    right: 20px;
+    background-color: #007aff;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    z-index: 1000;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.tracking-button:hover {
+    background-color: #0056b3;
+}
+
+.tracking-options {
+    position: absolute;
+    top: 132px;
+    right: 20px;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    z-index: 1000;
+    padding: 10px;
+    min-width: 150px;
+}
+
+.tracker-option {
+    display: block;
+    width: 100%;
+    padding: 8px;
+    margin: 5px 0;
+    background: #007aff;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 14px;
+    text-align: left;
+}
+
+.tracker-option:hover {
+    background: #0056b3;
+}
+
+#exitTrackingButton {
+    background: #dc3545 !important;
+}
+
+#exitTrackingButton:hover {
+    background: #c82333 !important;
+}
+
+.tracker-divider {
+    margin: 10px 0;
+    border: none;
+    border-top: 1px solid #ccc;
+}
+
 .login-toggle-button {
     position: absolute;
     top: 20px;

@@ -1242,14 +1242,24 @@ class ActivityTracker {
 
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Tracking menu toggle
-    const trackingMenuButton = document.getElementById('trackingMenuButton');
+    // Tracking button toggle (moved to top right, below My Videos)
+    const trackingButton = document.getElementById('trackingButton');
     const trackingOptions = document.getElementById('trackingOptions');
     
-    trackingMenuButton.addEventListener('click', () => {
-        trackingOptions.style.display = 
-            trackingOptions.style.display === 'none' ? 'block' : 'none';
-    });
+    if (trackingButton && trackingOptions) {
+        trackingButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            trackingOptions.style.display = 
+                trackingOptions.style.display === 'none' ? 'block' : 'none';
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!trackingButton.contains(e.target) && !trackingOptions.contains(e.target)) {
+                trackingOptions.style.display = 'none';
+            }
+        });
+    }
 
     // Setup each tracker button
     ['daily', 'monthly', 'season'].forEach(type => {

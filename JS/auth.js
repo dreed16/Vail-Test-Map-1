@@ -16,15 +16,39 @@ class UserAuth {
         console.log('Firebase Auth is initialized');
         
         // Listen for auth state changes
-        auth.onAuthStateChanged((user) => {
+        auth.onAuthStateChanged(async (user) => {
             if (user) {
                 console.log('User is signed in:', user.email);
                 this.currentUser = user;
                 this.updateUIForLogin();
+                // Load custom videos when user logs in (with error handling)
+                try {
+                    if (window.customVideos && window.customVideos.loadCustomVideos) {
+                        await window.customVideos.loadCustomVideos();
+                        // Update trail opacity if My Videos mode is on
+                        if (window.updateTrailOpacity) {
+                            window.updateTrailOpacity();
+                        }
+                    }
+                } catch (error) {
+                    console.warn('Could not load custom videos (module may not be loaded yet):', error);
+                }
             } else {
                 console.log('User is signed out');
                 this.currentUser = null;
                 this.updateUIForLogout();
+                // Clear custom videos cache when user logs out (with error handling)
+                try {
+                    if (window.customVideos && window.customVideos.loadCustomVideos) {
+                        await window.customVideos.loadCustomVideos(); // This will clear the cache
+                    }
+                    // Reset trail opacity
+                    if (window.updateTrailOpacity) {
+                        window.updateTrailOpacity();
+                    }
+                } catch (error) {
+                    console.warn('Could not clear custom videos (module may not be loaded yet):', error);
+                }
             }
         });
     }
@@ -82,6 +106,8 @@ class UserAuth {
         const userInfo = document.getElementById('userInfo');
         const displayUsername = document.getElementById('displayUsername');
         const loginToggleButton = document.getElementById('loginToggleButton');
+        const myVideosButton = document.getElementById('myVideosButton');
+        const trackingButton = document.getElementById('trackingButton');
         
         if (this.currentUser) {
             loginForm.style.display = 'none';
@@ -90,6 +116,13 @@ class UserAuth {
             if (loginToggleButton) {
                 loginToggleButton.textContent = 'Account';
             }
+            // Show My Videos and Tracking buttons when logged in
+            if (myVideosButton) {
+                myVideosButton.style.display = 'block';
+            }
+            if (trackingButton) {
+                trackingButton.style.display = 'block';
+            }
         }
     }
 
@@ -97,11 +130,26 @@ class UserAuth {
         const loginForm = document.getElementById('loginForm');
         const userInfo = document.getElementById('userInfo');
         const loginToggleButton = document.getElementById('loginToggleButton');
+        const myVideosButton = document.getElementById('myVideosButton');
+        const trackingButton = document.getElementById('trackingButton');
+        const trackingOptions = document.getElementById('trackingOptions');
         
         loginForm.style.display = 'block';
         userInfo.style.display = 'none';
         if (loginToggleButton) {
             loginToggleButton.textContent = 'Login';
+        }
+        // Hide My Videos and Tracking buttons when logged out
+        if (myVideosButton) {
+            myVideosButton.style.display = 'none';
+            myVideosButton.classList.remove('active');
+            myVideosButton.textContent = 'My Videos';
+        }
+        if (trackingButton) {
+            trackingButton.style.display = 'none';
+        }
+        if (trackingOptions) {
+            trackingOptions.style.display = 'none';
         }
     }
 
@@ -127,6 +175,9 @@ class UserAuth {
 
 // Create an instance of UserAuth
 const userAuth = new UserAuth();
+
+// Make userAuth available globally
+window.userAuth = userAuth;
 
 // Add event listeners when the document loads
 window.addEventListener('DOMContentLoaded', () => {

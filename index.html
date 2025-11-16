@@ -2,35 +2,44 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
+    <meta http-equiv="Last-Modified" content="0">
     <title>Vail 3D Map</title>
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+    <link rel="icon" href="data:,">
     
     <!-- Existing resources -->
     <link href="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css" rel="stylesheet">
     <script src="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js"></script>
     <link href='css/styles.css' rel='stylesheet' />
     
-    <!-- Load all data files first -->
-    <script src="Data/VailTrailData.js?v=999999"></script>
-    <script src="Data/BreckTrailData.js"></script>
-    <script src="Data/VailTrailpopup.js"></script>
-    <script src="Data/BreckTrailpopup.js"></script>
-    <script src="Data/VailLiftData.js"></script>
-    <script src="Data/BreckLiftData.js"></script>
+    <!-- Load all data files first - Dynamic loading to bypass cache -->
+    <script>
+        var timestamp = new Date().getTime();
+        document.write('<script src="Data/VailTrailData.js?nocache=' + timestamp + '&v=' + Math.random() + '"><\/script>');
+        document.write('<script src="Data/BreckTrailData.js?nocache=' + timestamp + '&v=' + Math.random() + '"><\/script>');
+    </script>
+    <script src="Data/VailTrailpopup.js?v=999999"></script>
+    <script src="Data/BreckTrailpopup.js?v=999999"></script>
+    <script src="Data/VailLiftData.js?v=999999"></script>
+    <script src="Data/BreckLiftData.js?v=999999"></script>
     <script src="Data/VailMountainFeatures.js"></script>
     <script src="Data/mountaincams.js"></script>
     
     <!-- Firebase SDKs -->
     <script type="module" src="JS/firebaseConfig.js"></script>
     <script type="module" src="JS/auth.js"></script>
+    <script type="module" src="JS/customVideos.js"></script>
     
-    <!-- Load JavaScript files -->
-    <script defer src="JS/dayTracker.js"></script>
-    <script defer src="JS/wayfinding.js"></script>
-    <script defer src="JS/main.js"></script>
+    <!-- Load JavaScript files - with cache busting -->
+    <script>
+        var jsTimestamp = new Date().getTime();
+        document.write('<script defer src="JS/dayTracker.js?t=' + jsTimestamp + '"><\/script>');
+        document.write('<script defer src="JS/wayfinding.js?t=' + jsTimestamp + '"><\/script>');
+        document.write('<script defer src="JS/main.js?t=' + jsTimestamp + '"><\/script>');
+    </script>
     
     <!-- Your existing style section -->
     <style>
@@ -166,6 +175,17 @@
     
     <!-- Login Toggle Button -->
     <button id="loginToggleButton" class="login-toggle-button">Login</button>
+    <button id="myVideosButton" class="my-videos-button" style="display: none;">My Videos</button>
+    <button id="trackingButton" class="tracking-button" style="display: none;">Tracking</button>
+    
+    <!-- Tracking Dropdown (positioned below Tracking button) -->
+    <div id="trackingOptions" class="tracking-options" style="display: none;">
+        <button id="dailyTrackerButton" class="tracker-option">Daily Tracker</button>
+        <button id="monthlyTrackerButton" class="tracker-option">Monthly Tracker</button>
+        <button id="seasonTrackerButton" class="tracker-option">Season Tracker</button>
+        <hr class="tracker-divider">
+        <button id="exitTrackingButton" class="tracker-option">Exit Tracking</button>
+    </div>
     
     <!-- Login Container -->
     <div id="loginContainer" class="login-container" style="display: none;">
@@ -185,16 +205,6 @@
                 <button id="logoutButton" class="logout-button">Logout</button>
             </div>
             
-            <div class="tracking-menu">
-                <button id="trackingMenuButton" class="feature-button">Tracking ▼</button>
-                <div id="trackingOptions" class="tracking-options" style="display: none;">
-                    <button id="dailyTrackerButton" class="tracker-option">Daily Tracker</button>
-                    <button id="monthlyTrackerButton" class="tracker-option">Monthly Tracker</button>
-                    <button id="seasonTrackerButton" class="tracker-option">Season Tracker</button>
-                    <hr class="tracker-divider">
-                    <button id="exitTrackingButton" class="tracker-option">Exit Tracking</button>
-                </div>
-            </div>
 
             <!-- Make sure these containers exist -->
             <div id="dailyTrailsContainer" class="tracked-trails-container" style="display: none;">

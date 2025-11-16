@@ -239,7 +239,7 @@ trailPopups['LittleJohnny'] = {
 };
 trailPopups['ToyotaBankedSlalom'] = {
     content: "<strong>Toyota Banked Slalom</strong><br><strong>Rating:</strong> Pink<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
-        "<iframe width='200' height='113' src='https://www.youtube.com/embed/nkeJFKI1Y9o?enablejsapi=1' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
+        "<iframe width='150' height='267' src='https://www.youtube.com/embed/JxuiGzD4Ae0?enablejsapi=1' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>"
 };
 trailPopups['Parklane'] = {
     content: "<strong>Park Lane</strong><br><strong>Rating:</strong> Pink<br><strong>Length:</strong> 250 feet<br><strong>Average Slope:</strong> 35 degrees<br>" +
