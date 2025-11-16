@@ -588,7 +588,7 @@ var trailData = {
             [-106.36471944522441,39.61331531294775]
         ],
         difficulty: 'green',
-        color: '#00FF00',
+        color: '#228B22',  // Forest green (darker, less neon)
         parentTrail: 'NorthRim'
     },
     'MiltsFace': { 
@@ -630,7 +630,7 @@ var trailData = {
             [-106.3503101370554,39.61951015161446]
         ],
         difficulty: 'green',
-        color: '#00FF00',
+        color: '#228B22',  // Forest green (darker, less neon)
         parentTrail: 'NorthRim'
     },
     'TimPants': { 
@@ -644,7 +644,7 @@ var trailData = {
             [-106.34090664166844,39.60883557035507]
         ],
         difficulty: 'green',
-        color: '#00FF00',
+        color: '#228B22',  // Forest green (darker, less neon)
         parentTrail: 'NorthRim'
     },
     'Boomer': { 
@@ -658,7 +658,7 @@ var trailData = {
             [-106.34062963474119,39.60850459111455]
         ],
         difficulty: 'green',
-        color: '#00FF00',
+        color: '#228B22',  // Forest green (darker, less neon)
         parentTrail: 'NorthRim'
     },
     'Sorodough': { 
@@ -672,7 +672,7 @@ var trailData = {
             [-106.3401819003236,39.60824842388442]
         ],
         difficulty: 'green',
-        color: '#00FF00',
+        color: '#228B22',  // Forest green (darker, less neon)
         parentTrail: 'NorthRim'
     },
     'WhiskeyJack': { 
@@ -686,7 +686,7 @@ var trailData = {
             [-106.3408731380424,39.60773994958646]
         ],
         difficulty: 'green',
-        color: '#00FF00',
+        color: '#228B22',  // Forest green (darker, less neon)
         parentTrail: 'NorthRim'
     },
     'BlueOx': { 
@@ -784,7 +784,7 @@ var trailData = {
             [-106.35123490625661,39.620004171789844]
         ],
         difficulty: 'green',
-        color: '#00FF00',
+        color: '#228B22',  // Forest green (darker, less neon)
         parentTrail: 'TransMontane',
         isCatwalk: true
     },
@@ -799,7 +799,7 @@ var trailData = {
             [-106.3583627901458,39.622583250814586]
         ],
         difficulty: 'green',
-        color: '#00FF00',
+        color: '#228B22',  // Forest green (darker, less neon)
         parentTrail: ' NorthFaceCatWalkLeft',
         isCatwalk: true
     },
@@ -901,7 +901,7 @@ var trailData = {
             [-106.36663236324996,39.613183251912886]
         ],
         difficulty: 'green',
-        color: '#00FF00',
+        color: '#228B22',  // Forest green (darker, less neon)
         parentTrail: 'TheMeadows'
     },
     'SLookMa': { 
@@ -971,7 +971,7 @@ var trailData = {
             [-106.369285300586,39.61456214609254]
         ],
         difficulty: 'green',
-        color: '#00FF00',
+        color: '#228B22',  // Forest green (darker, less neon)
         parentTrail: 'MidVailExpressTrail'
     },
     'CadysCafeTop': { 
@@ -1195,7 +1195,7 @@ var trailData = {
             [-106.38668271481919,39.62637393497053]
         ],
         difficulty: 'green',
-        color: '#00FF00',
+        color: '#228B22',  // Forest green (darker, less neon)
         parentTrail: 'PracticeParkway'
     },
     'Minnies': { 
@@ -1265,7 +1265,7 @@ var trailData = {
             [-106.38152852432586,39.62692758629893]
         ],
         difficulty: 'green',
-        color: '#00FF00',
+        color: '#228B22',  // Forest green (darker, less neon)
         parentTrail: 'LedgesMiddle'
     },
     'Minihahaleft': { 
@@ -1279,7 +1279,7 @@ var trailData = {
             [-106.38291922645216,39.62705718160407]
         ],
         difficulty: 'green',
-        color: '#00FF00',
+        color: '#228B22',  // Forest green (darker, less neon)
         parentTrail: 'Minihahaleft'
     },
     'Minihaharight': { 
@@ -1293,7 +1293,7 @@ var trailData = {
             [-106.38423255154864,39.626732643306354]
         ],
         difficulty: 'green',
-        color: '#00FF00',
+        color: '#228B22',  // Forest green (darker, less neon)
         parentTrail: 'Minihaharight'
     },
     'BornFreeTop': { 
@@ -1321,7 +1321,7 @@ var trailData = {
             [-106.38359933124596,39.636290682702366]
         ],
         difficulty: 'green',
-        color: '#00FF00',
+        color: '#228B22',  // Forest green (darker, less neon)
         parentTrail: 'BornFreeMiddle1'
     },
     'BornFreeMiddle2': { 
@@ -1349,7 +1349,7 @@ var trailData = {
             [-106.38844856487451,39.64275323485279]
         ],
         difficulty: 'green',
-        color: '#00FF00',
+        color: '#228B22',  // Forest green (darker, less neon)
         parentTrail: 'BornFreeBottom'
     },
     'BearTree': { 
@@ -1377,7 +1377,7 @@ var trailData = {
             [-106.38039385290263,39.633190803590765]
         ],
         difficulty: 'green',
-        color: '#00FF00',
+        color: '#228B22',  // Forest green (darker, less neon)
         parentTrail: 'PostRoad',
         isCatwalk: true
     },
@@ -1420,7 +1420,7 @@ var trailData = {
             [-106.38560616065604,39.609075551109214]
         ],
         difficulty: 'green',
-        color: '#00FF00',
+        color: '#228B22',  // Forest green (darker, less neon)
         parentTrail: 'LostBoy'
     },
     'DealersChoice': { 
@@ -1560,7 +1560,7 @@ var trailData = {
             [-106.38168506444852,39.60978605414175]
         ],
         difficulty: 'green',
-        color: '#00FF00',
+        color: '#228B22',  // Forest green (darker, less neon)
         parentTrail: 'ClubWalk'
     },
     'GameTrail': { 
@@ -1574,7 +1574,7 @@ var trailData = {
             [-106.38473034216983,39.60910655598718]
         ],
         difficulty: 'green',
-        color: '#00FF00',
+        color: '#228B22',  // Forest green (darker, less neon)
         parentTrail: 'GameTrail'
     },
     'GoldenPeakRace': { 
@@ -1803,7 +1803,7 @@ var trailData = {
             [-106.3748709532427,39.628961279276666]
         ],
         difficulty: 'green',
-        color: '#00FF00',
+        color: '#228B22',  // Forest green (darker, less neon)
         parentTrail: 'CubsWayBottom',
         isCatwalk: true
     },
@@ -1812,7 +1812,7 @@ var trailData = {
             [-106.3882260263754,39.61979068660622],[-106.38928450098997,39.62079424710072],[-106.38910673735585,39.621799959627054],[-106.39068374031234,39.62265651431767],[-106.39012062152986,39.62340042718688],[-106.38647789291025,39.62364278839161],[-106.38647503495508,39.62441880911919],[-106.3880788010782,39.62538313656475],[-106.3923190499937,39.62662142008847],[-106.38988193005976,39.62655324439419],[-106.38709945861869,39.62645796970878]
         ],
         difficulty: 'green',
-        color: '#00FF00',
+        color: '#228B22',  // Forest green (darker, less neon)
         parentTrail: 'CubsWayTop',
         isCatwalk: true
     },
@@ -1833,7 +1833,7 @@ var trailData = {
             [-106.37125506729964,39.618289151602625]
         ],
         difficulty: 'green',
-        color: '#00FF00',
+        color: '#228B22',  // Forest green (darker, less neon)
         parentTrail: 'Pika',
         isCatwalk: true
     },
@@ -1875,7 +1875,7 @@ var trailData = {
             [-106.37664613013028,39.63750202298462]
         ],
         difficulty: 'green',
-        color: '#00FF00',
+        color: '#228B22',  // Forest green (darker, less neon)
         parentTrail: 'Gitalongroad',
         isCatwalk: true
     },
@@ -1900,7 +1900,7 @@ var trailData = {
             [-106.36723952388016,39.62909970707912]
         ],
         difficulty: 'green',
-        color: '#00FF00',
+        color: '#228B22',  // Forest green (darker, less neon)
         parentTrail: 'BriskWalk',
         isCatwalk: true
     },
@@ -1915,7 +1915,7 @@ var trailData = {
             [-106.38534833057585,39.617585313452054]
         ],
         difficulty: 'green',
-        color: '#00FF00',
+        color: '#228B22',  // Forest green (darker, less neon)
         parentTrail: 'EaglesNestRidge'
     },
     'Rivacatwalk': { 
@@ -1923,7 +1923,7 @@ var trailData = {
             [-106.36626436880309,39.62707267435246],[-106.36718660478374,39.62908549439226],[-106.36849808390025,39.629805468247355],[-106.37047588719892,39.63259437358994],[-106.37123668232687,39.63333424712263],[-106.37208601828763,39.6342166153417],[-106.3727479699497,39.63537349564004]
         ],
         difficulty: 'green',
-        color: '#00FF00',
+        color: '#228B22',  // Forest green (darker, less neon)
         parentTrail: 'Rivacatwalk',
         isCatwalk: true
     },

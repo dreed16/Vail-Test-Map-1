@@ -235,8 +235,9 @@ function initializeNavigation() {
         return;
     }
     
-    console.log('Initializing navigation...');
-    displayNavigationPoints();
+    console.log('Initializing navigation controls...');
+    // Don't display navigation points on load - only show when navigation is toggled on
+    // displayNavigationPoints();  // Removed - points will only show when navigation is activated
     initializeNavigationControls();
 }
 

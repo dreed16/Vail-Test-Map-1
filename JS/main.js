@@ -42,6 +42,22 @@ function createParallelLines(coordinates, offsetDistance = 0.0002) {
     return { left: leftCoords, right: rightCoords };
 }
 
+// Function to simplify trail coordinates by taking every Nth point
+function simplifyCoordinates(coordinates, step = 1) {
+    if (coordinates.length < 2) return coordinates;
+    if (step <= 1) return coordinates;
+    
+    const simplified = [];
+    for (let i = 0; i < coordinates.length; i += step) {
+        simplified.push(coordinates[i]);
+    }
+    // Always include the last point
+    if (simplified[simplified.length - 1] !== coordinates[coordinates.length - 1]) {
+        simplified.push(coordinates[coordinates.length - 1]);
+    }
+    return simplified;
+}
+
 // Function to smooth trail coordinates using Catmull-Rom spline interpolation
 function smoothCoordinates(coordinates, tension = 0.5) {
     if (coordinates.length < 2) return coordinates;
@@ -82,6 +98,30 @@ function smoothCoordinates(coordinates, tension = 0.5) {
     return smoothed;
 }
 
+// Function to process trail coordinates based on zoom level for performance
+function processTrailCoordinates(coordinates, currentZoom) {
+    let processed = coordinates;
+    
+    // Simplify coordinates at low zoom levels
+    if (currentZoom < 10) {
+        // Zoom < 10: Only first and last coordinate (straight line)
+        if (coordinates.length >= 2) {
+            processed = [coordinates[0], coordinates[coordinates.length - 1]];
+        } else {
+            processed = coordinates;
+        }
+    } else if (currentZoom < 11.5) {
+        // Zoom 10-11.5: Use every 3rd point (reduces by ~67%)
+        processed = simplifyCoordinates(processed, 3);
+    } else if (currentZoom < 12) {
+        // Zoom 11.5-12: Use every 2nd point (reduces by ~50%)
+        processed = simplifyCoordinates(processed, 2);
+    }
+    // Zoom 12+: Use all points (no simplification, no smoothing)
+    
+    return processed;
+}
+
 // Custom marker creator - at the very top of main.js
 const createCustomMarker = (color) => {
     const element = document.createElement('div');
@@ -105,7 +145,7 @@ const createCustomMarker = (color) => {
 const mountainMarkers = [];
 var trailsVisible = true;
 var liftsVisible = true;
-var mountainCamsVisible = true;
+var mountainCamsVisible = false;  // Start with cams hidden for better performance
 var currentPopup = null;
 var liveFeedMarkers = [];
 let navigationActive = false;
@@ -164,6 +204,68 @@ function createDenverMarker() {
 let denverMarker = null;
 
 // Wait for map to load before adding layers
+// Helper function to check if coordinates intersect viewport bounds (with buffer)
+// Optimized: First checks bounding box, then individual coordinates if needed
+function isInViewport(coordinates, bounds, bufferPercent = 0.15) {
+    if (!coordinates || coordinates.length === 0) return false;
+    
+    // Expand bounds by buffer percentage
+    const latRange = bounds.getNorth() - bounds.getSouth();
+    const lngRange = bounds.getEast() - bounds.getWest();
+    const latBuffer = latRange * bufferPercent;
+    const lngBuffer = lngRange * bufferPercent;
+    
+    const expandedBounds = {
+        north: bounds.getNorth() + latBuffer,
+        south: bounds.getSouth() - latBuffer,
+        east: bounds.getEast() + lngBuffer,
+        west: bounds.getWest() - lngBuffer
+    };
+    
+    // OPTIMIZATION: First calculate bounding box of the trail (much faster than checking every point)
+    let minLat = Infinity;
+    let maxLat = -Infinity;
+    let minLng = Infinity;
+    let maxLng = -Infinity;
+    
+    for (let i = 0; i < coordinates.length; i++) {
+        const coord = coordinates[i];
+        if (Array.isArray(coord) && coord.length >= 2) {
+            const [lng, lat] = coord;
+            if (lat < minLat) minLat = lat;
+            if (lat > maxLat) maxLat = lat;
+            if (lng < minLng) minLng = lng;
+            if (lng > maxLng) maxLng = lng;
+        }
+    }
+    
+    // Quick rejection: If the trail's bounding box doesn't intersect viewport, trail is not visible
+    if (maxLat < expandedBounds.south || minLat > expandedBounds.north ||
+        maxLng < expandedBounds.west || minLng > expandedBounds.east) {
+        return false; // Trail is completely outside viewport
+    }
+    
+    // Quick acceptance: If the trail's bounding box is completely inside viewport, trail is visible
+    if (minLat >= expandedBounds.south && maxLat <= expandedBounds.north &&
+        minLng >= expandedBounds.west && maxLng <= expandedBounds.east) {
+        return true; // Trail is completely inside viewport
+    }
+    
+    // Partial overlap: Check individual coordinates (only needed for trails that partially overlap)
+    // This is rare, so we only do the expensive check when necessary
+    for (let i = 0; i < coordinates.length; i++) {
+        const coord = coordinates[i];
+        if (Array.isArray(coord) && coord.length >= 2) {
+            const [lng, lat] = coord;
+            if (lat >= expandedBounds.south && lat <= expandedBounds.north &&
+                lng >= expandedBounds.west && lng <= expandedBounds.east) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 map.on('load', function() {
     console.log('Map loaded');
     
@@ -226,17 +328,17 @@ map.on('load', function() {
     try {
         // Create markers for each feature
         Object.entries(mountainFeatureData).forEach(([id, feature]) => {
-            const color = feature.difficulty === 'green' ? '#008000' : 
+            const color = feature.difficulty === 'green' ? '#228B22' : 
                          feature.difficulty === 'blue' ? '#0000FF' : '#000000';
             
             // Create the custom element first
             const customElement = createCustomMarker(color);
             
-            // Create marker directly with the element
+            // Create marker directly with the element (but don't add to map initially - starts hidden)
             const marker = new mapboxgl.Marker(customElement)
                 .setLngLat(feature.coordinates)
-                .setPopup(new mapboxgl.Popup().setHTML(feature.content))
-                .addTo(map);
+                .setPopup(new mapboxgl.Popup().setHTML(feature.content));
+            // Don't add to map initially - will be added when checkbox is checked
             
             marker.difficulty = feature.difficulty;
             marker.featureId = id;
@@ -249,22 +351,23 @@ map.on('load', function() {
         console.error('Error in feature creation:', error);
     }
 
-    // Add trails to map
-    Object.keys(trailData).forEach(function(trail) {
+    // Function to load a single trail (used for initial load and dynamic loading)
+    function loadTrail(trail) {
         if (trailData[trail].coordinates.main) {
             // For split trails, add three separate sources and layers
             ['main', 'leftFork', 'rightFork'].forEach(pathType => {
                 const sourceId = `${trail}-${pathType}`;
                 if (!map.getSource(sourceId)) {
-                    // Add source with smoothed coordinates
-                    const smoothedCoords = smoothCoordinates(trailData[trail].coordinates[pathType]);
+                    // Process coordinates based on current zoom level (simplify + conditional smoothing)
+                    const currentZoom = map.getZoom();
+                    const processedCoords = processTrailCoordinates(trailData[trail].coordinates[pathType], currentZoom);
                     map.addSource(sourceId, {
                         type: 'geojson',
                         data: {
                             type: 'Feature',
                             geometry: {
                                 type: 'LineString',
-                                coordinates: smoothedCoords
+                                coordinates: processedCoords
                             }
                         }
                     });
@@ -295,13 +398,16 @@ map.on('load', function() {
                         };
                         
                         // Bottom layer: border/highlight (wider)
+                        // Hide border at low zoom for performance (zoom < 12)
+                        const currentZoomForBorder = map.getZoom();
                         map.addLayer({
                             'id': `${trail}-${pathType}-layer-border`,
                             'type': 'line',
                             'source': sourceId,
                             'layout': {
                                 'line-join': 'round',
-                                'line-cap': 'square'  // Use 'square' for better alignment
+                                'line-cap': 'square',  // Use 'square' for better alignment
+                                'visibility': currentZoomForBorder >= 12 ? 'visible' : 'none'
                             },
                             'paint': borderPaint
                         });
@@ -342,15 +448,16 @@ map.on('load', function() {
         } else {
             // Original code for regular trails
             if (!map.getSource(trail)) {
-                // Smooth coordinates before adding to map
-                const smoothedCoords = smoothCoordinates(trailData[trail].coordinates);
+                // Process coordinates based on current zoom level (simplify + conditional smoothing)
+                const currentZoom = map.getZoom();
+                const processedCoords = processTrailCoordinates(trailData[trail].coordinates, currentZoom);
                 map.addSource(trail, {
                     type: 'geojson',
                     data: {
                         type: 'Feature',
                         geometry: {
                             type: 'LineString',
-                            coordinates: smoothedCoords
+                            coordinates: processedCoords
                         }
                     }
                 });
@@ -380,13 +487,16 @@ map.on('load', function() {
                     };
                     
                     // Bottom layer: border/highlight (wider)
+                    // Hide border at low zoom for performance (zoom < 12)
+                    const currentZoomForBorder = map.getZoom();
                     map.addLayer({
                         'id': `${trail}-layer-border`,
                         'type': 'line',
                         'source': trail,
                         'layout': {
                             'line-join': 'round',
-                            'line-cap': 'square'  // Use 'square' for better alignment
+                            'line-cap': 'square',  // Use 'square' for better alignment
+                            'visibility': currentZoomForBorder >= 12 ? 'visible' : 'none'
                         },
                         'paint': borderPaint
                     });
@@ -424,9 +534,92 @@ map.on('load', function() {
                 });
             }
         }
+    }
+    
+    // Track which trails are loaded (accessible globally for optimization)
+    window.loadedTrails = new Set();
+    const loadedTrails = window.loadedTrails;
+    
+    // Function to unload a trail (remove from map)
+    function unloadTrail(trail) {
+        if (trailData[trail].coordinates.main) {
+            // Handle split trails
+            ['main', 'leftFork', 'rightFork'].forEach(pathType => {
+                const sourceId = `${trail}-${pathType}`;
+                const borderLayerId = `${trail}-${pathType}-layer-border`;
+                const mainLayerId = `${trail}-${pathType}-layer`;
+                
+                // Remove layers
+                if (map.getLayer(borderLayerId)) map.removeLayer(borderLayerId);
+                if (map.getLayer(mainLayerId)) map.removeLayer(mainLayerId);
+                
+                // Remove source
+                if (map.getSource(sourceId)) map.removeSource(sourceId);
+            });
+        } else {
+            // Handle regular trails
+            const borderLayerId = `${trail}-layer-border`;
+            const mainLayerId = `${trail}-layer`;
+            
+            // Remove layers
+            if (map.getLayer(borderLayerId)) map.removeLayer(borderLayerId);
+            if (map.getLayer(mainLayerId)) map.removeLayer(mainLayerId);
+            
+            // Remove source
+            if (map.getSource(trail)) map.removeSource(trail);
+        }
+        
+        loadedTrails.delete(trail);
+    }
+    
+    // Load trails that are in viewport, unload ones that aren't
+    function loadTrailsInViewport() {
+        const bounds = map.getBounds();
+        const trailsToKeep = new Set();
+        
+        // First, check which trails should be loaded
+        Object.keys(trailData).forEach(function(trail) {
+            // Check if trail is in viewport
+            let trailCoords = null;
+            if (trailData[trail].coordinates.main) {
+                trailCoords = trailData[trail].coordinates.main;
+            } else {
+                trailCoords = trailData[trail].coordinates;
+            }
+            
+            if (isInViewport(trailCoords, bounds, 0.15)) {
+                trailsToKeep.add(trail);
+                
+                // Load if not already loaded
+                if (!loadedTrails.has(trail)) {
+                    loadTrail(trail);
+                    loadedTrails.add(trail);
+                }
+            }
+        });
+        
+        // Unload trails that are no longer in viewport
+        loadedTrails.forEach(function(trail) {
+            if (!trailsToKeep.has(trail)) {
+                unloadTrail(trail);
+            }
+        });
+    }
+    
+    // Initial load - only load trails in viewport
+    loadTrailsInViewport();
+    
+    // Load trails and lifts as map moves (when viewport changes)
+    let moveEndTimeout;
+    map.on('moveend', function() {
+        clearTimeout(moveEndTimeout);
+        moveEndTimeout = setTimeout(function() {
+            loadTrailsInViewport();
+            loadLiftsInViewport();
+        }, 200); // Small delay to avoid loading during rapid panning
     });
 
-    // Add click handlers for all trails
+    // Add click handlers for all trails (these work even if trail isn't loaded yet)
     Object.keys(trailData).forEach(function(trail) {
         const isDoubleBlack = trailData[trail].difficulty === 'doubleBlack' || trailData[trail].isDoubleBlack === true;
         
@@ -485,9 +678,8 @@ map.on('load', function() {
         }
     });
 
-    // Add lift layers
-    Object.keys(liftData).forEach(function(lift) {
-        console.log('Processing lift:', lift);
+    // Function to load a single lift
+    function loadLift(lift) {
         if (!map.getSource(lift)) {
             const isHikeTo = liftData[lift].isHikeTo === true || liftData[lift].type === 'hikeTo';
             const lineColor = isHikeTo ? '#000000' : (liftData[lift].color || '#FF0000');  // Black for hike-to, red for regular lifts
@@ -527,7 +719,54 @@ map.on('load', function() {
                 layout: { 'visibility': 'visible' }
             });
         }
-    });
+    }
+    
+    // Track which lifts are loaded
+    const loadedLifts = new Set();
+    
+    // Function to unload a lift (remove from map)
+    function unloadLift(lift) {
+        const layerId = `${lift}-layer`;
+        
+        // Remove layer
+        if (map.getLayer(layerId)) map.removeLayer(layerId);
+        
+        // Remove source
+        if (map.getSource(lift)) map.removeSource(lift);
+        
+        loadedLifts.delete(lift);
+    }
+    
+    // Load lifts that are in viewport, unload ones that aren't
+    function loadLiftsInViewport() {
+        const bounds = map.getBounds();
+        const liftsToKeep = new Set();
+        
+        // First, check which lifts should be loaded
+        Object.keys(liftData).forEach(function(lift) {
+            // Check if lift is in viewport
+            const liftCoords = liftData[lift].coordinates;
+            if (isInViewport(liftCoords, bounds, 0.15)) {
+                liftsToKeep.add(lift);
+                
+                // Load if not already loaded
+                if (!loadedLifts.has(lift)) {
+                    loadLift(lift);
+                    loadedLifts.add(lift);
+                }
+            }
+        });
+        
+        // Unload lifts that are no longer in viewport
+        loadedLifts.forEach(function(lift) {
+            if (!liftsToKeep.has(lift)) {
+                unloadLift(lift);
+            }
+        });
+    }
+    
+    // Initial load - only load lifts in viewport
+    loadLiftsInViewport();
 
     // Update the slope toggle event listener
     document.getElementById('toggleSlope').addEventListener('change', function() {
@@ -546,13 +785,14 @@ map.on('load', function() {
         }
     });
 
+    // Create mountain cam markers but don't add to map initially (starts hidden for better performance)
     liveFeedLocations.forEach(function(location) {
         var liveFeedMarker = new mapboxgl.Marker({ color: 'red' })
             .setLngLat(location.coords)
             .setPopup(new mapboxgl.Popup().setHTML(
                 `<strong>Live Cam</strong><br><a href='${location.url}' target='_blank'>View Mountain Cams - Official Vail Site</a>`
-            ))
-            .addTo(map);
+            ));
+        // Don't add to map initially - will be added when checkbox is checked
         liveFeedMarkers.push(liveFeedMarker);
     });
 
@@ -608,10 +848,159 @@ map.on('load', function() {
         console.error('Error initializing features:', error);
     }
 
-    // Update trail colors to ensure they match trailData (in case VailTrailData.js was updated)
+    // Function to update border visibility based on zoom (hide at low zoom for performance)
+    function updateBorderVisibility() {
+        const currentZoom = map.getZoom();
+        // Hide borders below zoom 12 (they're not visible anyway and reduce rendering by ~50%)
+        const showBorders = currentZoom >= 12;
+        const visibility = showBorders ? 'visible' : 'none';
+        
+        // Update borders for all loaded trails
+        if (window.loadedTrails) {
+            window.loadedTrails.forEach(function(trail) {
+                if (trailData[trail].coordinates.main) {
+                    // Handle split trails
+                    ['main', 'leftFork', 'rightFork'].forEach(pathType => {
+                        const borderLayerId = `${trail}-${pathType}-layer-border`;
+                        if (map.getLayer(borderLayerId)) {
+                            map.setLayoutProperty(borderLayerId, 'visibility', visibility);
+                        }
+                    });
+                } else {
+                    // Handle regular trails
+                    const borderLayerId = `${trail}-layer-border`;
+                    if (map.getLayer(borderLayerId)) {
+                        map.setLayoutProperty(borderLayerId, 'visibility', visibility);
+                    }
+                }
+            });
+        }
+    }
+    
+    // Function to update all trail coordinates based on current zoom level
+    function updateTrailCoordinatesForZoom() {
+        const currentZoom = map.getZoom();
+        const bounds = map.getBounds();
+        
+        Object.keys(trailData).forEach(function(trail) {
+            // Check if trail is in viewport before updating (skip off-screen trails)
+            let trailCoords = null;
+            if (trailData[trail].coordinates.main) {
+                // For split trails, check the main path
+                trailCoords = trailData[trail].coordinates.main;
+            } else {
+                // For regular trails, use the coordinates directly
+                trailCoords = trailData[trail].coordinates;
+            }
+            
+            // Skip this trail if it's not in the viewport
+            if (!isInViewport(trailCoords, bounds, 0.2)) {
+                return; // Skip this trail - it's off-screen
+            }
+            
+            // Trail is visible, proceed with update
+            if (trailData[trail].coordinates.main) {
+                // Handle split trails
+                ['main', 'leftFork', 'rightFork'].forEach(pathType => {
+                    const sourceId = `${trail}-${pathType}`;
+                    const source = map.getSource(sourceId);
+                    if (source) {
+                        // Get original coordinates and re-process them
+                        const originalCoords = trailData[trail].coordinates[pathType];
+                        const processedCoords = processTrailCoordinates(originalCoords, currentZoom);
+                        
+                        // Update the source data
+                        source.setData({
+                            type: 'Feature',
+                            geometry: {
+                                type: 'LineString',
+                                coordinates: processedCoords
+                            }
+                        });
+                    }
+                });
+            } else {
+                // Handle regular trails
+                const source = map.getSource(trail);
+                if (source) {
+                    // Get original coordinates and re-process them
+                    const originalCoords = trailData[trail].coordinates;
+                    const processedCoords = processTrailCoordinates(originalCoords, currentZoom);
+                    
+                    // Update the source data
+                    source.setData({
+                        type: 'Feature',
+                        geometry: {
+                            type: 'LineString',
+                            coordinates: processedCoords
+                        }
+                    });
+                }
+            }
+        });
+    }
+    
+    // Track the last zoom level to only update when crossing thresholds
+    let lastZoomLevel = map.getZoom();
+    let isZooming = false;
+    
+    // Function to determine which simplification level based on zoom
+    function getSimplificationLevel(zoom) {
+        if (zoom < 10) return 'straight';
+        if (zoom < 11.5) return 'third';
+        if (zoom < 12) return 'half';
+        return 'full';
+    }
+    
+    // Mark when zoom starts - don't update during zoom animation
+    map.on('zoomstart', function() {
+        isZooming = true;
+    });
+    
+    // Only update when zoom completely stops - this prevents lag during scrolling
+    let zoomEndTimeout;
+    map.on('zoomend', function() {
+        isZooming = false;
+        const currentZoom = map.getZoom();
+        
+        // Clear any pending updates
+        clearTimeout(zoomEndTimeout);
+        
+        // Add delay to avoid updating during tilt/pan animations
+        zoomEndTimeout = setTimeout(function() {
+            const lastLevel = getSimplificationLevel(lastZoomLevel);
+            
+            // Update border visibility based on zoom (quick operation)
+            updateBorderVisibility();
+            
+            // Only update if we crossed a threshold or zoomed significantly (0.3 instead of 0.5 for more sensitivity)
+            if (currentLevel !== lastLevel || Math.abs(currentZoom - lastZoomLevel) > 0.3) {
+                // Use requestIdleCallback if available, otherwise requestAnimationFrame with delay
+                if (window.requestIdleCallback) {
+                    requestIdleCallback(function() {
+                        updateTrailCoordinatesForZoom();
+                        lastZoomLevel = currentZoom;
+                    }, { timeout: 2000 }); // Longer timeout to wait for idle
+                } else {
+                    // Use setTimeout to delay even requestAnimationFrame
+                    setTimeout(function() {
+                        requestAnimationFrame(function() {
+                            updateTrailCoordinatesForZoom();
+                            lastZoomLevel = currentZoom;
+                        });
+                    }, 300); // 300ms delay to let tilt/pan finish
+                }
+            } else {
+                lastZoomLevel = currentZoom;
+            }
+        }, 500); // Wait 500ms after zoom ends before checking (gives time for tilt to finish)
+    });
+
+    // Update trail colors and border visibility on initial load
     // Delay to ensure all layers are fully created
     setTimeout(function() {
         updateTrailColors();
+        updateBorderVisibility(); // Set initial border visibility based on zoom
     }, 500);
 
     // Initialize checkboxes to match visible state (everything is visible by default)
@@ -702,9 +1091,19 @@ function toggleLifts() {
 
 function toggleMountainCams() {
     const camsCheckbox = document.getElementById('toggleCams');
-    mountainCamsVisible = camsCheckbox ? camsCheckbox.checked : true;
+    mountainCamsVisible = camsCheckbox ? camsCheckbox.checked : false;
     liveFeedMarkers.forEach(function(marker) {
-        marker.getElement().style.display = mountainCamsVisible ? 'block' : 'none';
+        if (mountainCamsVisible) {
+            // Add marker to map if it's not already there
+            if (!marker._map) {
+                marker.addTo(map);
+            }
+            marker.getElement().style.display = 'block';
+        } else {
+            // Remove marker from map
+            marker.remove();
+            marker.getElement().style.display = 'none';
+        }
     });
 }
 
@@ -713,11 +1112,28 @@ function toggleTrailAdjustment() {
     const trailMarkers = [];
     
     Object.keys(trailData).forEach(function(trail) {
+        const trailInfo = trailData[trail];
+        
+        // Filter: Only pink trails (trails you're currently working on)
+        // Check if trail color is pink (common pink/magenta color codes)
+        const trailColor = trailInfo.color ? trailInfo.color.toLowerCase() : '';
+        // Common pink colors: #FF00FF (magenta), #FF69B4 (hot pink), #FFC0CB (pink), #FF1493 (deep pink)
+        const isPink = trailColor === '#ff00ff' || 
+                      trailColor === '#ff69b4' || 
+                      trailColor === '#ffc0cb' ||
+                      trailColor === '#ff1493' ||
+                      trailColor === 'pink' ||
+                      (trailColor.startsWith('#ff') && (trailColor.includes('c0') || trailColor.includes('69') || trailColor.includes('00ff')));
+        
+        if (!isPink) {
+            return; // Skip non-pink trails
+        }
+        
         // Check if trail has split paths
-        if (trailData[trail].coordinates.main) {
+        if (trailInfo.coordinates.main) {
             // Handle split trail
             ['main', 'leftFork', 'rightFork'].forEach(pathType => {
-                let points = trailData[trail].coordinates[pathType];
+                let points = trailInfo.coordinates[pathType];
                 
                 // Create markers for all points
                 const markers = points.map((point, index) => {
@@ -764,7 +1180,7 @@ function toggleTrailAdjustment() {
             });
         } else {
             // Handle regular trail (existing code)
-            let points = [...trailData[trail].coordinates];
+            let points = [...trailInfo.coordinates];
             
             const markers = points.map((point, index) => {
                 const color = index === 0 ? '#00ff00' : 
@@ -828,9 +1244,14 @@ window.onclick = function(event) {
 }
 
 // Function to update all trail colors from trailData
+// Optimized: Only updates loaded trails (not all trails)
 function updateTrailColors() {
     console.log('Updating trail colors from trailData...');
-    Object.keys(trailData).forEach(function(trail) {
+    
+    // Only update trails that are currently loaded
+    const trailsToUpdate = window.loadedTrails ? Array.from(window.loadedTrails) : Object.keys(trailData);
+    
+    trailsToUpdate.forEach(function(trail) {
         const trailColor = trailData[trail].color;
         const isExtreme = trailData[trail].difficulty === 'extreme' || trailData[trail].isExtreme === true;
         const isDoubleBlack = trailData[trail].difficulty === 'doubleBlack' || trailData[trail].isDoubleBlack === true;
@@ -878,23 +1299,27 @@ function updateTrailColors() {
 
 function toggleTrailsByDifficulty(difficulty) {
     Object.keys(trailData).forEach(trail => {
-        // Handle both 'black' and 'doubleBlack' for black trails, and 'extreme'
+        // Handle both 'black' and 'doubleBlack' for black trails, and 'extreme', and 'terrainPark'
         const trailDifficulty = trailData[trail].difficulty;
         const isExtreme = trailDifficulty === 'extreme' || trailData[trail].isExtreme === true;
         const isDoubleBlack = trailDifficulty === 'doubleBlack' || trailData[trail].isDoubleBlack === true;
+        const isTerrainPark = trailDifficulty === 'terrainPark' || trailData[trail].isTerrainPark === true;
         // Match difficulty - but don't show double black when regular black is toggled, and don't show extreme when others are toggled
-        const matchesDifficulty = (difficulty === 'black' && trailDifficulty === 'black' && !isDoubleBlack && !isExtreme) || 
-                                  (difficulty === 'doubleBlack' && isDoubleBlack && !isExtreme) ||
-                                  (difficulty === 'extreme' && isExtreme) ||
-                                  (trailDifficulty === difficulty && !isDoubleBlack && !isExtreme);
+        const matchesDifficulty = (difficulty === 'black' && trailDifficulty === 'black' && !isDoubleBlack && !isExtreme && !isTerrainPark) || 
+                                  (difficulty === 'doubleBlack' && isDoubleBlack && !isExtreme && !isTerrainPark) ||
+                                  (difficulty === 'extreme' && isExtreme && !isTerrainPark) ||
+                                  (difficulty === 'terrainPark' && isTerrainPark) ||
+                                  (trailDifficulty === difficulty && !isDoubleBlack && !isExtreme && !isTerrainPark);
         
         if (matchesDifficulty) {
-            // Handle camelCase for doubleBlack and extreme
+            // Handle camelCase for doubleBlack, extreme, and terrainPark
             let checkboxId;
             if (difficulty === 'doubleBlack') {
                 checkboxId = 'toggleDoubleBlackTrails';
             } else if (difficulty === 'extreme') {
                 checkboxId = 'toggleExtremeTrails';
+            } else if (difficulty === 'terrainPark') {
+                checkboxId = 'toggleTerrainParkTrails';
             } else {
                 checkboxId = `toggle${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}Trails`;
             }
@@ -1006,10 +1431,14 @@ document.getElementById('toggleTrails').addEventListener('change', function() {
     if (!this.checked) {
         difficultyDropdown.querySelectorAll('input[type="checkbox"]').forEach(cb => {
             cb.checked = false;
-            // Handle camelCase for DoubleBlack
+            // Handle camelCase for DoubleBlack, Extreme, and TerrainPark
             let difficulty = cb.id.replace('toggle', '').replace('Trails', '');
             if (difficulty === 'DoubleBlack') {
                 difficulty = 'doubleBlack';
+            } else if (difficulty === 'Extreme') {
+                difficulty = 'extreme';
+            } else if (difficulty === 'TerrainPark') {
+                difficulty = 'terrainPark';
             } else {
                 difficulty = difficulty.toLowerCase();
             }
@@ -1019,7 +1448,7 @@ document.getElementById('toggleTrails').addEventListener('change', function() {
 });
 
 // Add event listeners for individual difficulty checkboxes
-        ['Green', 'Blue', 'Black', 'DoubleBlack', 'Extreme'].forEach(difficulty => {
+        ['Green', 'Blue', 'Black', 'DoubleBlack', 'Extreme', 'TerrainPark'].forEach(difficulty => {
     const checkbox = document.getElementById(`toggle${difficulty}Trails`);
     if (checkbox) {
         checkbox.addEventListener('change', function() {
@@ -1028,6 +1457,8 @@ document.getElementById('toggleTrails').addEventListener('change', function() {
                 difficultyLower = 'doubleBlack';
             } else if (difficulty === 'Extreme') {
                 difficultyLower = 'extreme';
+            } else if (difficulty === 'TerrainPark') {
+                difficultyLower = 'terrainPark';
             } else {
                 difficultyLower = difficulty.toLowerCase();
             }
@@ -1099,15 +1530,15 @@ function createFeatureMarkers(featureData) {
 
     Object.entries(featureData).forEach(([id, feature]) => {
         try {
-            const color = feature.difficulty === 'green' ? '#008000' : 
+            const color = feature.difficulty === 'green' ? '#228B22' : 
                          feature.difficulty === 'blue' ? '#0000FF' : '#000000';
             
-            // Create marker with custom element
+            // Create marker with custom element (but don't add to map initially - starts hidden)
             const customElement = createCustomMarker(color);
             const marker = new mapboxgl.Marker(customElement)
                 .setLngLat(feature.coordinates)
-                .setPopup(new mapboxgl.Popup().setHTML(feature.content))
-                .addTo(map);
+                .setPopup(new mapboxgl.Popup().setHTML(feature.content));
+            // Don't add to map initially - will be added when checkbox is checked
             
             // Store both difficulty and featureId with the marker
             marker.difficulty = feature.difficulty;
