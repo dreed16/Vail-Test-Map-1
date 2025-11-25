@@ -138,17 +138,71 @@ const createCustomMarker = (color) => {
     return element;
 };
 
+// Create video icon marker (play button style)
+const createVideoMarker = () => {
+    const element = document.createElement('div');
+    element.className = 'video-marker';
+    
+    // Create play button icon SVG
+    element.innerHTML = `
+        <svg width="24" height="24" viewBox="0 0 24 24" style="background: rgba(0, 0, 0, 0.6); border-radius: 50%; padding: 4px;">
+            <circle cx="12" cy="12" r="10" fill="#00FF00" stroke="#FFFFFF" stroke-width="2"/>
+            <path d="M9 7 L9 17 L17 12 Z" fill="#000000"/>
+        </svg>
+    `;
+    
+    // Make marker sit on top and capture clicks
+    // Note: Don't set position - Mapbox handles that
+    element.style.zIndex = '1000';
+    element.style.pointerEvents = 'auto';
+    element.style.cursor = 'pointer';
+    
+    return element;
+};
+
+// Calculate midpoint of a trail (or use first point if only one)
+function getTrailMidpoint(trailId) {
+    if (!trailData[trailId]) return null;
+    
+    let coordinates = [];
+    
+    // Handle split trails
+    if (trailData[trailId].coordinates.main) {
+        coordinates = trailData[trailId].coordinates.main;
+    } else if (trailData[trailId].coordinates) {
+        coordinates = trailData[trailId].coordinates;
+    } else {
+        return null;
+    }
+    
+    if (!coordinates || coordinates.length === 0) return null;
+    
+    // If only one point, use it
+    if (coordinates.length === 1) {
+        return coordinates[0];
+    }
+    
+    // Calculate midpoint (use middle coordinate)
+    const midIndex = Math.floor(coordinates.length / 2);
+    return coordinates[midIndex];
+}
+
 // Then your mountainFeatureData.
 
 
 // Initialize your variables
 const mountainMarkers = [];
+const videoMarkers = [];  // Markers for trails with custom videos
 var trailsVisible = true;
 var liftsVisible = true;
 var mountainCamsVisible = false;  // Start with cams hidden for better performance
 var currentPopup = null;
 var liveFeedMarkers = [];
+var myVideosMode = false;  // Track My Videos toggle state (default: OFF)
 let navigationActive = false;
+
+// Hardcoded custom videos data is loaded from Data/HardcodedCustomVideos.js
+// This keeps main.js cleaner and follows the same pattern as other data files
 
 // Debug checks
 if (typeof mountainFeatureData === 'undefined') {
@@ -329,7 +383,7 @@ map.on('load', function() {
         // Create markers for each feature
         Object.entries(mountainFeatureData).forEach(([id, feature]) => {
             const color = feature.difficulty === 'green' ? '#228B22' : 
-                         feature.difficulty === 'blue' ? '#0000FF' : '#000000';
+                         feature.difficulty === 'blue' ? '#0022AA' : '#000000';
             
             // Create the custom element first
             const customElement = createCustomMarker(color);
@@ -365,6 +419,9 @@ map.on('load', function() {
                         type: 'geojson',
                         data: {
                             type: 'Feature',
+                            properties: {
+                                trailColor: trailData[trail].color  // Store color for GPU-accelerated expressions
+                            },
                             geometry: {
                                 type: 'LineString',
                                 coordinates: processedCoords
@@ -377,8 +434,9 @@ map.on('load', function() {
                     // Catwalks don't get a border - just dashed colored line
                     const isExtreme = trailData[trail].difficulty === 'extreme' || trailData[trail].isExtreme === true;
                     const isDoubleBlack = trailData[trail].difficulty === 'doubleBlack' || trailData[trail].isDoubleBlack === true;
+                    const isBlack = trailData[trail].difficulty === 'black';
                     const isCatwalk = trailData[trail].isCatwalk === true || trailData[trail].type === 'catwalk';
-                    const borderColor = isExtreme ? '#FF0000' : (isDoubleBlack ? '#FFB84D' : '#FFFFFF');  // Red for extreme, yellow-orange for double black, white for others
+                    const borderColor = isExtreme ? '#FF0000' : (isDoubleBlack ? '#FFB84D' : (isBlack ? '#FFFACD' : '#FFFFFF'));  // Red for extreme, yellow-orange for double black, light yellow for black, white for others
                     
                     // Only add border layer for non-catwalk trails
                     if (!isCatwalk) {
@@ -397,9 +455,16 @@ map.on('load', function() {
                             'line-translate': [0, 0]  // Ensure no offset
                         };
                         
+                        // Full opacity (no dimming)
+                        borderPaint['line-opacity'] = 1.0;
+                        
                         // Bottom layer: border/highlight (wider)
                         // Hide border at low zoom for performance (zoom < 12)
+                        // Also check if trail should be visible based on difficulty checkbox
                         const currentZoomForBorder = map.getZoom();
+                        const trailShouldBeVisible = shouldTrailBeVisible(trail);
+                        const borderVisibility = (currentZoomForBorder >= 12 && trailShouldBeVisible) ? 'visible' : 'none';
+                        
                         map.addLayer({
                             'id': `${trail}-${pathType}-layer-border`,
                             'type': 'line',
@@ -407,15 +472,16 @@ map.on('load', function() {
                             'layout': {
                                 'line-join': 'round',
                                 'line-cap': 'square',  // Use 'square' for better alignment
-                                'visibility': currentZoomForBorder >= 12 ? 'visible' : 'none'
+                                'visibility': borderVisibility
                             },
                             'paint': borderPaint
                         });
                     }
                     
                     // Build paint properties for main layer
+                    // Use GPU-accelerated expression for color (reads from feature properties)
                     const mainPaint = {
-                        'line-color': trailData[trail].color,
+                        'line-color': ['get', 'trailColor'],  // GPU-accelerated: reads from GeoJSON properties
                         'line-width': [
                             'interpolate',
                             ['linear'],
@@ -432,14 +498,20 @@ map.on('load', function() {
                         mainPaint['line-dasharray'] = [4, 3];
                     }
                     
+                    // Full opacity (no dimming)
+                    mainPaint['line-opacity'] = 1.0;
+                    
                     // Top layer: colored line (narrower, centered on white for non-catwalks)
+                    // Check if trail should be visible based on difficulty checkbox
+                    const trailShouldBeVisible = shouldTrailBeVisible(trail);
                     map.addLayer({
                         'id': `${trail}-${pathType}-layer`,
                         'type': 'line',
                         'source': sourceId,
                         'layout': {
                             'line-join': 'round',
-                            'line-cap': isCatwalk ? 'round' : 'square'  // Round caps for catwalks look better
+                            'line-cap': isCatwalk ? 'round' : 'square',  // Round caps for catwalks look better
+                            'visibility': trailShouldBeVisible ? 'visible' : 'none'
                         },
                         'paint': mainPaint
                     });
@@ -455,6 +527,9 @@ map.on('load', function() {
                     type: 'geojson',
                     data: {
                         type: 'Feature',
+                        properties: {
+                            trailColor: trailData[trail].color  // Store color for GPU-accelerated expressions
+                        },
                         geometry: {
                             type: 'LineString',
                             coordinates: processedCoords
@@ -462,12 +537,13 @@ map.on('load', function() {
                     }
                 });
                 // For all trails, use a border/highlight effect
-                // Extreme trails get red border, double black trails get yellow border, others get white border
+                // Extreme trails get red border, double black trails get yellow border, black trails get light yellow border, others get white border
                 // Catwalks don't get a border - just dashed colored line
                 const isExtreme = trailData[trail].difficulty === 'extreme' || trailData[trail].isExtreme === true;
                 const isDoubleBlack = trailData[trail].difficulty === 'doubleBlack' || trailData[trail].isDoubleBlack === true;
+                const isBlack = trailData[trail].difficulty === 'black';
                 const isCatwalk = trailData[trail].isCatwalk === true || trailData[trail].type === 'catwalk';
-                const borderColor = isExtreme ? '#FF0000' : (isDoubleBlack ? '#FFB84D' : '#FFFFFF');  // Red for extreme, yellow-orange for double black, white for others
+                const borderColor = isExtreme ? '#FF0000' : (isDoubleBlack ? '#FFB84D' : (isBlack ? '#FFFACD' : '#FFFFFF'));  // Red for extreme, yellow-orange for double black, light yellow for black, white for others
                 
                 // Only add border layer for non-catwalk trails
                 if (!isCatwalk) {
@@ -486,9 +562,16 @@ map.on('load', function() {
                         'line-translate': [0, 0]  // Ensure no offset
                     };
                     
+                    // Full opacity (no dimming)
+                    borderPaint['line-opacity'] = 1.0;
+                    
                     // Bottom layer: border/highlight (wider)
                     // Hide border at low zoom for performance (zoom < 12)
+                    // Also check if trail should be visible based on difficulty checkbox
                     const currentZoomForBorder = map.getZoom();
+                    const trailShouldBeVisible = shouldTrailBeVisible(trail);
+                    const borderVisibility = (currentZoomForBorder >= 12 && trailShouldBeVisible) ? 'visible' : 'none';
+                    
                     map.addLayer({
                         'id': `${trail}-layer-border`,
                         'type': 'line',
@@ -496,15 +579,16 @@ map.on('load', function() {
                         'layout': {
                             'line-join': 'round',
                             'line-cap': 'square',  // Use 'square' for better alignment
-                            'visibility': currentZoomForBorder >= 12 ? 'visible' : 'none'
+                            'visibility': borderVisibility
                         },
                         'paint': borderPaint
                     });
                 }
                 
                 // Build paint properties for main layer
+                // Use GPU-accelerated expression for color (reads from feature properties)
                 const mainPaint = {
-                    'line-color': trailData[trail].color,
+                    'line-color': ['get', 'trailColor'],  // GPU-accelerated: reads from GeoJSON properties
                     'line-width': [
                         'interpolate',
                         ['linear'],
@@ -521,14 +605,20 @@ map.on('load', function() {
                     mainPaint['line-dasharray'] = [4, 3];
                 }
                 
+                // Full opacity (no dimming)
+                mainPaint['line-opacity'] = 1.0;
+                
                 // Top layer: colored line (narrower, centered on white for non-catwalks)
+                // Check if trail should be visible based on difficulty checkbox
+                const trailShouldBeVisible = shouldTrailBeVisible(trail);
                 map.addLayer({
                     'id': `${trail}-layer`,
                     'type': 'line',
                     'source': trail,
                     'layout': {
                         'line-join': 'round',
-                        'line-cap': isCatwalk ? 'round' : 'square'  // Round caps for catwalks look better
+                        'line-cap': isCatwalk ? 'round' : 'square',  // Round caps for catwalks look better
+                        'visibility': trailShouldBeVisible ? 'visible' : 'none'
                     },
                     'paint': mainPaint
                 });
@@ -541,6 +631,7 @@ map.on('load', function() {
     const loadedTrails = window.loadedTrails;
     
     // Function to unload a trail (remove from map)
+    // IMPORTANT: Must remove layers BEFORE removing sources (Mapbox requirement)
     function unloadTrail(trail) {
         if (trailData[trail].coordinates.main) {
             // Handle split trails
@@ -550,12 +641,12 @@ map.on('load', function() {
                 const mainLayerId = `${trail}-${pathType}-layer`;
                 const highlightLayerId = `${trail}-${pathType}-video-highlight`;
                 
-                // Remove all layers (including video highlights)
+                // Remove ALL layers FIRST (before removing source)
                 if (map.getLayer(highlightLayerId)) map.removeLayer(highlightLayerId);
                 if (map.getLayer(borderLayerId)) map.removeLayer(borderLayerId);
                 if (map.getLayer(mainLayerId)) map.removeLayer(mainLayerId);
                 
-                // Remove source
+                // Remove source AFTER all layers are removed
                 if (map.getSource(sourceId)) map.removeSource(sourceId);
             });
         } else {
@@ -564,12 +655,12 @@ map.on('load', function() {
             const mainLayerId = `${trail}-layer`;
             const highlightLayerId = `${trail}-video-highlight`;
             
-            // Remove all layers (including video highlights)
+            // Remove ALL layers FIRST (before removing source)
             if (map.getLayer(highlightLayerId)) map.removeLayer(highlightLayerId);
             if (map.getLayer(borderLayerId)) map.removeLayer(borderLayerId);
             if (map.getLayer(mainLayerId)) map.removeLayer(mainLayerId);
             
-            // Remove source
+            // Remove source AFTER all layers are removed
             if (map.getSource(trail)) map.removeSource(trail);
         }
         
@@ -630,8 +721,23 @@ map.on('load', function() {
         };
         
         // Quick bounding box intersection check (much faster than checking all coordinates)
-        return !(bbox.maxLat < expandedBounds.south || bbox.minLat > expandedBounds.north ||
+        const isInViewport = !(bbox.maxLat < expandedBounds.south || bbox.minLat > expandedBounds.north ||
                  bbox.maxLng < expandedBounds.west || bbox.minLng > expandedBounds.east);
+        
+        // ADDITIONAL CHECK: If viewport is focused on Breck (around -106.04 to -106.11), 
+        // don't load Vail trails (around -106.34). And vice versa.
+        // This prevents loading trails from the wrong mountain when zoomed in
+        const viewportCenterLng = (bounds.getEast() + bounds.getWest()) / 2;
+        const trailCenterLng = (bbox.minLng + bbox.maxLng) / 2;
+        const lngDistance = Math.abs(viewportCenterLng - trailCenterLng);
+        
+        // If viewport and trail are more than 0.15 degrees apart (roughly 10+ miles), don't load
+        // This prevents Vail trails from loading when zoomed into Breck and vice versa
+        if (lngDistance > 0.15) {
+            return false;
+        }
+        
+        return isInViewport;
     }
     
     // Load trails that are in viewport, unload ones that aren't
@@ -681,6 +787,10 @@ map.on('load', function() {
                         trailsToKeep.add(trail);
                     }
                 }
+                // Update video markers after loading trails
+                if (myVideosMode) {
+                    updateVideoMarkers();
+                }
             }, 100);
         }
         
@@ -694,6 +804,11 @@ map.on('load', function() {
     
     // Initial load - only load trails in viewport
     loadTrailsInViewport();
+    
+    // Update video markers after initial load (if My Videos mode is on)
+    if (myVideosMode) {
+        setTimeout(() => updateVideoMarkers(), 500);
+    }
     
     // Load trails and lifts as map moves (when viewport changes)
     // Optimized for smooth panning: longer debounce + deferred execution + pre-computed bboxes
@@ -736,6 +851,10 @@ map.on('load', function() {
                     setTimeout(function() {
                         loadTrailsInViewport();
                         loadLiftsInViewport();
+                        // Update video markers after viewport changes
+                        if (myVideosMode) {
+                            updateVideoMarkers();
+                        }
                     }, 200); // Increased delay
                 });
             }
@@ -754,10 +873,19 @@ map.on('load', function() {
                 
                 layerIds.forEach(layerId => {
                     map.on('click', layerId, function(e) {
+                        // Check if click was on a video marker - if so, don't show trail popup
+                        const clickedElement = e.originalEvent.target;
+                        if (clickedElement && clickedElement.closest('.video-marker')) {
+                            return; // Don't show trail popup if video marker was clicked
+                        }
+                        
                         currentTrailForPopup = trail;
                         const popupContent = generatePopupContent(trail);
                         
-                        const popup = new mapboxgl.Popup()
+                        const popup = new mapboxgl.Popup({ 
+                            offset: 25,
+                            anchor: 'bottom'  // Position above click point, but auto-adjusts if off-screen
+                        })
                             .setLngLat(e.lngLat)
                             .setHTML(popupContent)
                             .addTo(map);
@@ -784,10 +912,20 @@ map.on('load', function() {
             
             layerIds.forEach(layerId => {
                 map.on('click', layerId, function(e) {
+                    // Check if click was on a video marker - if so, don't show trail popup
+                    // Only check for video markers specifically, not all markers
+                    const clickedElement = e.originalEvent.target;
+                    if (clickedElement && clickedElement.closest('.video-marker')) {
+                        return; // Don't show trail popup if video marker was clicked
+                    }
+                    
                     currentTrailForPopup = trail;
                     const popupContent = generatePopupContent(trail);
                     
-                    const popup = new mapboxgl.Popup()
+                    const popup = new mapboxgl.Popup({ 
+                        offset: 25,
+                        anchor: 'bottom'  // Position above click point, but auto-adjusts if off-screen
+                    })
                         .setLngLat(e.lngLat)
                         .setHTML(popupContent)
                         .addTo(map);
@@ -984,11 +1122,15 @@ map.on('load', function() {
         const currentZoom = map.getZoom();
         // Hide borders below zoom 12 (they're not visible anyway and reduce rendering by ~50%)
         const showBorders = currentZoom >= 12;
-        const visibility = showBorders ? 'visible' : 'none';
         
         // Update borders for all loaded trails
         if (window.loadedTrails) {
             window.loadedTrails.forEach(function(trail) {
+                // Check if trail should be visible based on difficulty checkboxes
+                const isTrailVisible = shouldTrailBeVisible(trail);
+                // Border is visible only if: zoom >= 12 AND trail should be visible
+                const visibility = (showBorders && isTrailVisible) ? 'visible' : 'none';
+                
                 if (trailData[trail].coordinates.main) {
                     // Handle split trails
                     ['main', 'leftFork', 'rightFork'].forEach(pathType => {
@@ -1029,18 +1171,28 @@ map.on('load', function() {
                     const sourceId = `${trail}-${pathType}`;
                     const source = map.getSource(sourceId);
                     if (source) {
-                        // Get original coordinates and re-process them
-                        const originalCoords = trailData[trail].coordinates[pathType];
-                        const processedCoords = processTrailCoordinates(originalCoords, currentZoom);
-                        
-                        // Update the source data
-                        source.setData({
-                            type: 'Feature',
-                            geometry: {
-                                type: 'LineString',
-                                coordinates: processedCoords
-                            }
-                        });
+                    // Get original coordinates and re-process them
+                    const originalCoords = trailData[trail].coordinates[pathType];
+                    const processedCoords = processTrailCoordinates(originalCoords, currentZoom);
+                    
+                    // IMPORTANT: Preserve properties (trailColor) when updating coordinates
+                    const currentData = source._data;
+                    const existingProperties = currentData && currentData.properties ? currentData.properties : {};
+                    
+                    // Ensure trailColor is preserved (or set if missing)
+                    const trailColor = existingProperties.trailColor || trailData[trail].color;
+                    
+                    // Update the source data (preserve properties!)
+                    source.setData({
+                        type: 'Feature',
+                        properties: {
+                            trailColor: trailColor
+                        },
+                        geometry: {
+                            type: 'LineString',
+                            coordinates: processedCoords
+                        }
+                    });
                     }
                 });
             } else {
@@ -1051,9 +1203,19 @@ map.on('load', function() {
                     const originalCoords = trailData[trail].coordinates;
                     const processedCoords = processTrailCoordinates(originalCoords, currentZoom);
                     
-                    // Update the source data
+                    // IMPORTANT: Preserve properties (trailColor) when updating coordinates
+                    const currentData = source._data;
+                    const existingProperties = currentData && currentData.properties ? currentData.properties : {};
+                    
+                    // Ensure trailColor is preserved (or set if missing)
+                    const trailColor = existingProperties.trailColor || trailData[trail].color;
+                    
+                    // Update the source data (preserve properties!)
                     source.setData({
                         type: 'Feature',
+                        properties: {
+                            trailColor: trailColor
+                        },
                         geometry: {
                             type: 'LineString',
                             coordinates: processedCoords
@@ -1118,7 +1280,7 @@ map.on('load', function() {
             } else {
                 lastZoomLevel = currentZoom;
             }
-        }, 600); // Increased from 500ms to 600ms to reduce frequency
+        }, 900); // Increased to 900ms to reduce update frequency during fast scrolling
     });
 
     // Update trail colors and border visibility on initial load
@@ -1176,8 +1338,14 @@ function toggleTrails() {
         }
     }
     
-    Object.keys(trailData).forEach(function(trail) {
-        const isDoubleBlack = trailData[trail].difficulty === 'doubleBlack' || trailData[trail].isDoubleBlack === true;
+    // Use the helper function to determine visibility for each trail
+    // This ensures borders and main layers respect both main toggle and difficulty checkboxes
+    const trailsToCheck = window.loadedTrails ? Array.from(window.loadedTrails) : Object.keys(trailData);
+    
+    trailsToCheck.forEach(trail => {
+        if (!trailData[trail]) return;
+        
+        const isVisible = shouldTrailBeVisible(trail);
         
         if (trailData[trail].coordinates.main) {
             // Handle split trails - all trails now have border and main layers
@@ -1185,10 +1353,10 @@ function toggleTrails() {
                 const borderLayerId = `${trail}-${pathType}-layer-border`;
                 const mainLayerId = `${trail}-${pathType}-layer`;
                 if (map.getLayer(borderLayerId)) {
-                    map.setLayoutProperty(borderLayerId, 'visibility', trailsVisible ? 'visible' : 'none');
+                    map.setLayoutProperty(borderLayerId, 'visibility', isVisible ? 'visible' : 'none');
                 }
                 if (map.getLayer(mainLayerId)) {
-                    map.setLayoutProperty(mainLayerId, 'visibility', trailsVisible ? 'visible' : 'none');
+                    map.setLayoutProperty(mainLayerId, 'visibility', isVisible ? 'visible' : 'none');
                 }
             });
         } else {
@@ -1196,10 +1364,10 @@ function toggleTrails() {
             const borderLayerId = `${trail}-layer-border`;
             const mainLayerId = `${trail}-layer`;
             if (map.getLayer(borderLayerId)) {
-                map.setLayoutProperty(borderLayerId, 'visibility', trailsVisible ? 'visible' : 'none');
+                map.setLayoutProperty(borderLayerId, 'visibility', isVisible ? 'visible' : 'none');
             }
             if (map.getLayer(mainLayerId)) {
-                map.setLayoutProperty(mainLayerId, 'visibility', trailsVisible ? 'visible' : 'none');
+                map.setLayoutProperty(mainLayerId, 'visibility', isVisible ? 'visible' : 'none');
             }
         }
     });
@@ -1281,23 +1449,53 @@ function toggleTrailAdjustment() {
                     const sourceName = `${trail}-${pathType}`;
                     console.log("Attempting to update source:", sourceName);
                     
-                    try {
-                        const source = map.getSource(sourceName);
-                        if (source) {
-                            source.setData({
-                                type: 'Feature',
-                                properties: {},
-                                geometry: {
-                                    type: 'LineString',
-                                    coordinates: newCoords
+                    const source = map.getSource(sourceName);
+                    if (source) {
+                        // Preserve existing properties (trailColor, hasVideo) if they exist
+                        const currentData = source._data;
+                        const existingProperties = currentData && currentData.properties ? currentData.properties : {};
+                        const trailColor = existingProperties.trailColor || trailData[trail].color;
+                        const hasVideo = existingProperties.hasVideo || false;
+                        
+                        source.setData({
+                            type: 'Feature',
+                            properties: {
+                                trailColor: trailColor,
+                                hasVideo: hasVideo
+                            },
+                            geometry: {
+                                type: 'LineString',
+                                coordinates: newCoords
+                            }
+                        });
+                        // Format coordinates with each pair on its own line
+                        const formattedCoords = newCoords.map(coord => `        [${coord[0]}, ${coord[1]}]`).join(',\n');
+                        console.log(`${trail} ${pathType} new coordinates:\n    [\n${formattedCoords}\n    ]`);
+                    } else {
+                        console.warn(`Source not found: ${sourceName} - trail may not be loaded in viewport. Loading trail now...`);
+                        // Load the trail if it's not already loaded
+                        if (typeof loadTrail === 'function') {
+                            loadTrail(trail);
+                            if (!window.loadedTrails) window.loadedTrails = new Set();
+                            window.loadedTrails.add(trail);
+                            // Try updating again after a short delay
+                            setTimeout(() => {
+                                const source = map.getSource(sourceName);
+                                if (source) {
+                                    const trailColor = trailData[trail].color;
+                                    source.setData({
+                                        type: 'Feature',
+                                        properties: {
+                                            trailColor: trailColor
+                                        },
+                                        geometry: {
+                                            type: 'LineString',
+                                            coordinates: newCoords
+                                        }
+                                    });
                                 }
-                            });
-                            console.log(`${trail} ${pathType} new coordinates:`, JSON.stringify(newCoords));
-                        } else {
-                            console.error(`Source not found: ${sourceName}`);
+                            }, 100);
                         }
-                    } catch (error) {
-                        console.error(`Error updating ${sourceName}:`, error);
                     }
                 }
 
@@ -1322,15 +1520,55 @@ function toggleTrailAdjustment() {
                 const newCoords = markers.map(marker => marker.getLngLat().toArray());
                 trailData[trail].coordinates = newCoords;
                 
-                map.getSource(trail).setData({
-                    type: 'Feature',
-                    geometry: {
-                        type: 'LineString',
-                        coordinates: newCoords
+                // Check if source exists before updating (might not be loaded due to viewport-based loading)
+                const source = map.getSource(trail);
+                if (source) {
+                    // Preserve existing properties (trailColor, hasVideo) if they exist
+                    const currentData = source._data;
+                    const existingProperties = currentData && currentData.properties ? currentData.properties : {};
+                    const trailColor = existingProperties.trailColor || trailData[trail].color;
+                    const hasVideo = existingProperties.hasVideo || false;
+                    
+                    source.setData({
+                        type: 'Feature',
+                        properties: {
+                            trailColor: trailColor,
+                            hasVideo: hasVideo
+                        },
+                        geometry: {
+                            type: 'LineString',
+                            coordinates: newCoords
+                        }
+                    });
+                    // Format coordinates with each pair on its own line
+                    const formattedCoords = newCoords.map(coord => `        [${coord[0]}, ${coord[1]}]`).join(',\n');
+                    console.log(`${trail} new coordinates:\n    [\n${formattedCoords}\n    ]`);
+                } else {
+                    console.warn(`Source not found for ${trail} - trail may not be loaded in viewport. Loading trail now...`);
+                    // Load the trail if it's not already loaded
+                    if (typeof loadTrail === 'function') {
+                        loadTrail(trail);
+                        if (!window.loadedTrails) window.loadedTrails = new Set();
+                        window.loadedTrails.add(trail);
+                        // Try updating again after a short delay
+                        setTimeout(() => {
+                            const source = map.getSource(trail);
+                            if (source) {
+                                const trailColor = trailData[trail].color;
+                                source.setData({
+                                    type: 'Feature',
+                                    properties: {
+                                        trailColor: trailColor
+                                    },
+                                    geometry: {
+                                        type: 'LineString',
+                                        coordinates: newCoords
+                                    }
+                                });
+                            }
+                        }, 100);
                     }
-                });
-
-                console.log(`${trail} new coordinates:`, JSON.stringify(newCoords));
+                }
             }
 
             markers.forEach(marker => marker.on('dragend', updateTrail));
@@ -1386,26 +1624,126 @@ function setupCustomVideoButtons(trailId, popup) {
                     e.preventDefault();
                     e.stopPropagation();
                     console.log('Upload button clicked for trail:', trailId);
+                    
+                    // First, get the video URL
                     const videoUrl = prompt('Paste your YouTube video URL:');
-                    if (videoUrl && window.customVideos && window.customVideos.saveCustomVideo) {
-                        try {
-                            await window.customVideos.saveCustomVideo(trailId, videoUrl);
-                            alert('Video saved successfully!');
-                            // Refresh popup content
-                            const newContent = generatePopupContent(trailId);
-                            popup.setHTML(newContent);
-                            setTimeout(() => {
-                                setupCustomVideoButtons(trailId, popup);
-                            }, 100);
-                            // Update highlights if My Videos mode is on
-                            if (window.updateTrailOpacity) {
-                                window.updateTrailOpacity();
-                            }
-                        } catch (error) {
-                            alert('Error saving video: ' + error.message);
-                            console.error('Error saving video:', error);
-                        }
+                    if (!videoUrl) {
+                        return; // User cancelled
                     }
+                    
+                    // Show category selection modal
+                    const categoryModal = document.getElementById('videoCategoryModal');
+                    if (!categoryModal) {
+                        // Fallback to old behavior if modal doesn't exist
+                        if (window.customVideos && window.customVideos.saveCustomVideo) {
+                            try {
+                                await window.customVideos.saveCustomVideo(trailId, videoUrl);
+                                alert('Video saved successfully!');
+                                const newContent = generatePopupContent(trailId);
+                                popup.setHTML(newContent);
+                                setTimeout(() => {
+                                    setupCustomVideoButtons(trailId, popup);
+                                }, 100);
+                                updateVideoMarkers();
+                            } catch (error) {
+                                alert('Error saving video: ' + error.message);
+                                console.error('Error saving video:', error);
+                            }
+                        }
+                        return;
+                    }
+                    
+                    // Reset checkboxes (default to misc checked)
+                    document.querySelectorAll('#categoryCheckboxes input[type="checkbox"]').forEach(cb => {
+                        cb.checked = cb.value === 'misc';
+                    });
+                    
+                    // Show modal
+                    categoryModal.style.display = 'block';
+                    
+                    // Set up modal handlers
+                    const closeModal = () => {
+                        categoryModal.style.display = 'none';
+                    };
+                    
+                    const confirmBtn = document.getElementById('confirmCategorySelection');
+                    const cancelBtn = document.getElementById('cancelCategorySelection');
+                    const closeBtn = document.getElementById('closeCategoryModal');
+                    
+                    if (!confirmBtn || !cancelBtn || !closeBtn) {
+                        console.error('Modal buttons not found, using fallback');
+                        // Fallback to old behavior
+                        if (window.customVideos && window.customVideos.saveCustomVideo) {
+                            try {
+                                await window.customVideos.saveCustomVideo(trailId, videoUrl);
+                                alert('Video saved successfully!');
+                                const newContent = generatePopupContent(trailId);
+                                popup.setHTML(newContent);
+                                setTimeout(() => {
+                                    setupCustomVideoButtons(trailId, popup);
+                                }, 100);
+                                updateVideoMarkers();
+                            } catch (error) {
+                                alert('Error saving video: ' + error.message);
+                                console.error('Error saving video:', error);
+                            }
+                        }
+                        return;
+                    }
+                    
+                    // Remove old listeners by cloning
+                    const newConfirmBtn = confirmBtn.cloneNode(true);
+                    const newCancelBtn = cancelBtn.cloneNode(true);
+                    const newCloseBtn = closeBtn.cloneNode(true);
+                    confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+                    cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+                    closeBtn.parentNode.replaceChild(newCloseBtn, closeBtn);
+                    
+                    // Confirm button handler
+                    newConfirmBtn.addEventListener('click', async function() {
+                        // Get selected categories
+                        const selectedCategories = [];
+                        document.querySelectorAll('#categoryCheckboxes input[type="checkbox"]:checked').forEach(cb => {
+                            selectedCategories.push(cb.value);
+                        });
+                        
+                        // Ensure at least one category is selected
+                        if (selectedCategories.length === 0) {
+                            alert('Please select at least one category.');
+                            return;
+                        }
+                        
+                        closeModal();
+                        
+                        if (window.customVideos && window.customVideos.saveCustomVideo) {
+                            try {
+                                await window.customVideos.saveCustomVideo(trailId, videoUrl, selectedCategories);
+                                alert('Video saved successfully with categories: ' + selectedCategories.join(', '));
+                                // Refresh popup content
+                                const newContent = generatePopupContent(trailId);
+                                popup.setHTML(newContent);
+                                setTimeout(() => {
+                                    setupCustomVideoButtons(trailId, popup);
+                                }, 100);
+                                // Update video markers when video is added
+                                updateVideoMarkers();
+                            } catch (error) {
+                                alert('Error saving video: ' + error.message);
+                                console.error('Error saving video:', error);
+                            }
+                        }
+                    });
+                    
+                    // Cancel/close handlers
+                    newCancelBtn.addEventListener('click', closeModal);
+                    newCloseBtn.addEventListener('click', closeModal);
+                    
+                    // Close on outside click
+                    categoryModal.addEventListener('click', function(e) {
+                        if (e.target === categoryModal) {
+                            closeModal();
+                        }
+                    });
                 });
             }
             
@@ -1430,10 +1768,8 @@ function setupCustomVideoButtons(trailId, popup) {
                             setTimeout(() => {
                                 setupCustomVideoButtons(trailId, popup);
                             }, 100);
-                            // Update highlights if My Videos mode is on
-                            if (window.updateTrailOpacity) {
-                                window.updateTrailOpacity();
-                            }
+                            // Update video markers when video is removed
+                            updateVideoMarkers();
                         } catch (error) {
                             alert('Error removing video: ' + error.message);
                             console.error('Error removing video:', error);
@@ -1449,21 +1785,62 @@ function setupCustomVideoButtons(trailId, popup) {
 
 // Function to generate popup content with custom video support
 function generatePopupContent(trailId) {
-    // Check if user has a custom video for this trail
+    // Check if user has a custom video for this trail (from Firebase)
     const customVideo = window.customVideos && window.customVideos.getCustomVideo ? window.customVideos.getCustomVideo(trailId) : null;
     const userAuth = window.userAuth;
     const isLoggedIn = userAuth && userAuth.currentUser;
     
-    // Get base popup content
+    // Get base popup content (generic video) - ALWAYS use generic video for trail popups
+    // Custom videos only appear when clicking the icon, not when clicking the trail
     let content = trailPopups[trailId] ? trailPopups[trailId].content : 
                   `<strong>${trailId}</strong><br>Difficulty: ${trailData[trailId] ? trailData[trailId].difficulty : 'Unknown'}`;
     
-    // If user has custom video, replace the iframe
+    // Only use Firebase custom videos (not hardcoded ones - those are for icon clicks only)
+    // Hardcoded custom videos are shown via icon popups, not trail popups
+    let videoToUse = null;
     if (customVideo && customVideo.videoId) {
+        // Use Firebase custom video (if available)
+        videoToUse = customVideo;
+    }
+    
+    // If we have a Firebase custom video to use, replace the iframe
+    if (videoToUse) {
         // Find and replace the iframe in the content
         const iframeRegex = /<iframe[^>]*>.*?<\/iframe>/gi;
-        const newIframe = `<iframe width='200' height='113' src='https://www.youtube.com/embed/${customVideo.videoId}?enablejsapi=1' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>`;
-        content = content.replace(iframeRegex, newIframe);
+        
+        // Extract video ID from URL
+        let videoId = null;
+        let startTime = 0;
+        
+        if (videoToUse.videoUrl) {
+            // Extract video ID from various YouTube URL formats
+            const url = videoToUse.videoUrl;
+            const patterns = [
+                /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
+                /youtube\.com\/shorts\/([^&\n?#]+)/,
+            ];
+            for (const pattern of patterns) {
+                const match = url.match(pattern);
+                if (match && match[1]) {
+                    videoId = match[1];
+                    break;
+                }
+            }
+            startTime = videoToUse.startTime || 0;
+        } else if (videoToUse.videoId) {
+            videoId = videoToUse.videoId;
+            startTime = videoToUse.startTime || 0;
+        }
+        
+        if (videoId) {
+            // Check if it's a Shorts video (vertical) - use vertical dimensions, otherwise use standard
+            const isShorts = videoToUse.videoUrl && videoToUse.videoUrl.includes('/shorts/');
+            const iframeWidth = isShorts ? '240' : '480';
+            const iframeHeight = isShorts ? '427' : '270';
+            const startParam = startTime > 0 ? `&start=${startTime}` : '';
+            const newIframe = `<iframe width='${iframeWidth}' height='${iframeHeight}' src='https://www.youtube.com/embed/${videoId}?enablejsapi=1&hd=1${startParam}' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>`;
+            content = content.replace(iframeRegex, newIframe);
+        }
     }
     
     // Add custom video buttons if user is logged in
@@ -1485,112 +1862,132 @@ function generatePopupContent(trailId) {
     return content;
 }
 
-// Function to update all trail colors from trailData
-// Optimized: Only updates loaded trails (not all trails)
+// Function to update trail colors using GPU-accelerated source updates
+// Instead of updating each layer individually, we update the SOURCE data (much faster!)
+// The GPU expression ['get', 'trailColor'] automatically reads the new color
 function updateTrailColors() {
-    console.log('Updating trail colors from trailData...');
+    console.log('Updating trail colors (GPU-accelerated via source updates)...');
     
     // Only update trails that are currently loaded
     const trailsToUpdate = window.loadedTrails ? Array.from(window.loadedTrails) : Object.keys(trailData);
+    let updatedCount = 0;
     
     trailsToUpdate.forEach(function(trail) {
         const trailColor = trailData[trail].color;
-        const isExtreme = trailData[trail].difficulty === 'extreme' || trailData[trail].isExtreme === true;
-        const isDoubleBlack = trailData[trail].difficulty === 'doubleBlack' || trailData[trail].isDoubleBlack === true;
-        const isCatwalk = trailData[trail].isCatwalk === true || trailData[trail].type === 'catwalk';
-        const borderColor = isExtreme ? '#FF0000' : (isDoubleBlack ? '#FFB84D' : '#FFFFFF');  // Red for extreme, yellow-orange for double black, white for others
+        const hasVideo = window.customVideos && window.customVideos.getCustomVideo ? 
+            (window.customVideos.getCustomVideo(trail) !== null) : false;
         
-        if (trailData[trail].coordinates.main) {
-            // Handle split trails
-            ['main', 'leftFork', 'rightFork'].forEach(pathType => {
-                // Update the main layer color
-                const mainLayerId = `${trail}-${pathType}-layer`;
-                if (map.getLayer(mainLayerId)) {
-                    map.setPaintProperty(mainLayerId, 'line-color', trailColor);
-                    console.log(`Updated color for ${trail}-${pathType}: ${trailColor}`);
-                }
-                // Update the border layer color (only if not a catwalk)
-                if (!isCatwalk) {
-                    const borderLayerId = `${trail}-${pathType}-layer-border`;
-                    if (map.getLayer(borderLayerId)) {
-                        map.setPaintProperty(borderLayerId, 'line-color', borderColor);
-                        console.log(`Updated border color for ${trail}-${pathType}: ${borderColor}`);
-                    }
-                }
-            });
-        } else {
-            // Handle regular trails
-            // Update the main layer color
-            const mainLayerId = `${trail}-layer`;
-            if (map.getLayer(mainLayerId)) {
-                map.setPaintProperty(mainLayerId, 'line-color', trailColor);
-                console.log(`Updated color for ${trail}: ${trailColor}`);
-            }
-            // Update the border layer color (only if not a catwalk)
-            if (!isCatwalk) {
-                const borderLayerId = `${trail}-layer-border`;
-                if (map.getLayer(borderLayerId)) {
-                    map.setPaintProperty(borderLayerId, 'line-color', borderColor);
-                    console.log(`Updated border color for ${trail}: ${borderColor}`);
-                }
-            }
-        }
-    });
-    console.log('Trail colors updated!');
-}
-
-function toggleTrailsByDifficulty(difficulty) {
-    Object.keys(trailData).forEach(trail => {
-        // Handle both 'black' and 'doubleBlack' for black trails, and 'extreme', and 'terrainPark'
-        const trailDifficulty = trailData[trail].difficulty;
-        const isExtreme = trailDifficulty === 'extreme' || trailData[trail].isExtreme === true;
-        const isDoubleBlack = trailDifficulty === 'doubleBlack' || trailData[trail].isDoubleBlack === true;
-        const isTerrainPark = trailDifficulty === 'terrainPark' || trailData[trail].isTerrainPark === true;
-        // Match difficulty - but don't show double black when regular black is toggled, and don't show extreme when others are toggled
-        const matchesDifficulty = (difficulty === 'black' && trailDifficulty === 'black' && !isDoubleBlack && !isExtreme && !isTerrainPark) || 
-                                  (difficulty === 'doubleBlack' && isDoubleBlack && !isExtreme && !isTerrainPark) ||
-                                  (difficulty === 'extreme' && isExtreme && !isTerrainPark) ||
-                                  (difficulty === 'terrainPark' && isTerrainPark) ||
-                                  (trailDifficulty === difficulty && !isDoubleBlack && !isExtreme && !isTerrainPark);
-        
-        if (matchesDifficulty) {
-            // Handle camelCase for doubleBlack, extreme, and terrainPark
-            let checkboxId;
-            if (difficulty === 'doubleBlack') {
-                checkboxId = 'toggleDoubleBlackTrails';
-            } else if (difficulty === 'extreme') {
-                checkboxId = 'toggleExtremeTrails';
-            } else if (difficulty === 'terrainPark') {
-                checkboxId = 'toggleTerrainParkTrails';
-            } else {
-                checkboxId = `toggle${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}Trails`;
-            }
-            const checkbox = document.getElementById(checkboxId);
-            const isVisible = checkbox ? checkbox.checked : true;
-            
-            // Check if it's a split trail
+        try {
             if (trailData[trail].coordinates.main) {
-                // Handle split trail visibility - all trails have border and main layers
+                // Handle split trails - update all 3 sources
                 ['main', 'leftFork', 'rightFork'].forEach(pathType => {
-                    const borderLayerId = `${trail}-${pathType}-layer-border`;
-                    const mainLayerId = `${trail}-${pathType}-layer`;
-                    if (map.getLayer(borderLayerId)) {
-                        map.setLayoutProperty(borderLayerId, 'visibility', isVisible ? 'visible' : 'none');
-                    }
-                    if (map.getLayer(mainLayerId)) {
-                        map.setLayoutProperty(mainLayerId, 'visibility', isVisible ? 'visible' : 'none');
+                    const sourceId = `${trail}-${pathType}`;
+                    const source = map.getSource(sourceId);
+                    if (source) {
+                        // Update source data - GPU expression automatically picks up new color!
+                        const currentData = source._data;
+                        if (currentData && currentData.geometry) {
+                            source.setData({
+                                type: 'Feature',
+                                properties: {
+                                    hasVideo: hasVideo,
+                                    trailColor: trailColor  // Update color in properties
+                                },
+                                geometry: currentData.geometry
+                            });
+                            updatedCount++;
+                        }
                     }
                 });
             } else {
-                // Handle regular trail visibility - all trails have border and main layers
-                const borderLayerId = `${trail}-layer-border`;
-                const mainLayerId = `${trail}-layer`;
+                // Handle regular trails - update source
+                const source = map.getSource(trail);
+                if (source) {
+                    const currentData = source._data;
+                    if (currentData && currentData.geometry) {
+                        source.setData({
+                            type: 'Feature',
+                            properties: {
+                                hasVideo: hasVideo,
+                                trailColor: trailColor  // Update color in properties
+                            },
+                            geometry: currentData.geometry
+                        });
+                        updatedCount++;
+                    }
+                }
+            }
+        } catch (e) {
+            console.warn(`Error updating color for ${trail}:`, e);
+        }
+    });
+    console.log(`Trail colors updated (GPU-accelerated): ${updatedCount} sources updated`);
+}
+
+// Helper function to determine if a trail should be visible based on its difficulty checkbox
+function shouldTrailBeVisible(trail) {
+    if (!trailData[trail]) return false;
+    
+    // First check if the main "Trails" checkbox is checked
+    const mainTrailsCheckbox = document.getElementById('toggleTrails');
+    if (!mainTrailsCheckbox || !mainTrailsCheckbox.checked) {
+        return false; // Main trails toggle is off, so no trails should be visible
+    }
+    
+    const trailDifficulty = trailData[trail].difficulty;
+    const isExtreme = trailDifficulty === 'extreme' || trailData[trail].isExtreme === true;
+    const isDoubleBlack = trailDifficulty === 'doubleBlack' || trailData[trail].isDoubleBlack === true;
+    const isTerrainPark = trailDifficulty === 'terrainPark' || trailData[trail].isTerrainPark === true;
+    
+    // Get the checkbox that controls this trail's visibility
+    let checkbox = null;
+    if (isExtreme) {
+        checkbox = document.getElementById('toggleExtremeTrails');
+    } else if (isDoubleBlack) {
+        checkbox = document.getElementById('toggleDoubleBlackTrails');
+    } else if (isTerrainPark) {
+        checkbox = document.getElementById('toggleTerrainParkTrails');
+    } else {
+        const checkboxId = `toggle${trailDifficulty.charAt(0).toUpperCase() + trailDifficulty.slice(1)}Trails`;
+        checkbox = document.getElementById(checkboxId);
+    }
+    
+    // Only show if the specific difficulty checkbox is checked
+    return checkbox ? checkbox.checked : false;
+}
+
+function toggleTrailsByDifficulty(difficulty) {
+    // OPTIMIZED: Only update loaded trails (not all 200+ trails)
+    const trailsToCheck = window.loadedTrails ? Array.from(window.loadedTrails) : Object.keys(trailData);
+    
+    trailsToCheck.forEach(trail => {
+        if (!trailData[trail]) return;
+        
+        // Use helper function to determine visibility
+        const isVisible = shouldTrailBeVisible(trail);
+        
+        // Update visibility for both main and border layers
+        if (trailData[trail].coordinates.main) {
+            // Handle split trail visibility
+            ['main', 'leftFork', 'rightFork'].forEach(pathType => {
+                const borderLayerId = `${trail}-${pathType}-layer-border`;
+                const mainLayerId = `${trail}-${pathType}-layer`;
                 if (map.getLayer(borderLayerId)) {
                     map.setLayoutProperty(borderLayerId, 'visibility', isVisible ? 'visible' : 'none');
                 }
                 if (map.getLayer(mainLayerId)) {
                     map.setLayoutProperty(mainLayerId, 'visibility', isVisible ? 'visible' : 'none');
                 }
+            });
+        } else {
+            // Handle regular trail visibility
+            const borderLayerId = `${trail}-layer-border`;
+            const mainLayerId = `${trail}-layer`;
+            if (map.getLayer(borderLayerId)) {
+                map.setLayoutProperty(borderLayerId, 'visibility', isVisible ? 'visible' : 'none');
+            }
+            if (map.getLayer(mainLayerId)) {
+                map.setLayoutProperty(mainLayerId, 'visibility', isVisible ? 'visible' : 'none');
             }
         }
     });
@@ -1646,7 +2043,9 @@ function toggleLiftAdjustment() {
                             coordinates: newCoords
                         }
                     });
-                    console.log(`${liftId} new coordinates:`, JSON.stringify(newCoords));
+                    // Format coordinates with each pair on its own line
+                    const formattedCoords = newCoords.map(coord => `        [${coord[0]}, ${coord[1]}]`).join(',\n');
+                    console.log(`${liftId} new coordinates:\n    [\n${formattedCoords}\n    ]`);
                 }
                 
                 startMarker.on('dragend', updateLift);
@@ -1669,9 +2068,14 @@ document.getElementById('toggleTrails').addEventListener('change', function() {
     const difficultyDropdown = this.parentElement.querySelector('.difficulty-dropdown');
     difficultyDropdown.style.display = this.checked ? 'block' : 'none';
     
-    // If unchecked, uncheck all difficulty options
+    // If unchecked, uncheck all difficulty options (including "All")
     if (!this.checked) {
+        const allTrailsCheckbox = document.getElementById('toggleAllTrails');
+        if (allTrailsCheckbox) {
+            allTrailsCheckbox.checked = false;
+        }
         difficultyDropdown.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+            if (cb.id === 'toggleAllTrails') return; // Skip "All" checkbox (already handled above)
             cb.checked = false;
             // Handle camelCase for DoubleBlack, Extreme, and TerrainPark
             let difficulty = cb.id.replace('toggle', '').replace('Trails', '');
@@ -1686,25 +2090,88 @@ document.getElementById('toggleTrails').addEventListener('change', function() {
             }
             toggleTrailsByDifficulty(difficulty);
         });
+    } else {
+        // If checked, ensure "All" checkbox reflects the state of individual checkboxes
+        const allTrailsCheckbox = document.getElementById('toggleAllTrails');
+        if (allTrailsCheckbox) {
+            const allDifficulties = ['Green', 'Blue', 'Black', 'DoubleBlack', 'Extreme', 'TerrainPark'];
+            const allChecked = allDifficulties.every(diff => {
+                const cb = document.getElementById(`toggle${diff}Trails`);
+                return cb && cb.checked;
+            });
+            allTrailsCheckbox.checked = allChecked;
+        }
     }
 });
 
-// Add event listeners for individual difficulty checkboxes
+// Add event listener for "All" checkbox (master toggle for all trail difficulties)
+const allTrailsCheckbox = document.getElementById('toggleAllTrails');
+if (allTrailsCheckbox) {
+    allTrailsCheckbox.addEventListener('change', function() {
+        const isChecked = this.checked;
+        // Toggle all difficulty checkboxes
         ['Green', 'Blue', 'Black', 'DoubleBlack', 'Extreme', 'TerrainPark'].forEach(difficulty => {
+            const checkbox = document.getElementById(`toggle${difficulty}Trails`);
+            if (checkbox) {
+                checkbox.checked = isChecked;
+                // Trigger change event to update trails
+                checkbox.dispatchEvent(new Event('change'));
+            }
+        });
+    });
+}
+
+// Add event listeners for individual difficulty checkboxes
+// When any difficulty checkbox changes, update ALL loaded trails to respect current checkbox states
+['Green', 'Blue', 'Black', 'DoubleBlack', 'Extreme', 'TerrainPark'].forEach(difficulty => {
     const checkbox = document.getElementById(`toggle${difficulty}Trails`);
     if (checkbox) {
         checkbox.addEventListener('change', function() {
-            let difficultyLower;
-            if (difficulty === 'DoubleBlack') {
-                difficultyLower = 'doubleBlack';
-            } else if (difficulty === 'Extreme') {
-                difficultyLower = 'extreme';
-            } else if (difficulty === 'TerrainPark') {
-                difficultyLower = 'terrainPark';
-            } else {
-                difficultyLower = difficulty.toLowerCase();
+            // Update all loaded trails to respect current checkbox states
+            const trailsToCheck = window.loadedTrails ? Array.from(window.loadedTrails) : Object.keys(trailData);
+            trailsToCheck.forEach(trail => {
+                if (!trailData[trail]) return;
+                const isVisible = shouldTrailBeVisible(trail);
+                const currentZoom = map.getZoom();
+                
+                if (trailData[trail].coordinates.main) {
+                    ['main', 'leftFork', 'rightFork'].forEach(pathType => {
+                        const borderLayerId = `${trail}-${pathType}-layer-border`;
+                        const mainLayerId = `${trail}-${pathType}-layer`;
+                        if (map.getLayer(borderLayerId)) {
+                            // Border visible only if zoom >= 12 AND trail should be visible
+                            const borderVisible = (currentZoom >= 12 && isVisible) ? 'visible' : 'none';
+                            map.setLayoutProperty(borderLayerId, 'visibility', borderVisible);
+                        }
+                        if (map.getLayer(mainLayerId)) {
+                            map.setLayoutProperty(mainLayerId, 'visibility', isVisible ? 'visible' : 'none');
+                        }
+                    });
+                } else {
+                    const borderLayerId = `${trail}-layer-border`;
+                    const mainLayerId = `${trail}-layer`;
+                    if (map.getLayer(borderLayerId)) {
+                        // Border visible only if zoom >= 12 AND trail should be visible
+                        const borderVisible = (currentZoom >= 12 && isVisible) ? 'visible' : 'none';
+                        map.setLayoutProperty(borderLayerId, 'visibility', borderVisible);
+                    }
+                    if (map.getLayer(mainLayerId)) {
+                        map.setLayoutProperty(mainLayerId, 'visibility', isVisible ? 'visible' : 'none');
+                    }
+                }
+            });
+            
+            // Update "All" checkbox based on individual checkboxes
+            const allTrailsCheckbox = document.getElementById('toggleAllTrails');
+            if (allTrailsCheckbox) {
+                // Check if all individual checkboxes are checked
+                const allDifficulties = ['Green', 'Blue', 'Black', 'DoubleBlack', 'Extreme', 'TerrainPark'];
+                const allChecked = allDifficulties.every(diff => {
+                    const cb = document.getElementById(`toggle${diff}Trails`);
+                    return cb && cb.checked;
+                });
+                allTrailsCheckbox.checked = allChecked;
             }
-            toggleTrailsByDifficulty(difficultyLower);
         });
     }
 });
@@ -1761,18 +2228,352 @@ document.getElementById('toggleCams').addEventListener('change', function() {
     toggleMountainCams();
 });
 
-// My Videos button handler (button instead of checkbox)
+// My Videos: Update video markers (icons) for trails with custom videos
+function updateVideoMarkers() {
+    console.log('=== updateVideoMarkers called ===');
+    console.log('myVideosMode:', myVideosMode);
+    console.log('window.customVideos:', window.customVideos);
+    console.log('window.loadedTrails:', window.loadedTrails);
+    
+    if (!window.customVideos) {
+        console.warn('customVideos not available');
+        return;
+    }
+    
+    // Remove all existing video markers (but preserve any open popups)
+    const markersToKeep = [];
+    videoMarkers.forEach(marker => {
+        // Don't remove the marker if its popup is open (preserve open popups)
+        const popup = marker.getPopup();
+        if (popup && popup.isOpen()) {
+            // Keep marker if popup is open (whether fullscreen or not)
+            console.log('Skipping marker removal - popup is open');
+            markersToKeep.push(marker);
+            return;
+        }
+        marker.remove();
+    });
+    // Keep markers that are in fullscreen
+    videoMarkers.length = 0;
+    videoMarkers.push(...markersToKeep);
+    console.log('Cleared existing video markers');
+    
+    // Only show markers if My Videos mode is ON
+    if (!myVideosMode) {
+        console.log('My Videos mode is OFF, not showing markers');
+        return;
+    }
+    
+    // Get all trails with custom videos
+    // Use hardcoded list for now (bypasses Firebase)
+    let trailsWithVideos = trailsWithVideosHardcoded;
+    
+    // If customVideos module is available, merge with hardcoded list
+    if (window.customVideos && window.customVideos.getTrailsWithCustomVideos) {
+        const firebaseTrails = window.customVideos.getTrailsWithCustomVideos() || [];
+        // Combine and remove duplicates
+        trailsWithVideos = [...new Set([...trailsWithVideos, ...firebaseTrails])];
+    }
+    
+    console.log('Trails with custom videos:', trailsWithVideos);
+    
+    if (!trailsWithVideos || trailsWithVideos.length === 0) {
+        console.log('No trails with custom videos found');
+        return;
+    }
+    
+    // Create markers - if custom position provided, works standalone (like mountain features)
+    // If no custom position, requires trail to exist and be loaded
+    let markersCreated = 0;
+    let skippedNotLoaded = 0;
+    let skippedNoMidpoint = 0;
+    
+    trailsWithVideos.forEach(trailId => {
+        // Check if this video's category is selected
+        // First check hardcoded videos, then Firebase videos
+        let videoData = hardcodedCustomVideosData[trailId];
+        let videoCategories = null;
+        
+        if (videoData) {
+            // Hardcoded video - get categories from videoData
+            videoCategories = videoData.category || ['misc'];
+        } else if (window.customVideos && window.customVideos.getCustomVideo) {
+            // Firebase video - get from cache
+            const firebaseVideo = window.customVideos.getCustomVideo(trailId);
+            if (firebaseVideo) {
+                videoData = firebaseVideo;
+                // Firebase videos store categories as an array
+                videoCategories = firebaseVideo.categories || ['misc'];
+            }
+        }
+        
+        if (!videoData || !videoCategories) {
+            return; // Skip if no data
+        }
+        
+        // Support both single category (string) and multiple categories (array) - backward compatible
+        // Convert single string to array for consistent handling
+        if (typeof videoCategories === 'string') {
+            videoCategories = [videoCategories];
+        }
+        // Ensure it's an array
+        if (!Array.isArray(videoCategories)) {
+            videoCategories = ['misc'];
+        }
+        
+        // Check if ANY of the video's categories match a selected checkbox
+        let shouldShow = false;
+        for (const category of videoCategories) {
+            const categoryName = category.charAt(0).toUpperCase() + category.slice(1).toLowerCase();
+            const categoryCheckboxId = `toggle${categoryName}Videos`;
+            const categoryCheckbox = document.getElementById(categoryCheckboxId);
+            
+            if (categoryCheckbox && categoryCheckbox.checked) {
+                shouldShow = true;
+                break; // Found a matching category, no need to check others
+            }
+        }
+        
+        // Only show marker if at least one category checkbox is checked
+        if (!shouldShow) {
+            return; // Skip this video - no matching category selected
+        }
+        
+        // Get icon position (use custom position if specified, otherwise try trail midpoint)
+        let iconPosition = null;
+        if (hardcodedIconPositions[trailId]) {
+            // Use custom position (standalone, like mountain features - no trail required!)
+            // You can use any name you want (e.g., "Test123", "RockDrop1", etc.)
+            iconPosition = hardcodedIconPositions[trailId];
+        } else {
+            // Fallback: try to get trail midpoint (requires trail to exist and be loaded)
+            if (!window.loadedTrails || !window.loadedTrails.has(trailId)) {
+                skippedNotLoaded++;
+                return;
+            }
+            if (trailData[trailId]) {
+                iconPosition = getTrailMidpoint(trailId);
+            } else {
+                skippedNoMidpoint++;
+                return;
+            }
+        }
+        
+        if (!iconPosition) {
+            skippedNoMidpoint++;
+            return;
+        }
+        
+        // Create video marker
+        const videoIcon = createVideoMarker();
+        const marker = new mapboxgl.Marker(videoIcon)
+            .setLngLat(iconPosition);
+        
+        // Store trail ID for reference
+        marker.trailId = trailId;
+        
+        // Add click handler to show custom video popup (no text, just video)
+        // Check both hardcoded and Firebase videos
+        let customVideo = hardcodedCustomVideos[trailId];
+        let videosToShow = [];
+        
+        if (customVideo) {
+            // Hardcoded video - Support both single video (backward compatible) and multiple videos
+            if (customVideo.videos && Array.isArray(customVideo.videos)) {
+                // Multiple videos format
+                videosToShow = customVideo.videos;
+            } else if (customVideo.videoUrl) {
+                // Single video format (backward compatible)
+                videosToShow = [{
+                    videoUrl: customVideo.videoUrl,
+                    startTime: customVideo.startTime || 0
+                }];
+            }
+        } else if (window.customVideos && window.customVideos.getCustomVideo) {
+            // Firebase video
+            const firebaseVideo = window.customVideos.getCustomVideo(trailId);
+            if (firebaseVideo && firebaseVideo.videoUrl) {
+                videosToShow = [{
+                    videoUrl: firebaseVideo.videoUrl,
+                    startTime: firebaseVideo.startTime || 0
+                }];
+            }
+        }
+        
+        if (videosToShow.length > 0) {
+            // Build HTML for all videos
+            let videosHTML = '';
+            
+            videosToShow.forEach((videoData, index) => {
+                    const url = videoData.videoUrl;
+                    const startTime = videoData.startTime || 0;
+                    
+                    // Extract video ID
+                    let videoId = null;
+                    const patterns = [
+                        /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
+                        /youtube\.com\/shorts\/([^&\n?#]+)/,
+                    ];
+                    for (const pattern of patterns) {
+                        const match = url.match(pattern);
+                        if (match && match[1]) {
+                            videoId = match[1];
+                            break;
+                        }
+                    }
+                    
+                    if (videoId) {
+                        // Check if it's a Shorts video (vertical)
+                        const isShorts = url.includes('/shorts/');
+                        const iframeWidth = isShorts ? '240' : '480';
+                        const iframeHeight = isShorts ? '427' : '270';
+                        const startParam = startTime > 0 ? `&start=${startTime}` : '';
+                        
+                        // Only autoplay if there's a single video (not multiple)
+                        const autoplayParam = videosToShow.length === 1 ? '&autoplay=1&mute=1' : '';
+                        
+                        // Add video iframe
+                        videosHTML += `<div style="margin-bottom: ${index < videosToShow.length - 1 ? '16px' : '0'};">
+                            <iframe id="video-iframe-${trailId}-${index}" width='${iframeWidth}' height='${iframeHeight}' src='https://www.youtube.com/embed/${videoId}?enablejsapi=1&hd=1${autoplayParam}${startParam}' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>
+                        </div>`;
+                    }
+                });
+                
+                if (videosHTML) {
+                    // Simple approach: determine anchor based on icon position
+                    const point = map.project(iconPosition);
+                    const viewportHeight = map.getCanvas().height;
+                    const viewportWidth = map.getCanvas().width;
+                    
+                    // Determine anchor: if icon in bottom half, popup goes above (anchor: 'bottom')
+                    // If icon in top half, popup goes below (anchor: 'top')
+                    let anchor = 'bottom'; // Default: popup above icon
+                    
+                    if (point.y > viewportHeight / 2) {
+                        // Icon in bottom half → popup above
+                        anchor = 'bottom';
+                    } else {
+                        // Icon in top half → popup below
+                        anchor = 'top';
+                    }
+                    
+                    // Also check horizontal position for edge cases
+                    if (point.x > viewportWidth * 0.9) {
+                        anchor = 'left';  // Icon far right → popup to left
+                    } else if (point.x < viewportWidth * 0.1) {
+                        anchor = 'right'; // Icon far left → popup to right
+                    }
+                    
+                    // Create popup with calculated anchor
+                    const videoPopup = new mapboxgl.Popup({ 
+                        offset: 25,
+                        anchor: anchor,      // Position based on icon location
+                        closeOnClick: true,   // Close when clicking outside (normal behavior)
+                        closeButton: true     // Keep close button so user can still close it
+                    })
+                        .setHTML(videosHTML);
+                    
+                    // Attach popup to marker
+                    marker.setPopup(videoPopup);
+                    
+                    // Prevent popup from closing when video is in fullscreen
+                    // Store a flag to track fullscreen state
+                    videoPopup._isFullscreen = false;
+                    
+                    // Override the remove method to check fullscreen state
+                    const originalRemove = videoPopup.remove.bind(videoPopup);
+                    videoPopup.remove = function() {
+                        // Check if we're in fullscreen (check both document and iframe)
+                        const isDocFullscreen = document.fullscreenElement || 
+                                               document.webkitFullscreenElement || 
+                                               document.mozFullScreenElement || 
+                                               document.msFullscreenElement;
+                        
+                        // Also check if the popup's iframe or any element inside it is fullscreen
+                        const popupContainer = this._container;
+                        const isPopupFullscreen = popupContainer && (
+                            popupContainer === document.fullscreenElement ||
+                            popupContainer === document.webkitFullscreenElement ||
+                            popupContainer === document.mozFullScreenElement ||
+                            popupContainer === document.msFullscreenElement ||
+                            popupContainer.contains(document.fullscreenElement) ||
+                            popupContainer.contains(document.webkitFullscreenElement) ||
+                            popupContainer.contains(document.mozFullScreenElement) ||
+                            popupContainer.contains(document.msFullscreenElement)
+                        );
+                        
+                        // Use stored flag or current check
+                        const isFullscreen = this._isFullscreen || isDocFullscreen || isPopupFullscreen;
+                        
+                        // If in fullscreen, don't close the popup
+                        if (isFullscreen) {
+                            console.log('Preventing popup close - video is in fullscreen');
+                            return this; // Return popup instance to maintain chainability
+                        }
+                        
+                        // Not in fullscreen - close normally
+                        return originalRemove();
+                    };
+                    
+                    // Listen for fullscreen changes on document (catches iframe fullscreen too)
+                    const handleFullscreenChange = () => {
+                        const isFullscreen = document.fullscreenElement || 
+                                            document.webkitFullscreenElement || 
+                                            document.mozFullScreenElement || 
+                                            document.msFullscreenElement;
+                        
+                        // Check if the fullscreen element is inside our popup
+                        if (isFullscreen && videoPopup._container) {
+                            const isInPopup = videoPopup._container.contains(isFullscreen) || 
+                                             isFullscreen === videoPopup._container;
+                            videoPopup._isFullscreen = isInPopup;
+                        } else {
+                            videoPopup._isFullscreen = false;
+                        }
+                    };
+                    
+                    // Listen for all fullscreen events
+                    document.addEventListener('fullscreenchange', handleFullscreenChange);
+                    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+                    document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+                    document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+                }
+            }
+        
+        // Add to map and array
+        marker.addTo(map);
+        videoMarkers.push(marker);
+        markersCreated++;
+    });
+    
+    console.log(`Created ${markersCreated} video markers`);
+    console.log(`Skipped ${skippedNotLoaded} (not loaded), ${skippedNoMidpoint} (no midpoint)`);
+    console.log('=== updateVideoMarkers complete ===');
+}
+
+// My Videos button handler
 document.addEventListener('DOMContentLoaded', function() {
     const myVideosButton = document.getElementById('myVideosButton');
+    console.log('My Videos button element:', myVideosButton);
     if (myVideosButton) {
-        let myVideosActive = false;
+        // Set initial button state to reflect myVideosMode = false (OFF by default)
+        if (!myVideosMode) {
+            myVideosButton.classList.remove('active');
+            myVideosButton.textContent = 'My Videos';
+            // Hide category dropdown initially
+            const categoryDropdown = document.getElementById('videoCategoryDropdown');
+            if (categoryDropdown) {
+                categoryDropdown.style.display = 'none';
+            }
+        }
         
         myVideosButton.addEventListener('click', function() {
-            myVideosActive = !myVideosActive;
-            console.log('My Videos button clicked. Active:', myVideosActive);
+            console.log('My Videos button clicked!');
+            myVideosMode = !myVideosMode;
+            console.log('My Videos mode toggled to:', myVideosMode);
             
             // Update button appearance
-            if (myVideosActive) {
+            if (myVideosMode) {
                 this.classList.add('active');
                 this.textContent = 'My Videos (ON)';
             } else {
@@ -1780,142 +2581,71 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.textContent = 'My Videos';
             }
             
-            if (window.customVideos && window.customVideos.setMyVideosMode) {
-                window.customVideos.setMyVideosMode(myVideosActive);
-                console.log('My Videos mode set to:', window.customVideos.getMyVideosMode());
-                console.log('Trails with custom videos:', window.customVideos.getTrailsWithCustomVideos());
-                if (window.updateTrailOpacity) {
-                    window.updateTrailOpacity();
-                } else {
-                    console.error('updateTrailOpacity function not found!');
-                }
-            } else {
-                console.error('window.customVideos not available!');
+            // Show/hide category dropdown
+            const categoryDropdown = document.getElementById('videoCategoryDropdown');
+            if (categoryDropdown) {
+                categoryDropdown.style.display = myVideosMode ? 'block' : 'none';
             }
+            
+            // Update customVideos module state
+            if (window.customVideos && window.customVideos.setMyVideosMode) {
+                window.customVideos.setMyVideosMode(myVideosMode);
+                console.log('Updated customVideos module state');
+            } else {
+                console.warn('window.customVideos not available or setMyVideosMode missing');
+            }
+            
+            // Update video markers
+            updateVideoMarkers();
         });
     } else {
-        console.error('myVideosButton not found!');
+        console.error('myVideosButton not found in DOM!');
     }
+    
+    // Add event listener for "All" checkbox (master toggle)
+    const allCheckbox = document.getElementById('toggleAllVideos');
+    if (allCheckbox) {
+        allCheckbox.addEventListener('change', function() {
+            const isChecked = this.checked;
+            // Toggle all category checkboxes
+            ['Powder', 'Park', 'Groomers', 'Steeps', 'Lifts', 'Misc', 'Favorites'].forEach(category => {
+                const checkbox = document.getElementById(`toggle${category}Videos`);
+                if (checkbox) {
+                    checkbox.checked = isChecked;
+                }
+            });
+            // Update video markers
+            updateVideoMarkers();
+        });
+    }
+    
+    // Add event listeners for individual video category checkboxes
+    ['Powder', 'Park', 'Groomers', 'Steeps', 'Lifts', 'Misc', 'Favorites'].forEach(category => {
+        const checkbox = document.getElementById(`toggle${category}Videos`);
+        if (checkbox) {
+            checkbox.addEventListener('change', function() {
+                console.log(`${category} videos checkbox toggled:`, this.checked);
+                
+                // Update "All" checkbox based on individual checkboxes
+                const allCheckbox = document.getElementById('toggleAllVideos');
+                if (allCheckbox) {
+                    // Check if all individual checkboxes are checked
+                    const allCategories = ['Powder', 'Park', 'Groomers', 'Steeps', 'Lifts', 'Misc', 'Favorites'];
+                    const allChecked = allCategories.every(cat => {
+                        const cb = document.getElementById(`toggle${cat}Videos`);
+                        return cb && cb.checked;
+                    });
+                    allCheckbox.checked = allChecked;
+                }
+                
+                // Update video markers when category changes
+                updateVideoMarkers();
+            });
+        }
+    });
 });
 
-// Function to highlight trails with custom videos (much faster - only updates trails WITH videos)
-function updateTrailOpacity() {
-    if (!window.customVideos || !window.customVideos.getMyVideosMode) {
-        console.warn('updateTrailOpacity: customVideos not available');
-        return;
-    }
-    
-    const myVideosMode = window.customVideos.getMyVideosMode();
-    const trailsWithVideos = window.customVideos.getTrailsWithCustomVideos();
-    
-    console.log('updateTrailOpacity called. Mode:', myVideosMode, 'Trails with videos:', trailsWithVideos.length);
-    
-    if (!myVideosMode) {
-        // Mode is OFF - remove all highlights
-        trailsWithVideos.forEach(trail => {
-            removeVideoHighlight(trail);
-        });
-        return;
-    }
-    
-    // Mode is ON - only highlight trails that have custom videos (much fewer updates!)
-    trailsWithVideos.forEach(trail => {
-        addVideoHighlight(trail);
-    });
-}
-
-// Add a colored outline/glow to trails with custom videos
-function addVideoHighlight(trail) {
-    if (!trailData[trail]) return;
-    
-    const highlightColor = '#00FF00'; // Bright green outline
-    const highlightWidth = 3; // Extra width for the highlight
-    
-    if (trailData[trail].coordinates.main) {
-        // Handle split trails
-        ['main', 'leftFork', 'rightFork'].forEach(pathType => {
-            const sourceId = `${trail}-${pathType}`;
-            const highlightLayerId = `${trail}-${pathType}-video-highlight`;
-            
-            // Only add if it doesn't exist
-            if (!map.getLayer(highlightLayerId) && map.getSource(sourceId)) {
-                map.addLayer({
-                    'id': highlightLayerId,
-                    'type': 'line',
-                    'source': sourceId,
-                    'layout': {
-                        'line-join': 'round',
-                        'line-cap': 'round'
-                    },
-                    'paint': {
-                        'line-color': highlightColor,
-                        'line-width': [
-                            'interpolate',
-                            ['linear'],
-                            ['zoom'],
-                            10, highlightWidth + 1,
-                            12, highlightWidth + 2,
-                            14, highlightWidth + 3,
-                            16, highlightWidth + 4
-                        ],
-                        'line-opacity': 0.8
-                    }
-                }, `${trail}-${pathType}-layer-border`); // Insert before border layer
-            }
-        });
-    } else {
-        // Handle regular trails
-        const highlightLayerId = `${trail}-video-highlight`;
-        
-        // Only add if it doesn't exist
-        if (!map.getLayer(highlightLayerId) && map.getSource(trail)) {
-            map.addLayer({
-                'id': highlightLayerId,
-                'type': 'line',
-                'source': trail,
-                'layout': {
-                    'line-join': 'round',
-                    'line-cap': 'round'
-                },
-                'paint': {
-                    'line-color': highlightColor,
-                    'line-width': [
-                        'interpolate',
-                        ['linear'],
-                        ['zoom'],
-                        10, highlightWidth + 1,
-                        12, highlightWidth + 2,
-                        14, highlightWidth + 3,
-                        16, highlightWidth + 4
-                    ],
-                    'line-opacity': 0.8
-                }
-            }, `${trail}-layer-border`); // Insert before border layer
-        }
-    }
-}
-
-// Remove highlight from trails
-function removeVideoHighlight(trail) {
-    if (trailData[trail].coordinates.main) {
-        // Handle split trails
-        ['main', 'leftFork', 'rightFork'].forEach(pathType => {
-            const highlightLayerId = `${trail}-${pathType}-video-highlight`;
-            if (map.getLayer(highlightLayerId)) {
-                map.removeLayer(highlightLayerId);
-            }
-        });
-    } else {
-        // Handle regular trails
-        const highlightLayerId = `${trail}-video-highlight`;
-        if (map.getLayer(highlightLayerId)) {
-            map.removeLayer(highlightLayerId);
-        }
-    }
-}
-
-// Make updateTrailOpacity globally accessible
-window.updateTrailOpacity = updateTrailOpacity;
+// Using hardcoded trailsWithVideosHardcoded array instead (see line ~200)
 
 // Function to create markers with difficulty-based colors
 function createFeatureMarkers(featureData) {
@@ -1929,7 +2659,7 @@ function createFeatureMarkers(featureData) {
     Object.entries(featureData).forEach(([id, feature]) => {
         try {
             const color = feature.difficulty === 'green' ? '#228B22' : 
-                         feature.difficulty === 'blue' ? '#0000FF' : '#000000';
+                         feature.difficulty === 'blue' ? '#0022AA' : '#000000';
             
             // Create marker with custom element (but don't add to map initially - starts hidden)
             const customElement = createCustomMarker(color);

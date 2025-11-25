@@ -145,6 +145,11 @@ class UserAuth {
             myVideosButton.classList.remove('active');
             myVideosButton.textContent = 'My Videos';
         }
+        // Hide video category dropdown when logged out
+        const videoCategoryDropdown = document.getElementById('videoCategoryDropdown');
+        if (videoCategoryDropdown) {
+            videoCategoryDropdown.style.display = 'none';
+        }
         if (trackingButton) {
             trackingButton.style.display = 'none';
         }

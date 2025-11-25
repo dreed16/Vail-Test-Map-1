@@ -54,13 +54,14 @@ export async function loadCustomVideos() {
         console.log('Loaded custom videos:', Object.keys(customVideosCache).length);
         return customVideosCache;
     } catch (error) {
-        console.error('Error loading custom videos:', error);
+        // Suppress error - using hardcoded list for now, Firebase is optional
+        console.warn('Could not load custom videos from Firebase (using hardcoded list instead):', error.message);
         return {};
     }
 }
 
 // Save a custom video for a trail
-export async function saveCustomVideo(trailId, videoUrl) {
+export async function saveCustomVideo(trailId, videoUrl, categories = ['misc']) {
     const user = auth.currentUser;
     if (!user) {
         throw new Error('User must be logged in to save custom videos');
@@ -71,12 +72,23 @@ export async function saveCustomVideo(trailId, videoUrl) {
         throw new Error('Invalid YouTube URL. Please provide a valid YouTube link.');
     }
     
+    // Ensure categories is an array (backward compatible)
+    if (typeof categories === 'string') {
+        categories = [categories];
+    }
+    if (!Array.isArray(categories)) {
+        categories = ['misc'];
+    }
+    // Normalize category names to lowercase
+    categories = categories.map(cat => cat.toLowerCase());
+    
     try {
         const videoDocRef = doc(db, 'users', user.uid, 'customVideos', trailId);
         await setDoc(videoDocRef, {
             videoUrl: videoUrl,
             videoId: videoId,
             trailId: trailId,
+            categories: categories, // Store as array
             createdAt: new Date().toISOString()
         });
         
@@ -84,10 +96,11 @@ export async function saveCustomVideo(trailId, videoUrl) {
         customVideosCache[trailId] = {
             videoUrl: videoUrl,
             videoId: videoId,
-            trailId: trailId
+            trailId: trailId,
+            categories: categories
         };
         
-        console.log('Saved custom video for trail:', trailId);
+        console.log('Saved custom video for trail:', trailId, 'with categories:', categories);
         return true;
     } catch (error) {
         console.error('Error saving custom video:', error);
@@ -152,6 +165,26 @@ export function shouldDimTrail(trailId) {
     return !customVideosCache[trailId];
 }
 
+// TEST FUNCTION: Add fake video for testing (bypasses Firebase)
+function addFakeVideo(trailId, videoUrl) {
+    const videoId = extractVideoId(videoUrl);
+    if (!videoId) {
+        console.error('Invalid YouTube URL:', videoUrl);
+        return false;
+    }
+    
+    // Add to cache directly (bypasses Firebase)
+    customVideosCache[trailId] = {
+        videoUrl: videoUrl,
+        videoId: videoId,
+        trailId: trailId,
+        createdAt: new Date().toISOString()
+    };
+    
+    console.log('Added fake video for trail:', trailId, 'Video ID:', videoId);
+    return true;
+}
+
 // Make functions available globally
 window.customVideos = {
     loadCustomVideos,
@@ -163,6 +196,7 @@ window.customVideos = {
     setMyVideosMode,
     getMyVideosMode,
     shouldDimTrail,
-    extractVideoId
+    extractVideoId,
+    addFakeVideo  // Add test function
 };
 

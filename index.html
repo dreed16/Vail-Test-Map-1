@@ -27,6 +27,7 @@
     <script src="Data/BreckLiftData.js?v=999999"></script>
     <script src="Data/VailMountainFeatures.js"></script>
     <script src="Data/mountaincams.js"></script>
+    <script src="Data/HardcodedCustomVideos.js"></script>
     
     <!-- Firebase SDKs -->
     <script type="module" src="JS/firebaseConfig.js"></script>
@@ -176,6 +177,19 @@
     <!-- Login Toggle Button -->
     <button id="loginToggleButton" class="login-toggle-button">Login</button>
     <button id="myVideosButton" class="my-videos-button" style="display: none;">My Videos</button>
+    
+    <!-- Video Category Dropdown (shown when My Videos is active) -->
+    <div id="videoCategoryDropdown" class="video-category-dropdown" style="display: none;">
+        <div><input type="checkbox" id="toggleAllVideos" checked><label for="toggleAllVideos">All</label></div>
+        <div><input type="checkbox" id="togglePowderVideos" checked><label for="togglePowderVideos">Powder</label></div>
+        <div><input type="checkbox" id="toggleParkVideos" checked><label for="toggleParkVideos">Park</label></div>
+        <div><input type="checkbox" id="toggleGroomersVideos" checked><label for="toggleGroomersVideos">Groomers</label></div>
+        <div><input type="checkbox" id="toggleSteepsVideos" checked><label for="toggleSteepsVideos">Steeps</label></div>
+        <div><input type="checkbox" id="toggleLiftsVideos" checked><label for="toggleLiftsVideos">Lifts</label></div>
+        <div><input type="checkbox" id="toggleMiscVideos" checked><label for="toggleMiscVideos">Misc</label></div>
+        <div><input type="checkbox" id="toggleFavoritesVideos" checked><label for="toggleFavoritesVideos">Favorites</label></div>
+    </div>
+    
     <button id="trackingButton" class="tracking-button" style="display: none;">Tracking</button>
     
     <!-- Tracking Dropdown (positioned below Tracking button) -->
@@ -273,6 +287,7 @@
             <div>
                 <input type="checkbox" id="toggleTrails" checked> Trails
                 <div class="difficulty-dropdown">
+                    <input type="checkbox" id="toggleAllTrails" checked> All
                     <input type="checkbox" id="toggleGreenTrails" checked> Green
                     <input type="checkbox" id="toggleBlueTrails" checked> Blue
                     <input type="checkbox" id="toggleBlackTrails" checked> Black
@@ -402,6 +417,32 @@
             <div class="modal-buttons">
                 <button id="pushSessionConfirm" class="feature-button">Push</button>
                 <button id="pushSessionCancel" class="cancel-button">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Video Category Selection Modal -->
+    <div id="videoCategoryModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Select Categories</h3>
+                <span class="close" id="closeCategoryModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>Select one or more categories for this video:</p>
+                <div id="categoryCheckboxes" style="margin-top: 15px;">
+                    <div style="margin: 8px 0;"><input type="checkbox" id="cat-powder" value="powder"><label for="cat-powder" style="margin-left: 8px; cursor: pointer;">Powder</label></div>
+                    <div style="margin: 8px 0;"><input type="checkbox" id="cat-park" value="park"><label for="cat-park" style="margin-left: 8px; cursor: pointer;">Park</label></div>
+                    <div style="margin: 8px 0;"><input type="checkbox" id="cat-groomers" value="groomers"><label for="cat-groomers" style="margin-left: 8px; cursor: pointer;">Groomers</label></div>
+                    <div style="margin: 8px 0;"><input type="checkbox" id="cat-steeps" value="steeps"><label for="cat-steeps" style="margin-left: 8px; cursor: pointer;">Steeps</label></div>
+                    <div style="margin: 8px 0;"><input type="checkbox" id="cat-lifts" value="lifts"><label for="cat-lifts" style="margin-left: 8px; cursor: pointer;">Lifts</label></div>
+                    <div style="margin: 8px 0;"><input type="checkbox" id="cat-misc" value="misc" checked><label for="cat-misc" style="margin-left: 8px; cursor: pointer;">Misc</label></div>
+                    <div style="margin: 8px 0;"><input type="checkbox" id="cat-favorites" value="favorites"><label for="cat-favorites" style="margin-left: 8px; cursor: pointer;">Favorites</label></div>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button id="confirmCategorySelection" class="feature-button">Save</button>
+                <button id="cancelCategorySelection" class="cancel-button">Cancel</button>
             </div>
         </div>
     </div>

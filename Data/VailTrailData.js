@@ -40,7 +40,7 @@ var trailData = {
             [-106.31535848920245,39.59984724473259]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'SilkRoad'
     },
     'SilkRoad2': { 
@@ -64,7 +64,7 @@ var trailData = {
             [-106.32592515227383,39.58686638719382]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'SilkRoad'
     },
     'SilkRoad3': { 
@@ -74,7 +74,7 @@ var trailData = {
             [-106.33202344872058,39.585794813749885]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'SilkRoad'
     },
     'OrientExpressTrail': { 
@@ -180,7 +180,7 @@ var trailData = {
                 [-106.34911734759547,39.60385432960024]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'SleepyTimeRoad'
     },
     'SleepyTimeRoad2': { 
@@ -190,7 +190,7 @@ var trailData = {
                 [-106.34339547338837, 39.601816069980515]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'SleepyTimeRoad'
     },
     'SleepyTimeRoad3': { 
@@ -200,7 +200,7 @@ var trailData = {
                 [-106.3423759958737, 39.600604544899795]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'SleepyTimeRoad'
     },
     'SleepyTimeRoad4': { 
@@ -211,7 +211,7 @@ var trailData = {
                 [-106.34349002772439, 39.5966759570741]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'SleepyTimeRoad'
     },
     'SleepyTimeRoad5': { 
@@ -222,7 +222,7 @@ var trailData = {
                 [-106.3493538061878, 39.58949611436114]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'SleepyTimeRoad'
     },
     'SleepyTimeRoadLeftFork': { 
@@ -242,7 +242,7 @@ var trailData = {
             [-106.33236095807321,39.58593923491941]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'SleepyTimeRoad'
     },
     'SleepyTimeRoadRightFork': { 
@@ -257,7 +257,7 @@ var trailData = {
             [-106.34843150722615,39.59690354558532]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'SleepyTimeRoad'
     },
     'GenghisKhan': { 
@@ -341,7 +341,7 @@ var trailData = {
             [-106.36564961998221,39.61042572004419]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'Headwall'
     },
     'TheSkipper': { 
@@ -355,7 +355,7 @@ var trailData = {
             [-106.36575539343943,39.608317250057496]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'Headwall'
     },
     'WindowsRoad': { 
@@ -398,7 +398,7 @@ var trailData = {
             [-106.35564978080484,39.625570134353836]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'Headwall'
     },
     'Pronto': { 
@@ -434,7 +434,7 @@ var trailData = {
             [-106.36557662568246,39.62087652944055]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'Headwall'
     },
     'TourestTrap': { 
@@ -462,7 +462,7 @@ var trailData = {
             [-106.36635212346319,39.626929585273416]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'Headwall'
     },
     'RivaGlade': { 
@@ -490,7 +490,7 @@ var trailData = {
             [-106.34859880121198,39.61121518074063]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'Northwoods'
     },
     'SnagPark': { 
@@ -504,7 +504,7 @@ var trailData = {
             [-106.34843697171428,39.61019629448387]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'Northwoods'
     },
     'NorthStar': { 
@@ -742,7 +742,7 @@ var trailData = {
             [-106.34736558836853,39.62316207640478]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'ChokerCutOff'
     },
     'LogChute': { 
@@ -814,7 +814,7 @@ var trailData = {
             [-106.36607239162383,39.62446928565987]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: ' NorthFaceCatWalkRight',
         isCatwalk: true
     },
@@ -829,7 +829,7 @@ var trailData = {
             [-106.35857944316378,39.62241568547236]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'SkidRoad',
         isCatwalk: true
     },
@@ -844,7 +844,7 @@ var trailData = {
             [-106.36650717979573,39.6222298946669]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'Compromise',
         isCatwalk: true
     },
@@ -859,7 +859,7 @@ var trailData = {
             [-106.36515637606531,39.61416625193968]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'NorthRim'
     },
     'HunkyDory': { 
@@ -873,7 +873,7 @@ var trailData = {
             [-106.37000935563988,39.610222074438894]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'HunkyDory'
     },
     'KangarooCornice': { 
@@ -957,7 +957,7 @@ var trailData = {
             [-106.36953826526006,39.61420475622711]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'MidVailExpressTrail'
     },
     'OverEasy': { 
@@ -1026,7 +1026,7 @@ var trailData = {
             [-106.36947542049563,39.630169511568255],
             [-106.369044511369,39.63051585986267]
         ],
-        difficulty: 'pink',
+        difficulty: 'black',
         color: '#FF00FF',
         parentTrail: 'ThePumpHouse'
     },
@@ -1125,7 +1125,7 @@ var trailData = {
             [-106.37518241924292,39.617420618620656]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'AvantiTop'
     },
     'AvantiMiddle': { 
@@ -1153,7 +1153,7 @@ var trailData = {
             [-106.37665226656294,39.61774961598883]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'PickeroonTop'
     },
     'PickeroonBottom': { 
@@ -1251,7 +1251,7 @@ var trailData = {
             [-106.38129784466658,39.62158951814976]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'LedgesTop'
     },
     'LedgesMiddle': { 
@@ -1307,7 +1307,7 @@ var trailData = {
             [-106.38709380336395,39.63031844095025]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'BornFreeTop'
     },
     'BornFreeMiddle1': { 
@@ -1335,7 +1335,7 @@ var trailData = {
             [-106.38573859637934,39.63932976728901]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'BornFreeMiddle2'
     },
     'BornFreeBottom': { 
@@ -1363,7 +1363,7 @@ var trailData = {
             [-106.37935286894215,39.639199965930885]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'BearTree'
     },
     'PostRoad': { 
@@ -1434,7 +1434,7 @@ var trailData = {
             [-106.38492755918541,39.60859171125415]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'DealersChoice'
     },
     'Baccarat': { 
@@ -1448,7 +1448,7 @@ var trailData = {
             [-106.38194429571226,39.60770417645236]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'Baccarat'
     },
     'TheWoods': { 
@@ -1462,7 +1462,7 @@ var trailData = {
             [-106.38038291306975,39.60594817919616]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'TheWoods'
     },
     'ShowBoat': { 
@@ -1476,7 +1476,7 @@ var trailData = {
             [-106.38139973978214,39.60761591676581]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'ShowBoat'
     },
     'Wildcard': { 
@@ -1602,7 +1602,7 @@ var trailData = {
             [-106.37021528627879,39.63698607263362]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'RuddersRun'
     },
     'BwanaTop': { 
@@ -1616,7 +1616,7 @@ var trailData = {
             [-106.38766837506721,39.637229439026356]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'BwanaTop'
     },
     'BwanaBottom': { 
@@ -1645,7 +1645,7 @@ var trailData = {
             [-106.3771163385378,39.62905367314565]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'Columbine'
     },
     'Lodgepole': { 
@@ -1659,7 +1659,7 @@ var trailData = {
             [-106.37708551647627,39.62376548032023]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'Lodgepole'
     },
     'BerriesTop': { 
@@ -1673,7 +1673,7 @@ var trailData = {
             [-106.37783631825435,39.61778763914225]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'BerriesTop'
     },
     'BerriesBottom': { 
@@ -1701,7 +1701,7 @@ var trailData = {
             [-106.39007258272426,39.63559322479736]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'SafarTop'
     },
     'SafarBottom': { 
@@ -1723,7 +1723,7 @@ var trailData = {
             [-106.35975222734261,39.628006507779105],[-106.36117068475559,39.62836771116986],[-106.36260934983,39.628897549295516],[-106.36358021221295,39.62887633810578],[-106.3647915469309,39.62943184316612],[-106.3658257585571,39.630104054403176],[-106.3662106166691,39.631255533176045]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'PonyExpress'
     },
     'CascadeWay': { 
@@ -1731,7 +1731,7 @@ var trailData = {
             [-106.39215418151284,39.638489949161766],[-106.39548023317056,39.639175280891806],[-106.39507643037368,39.63955083853736],[-106.39776312764612,39.639647107928766],[-106.39971388896335,39.638882790332104],[-106.4008212733425,39.639509583223884],[-106.40157846987411,39.63824281923081]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'CascadeWay',
         isCatwalk: true
     },
@@ -1740,7 +1740,7 @@ var trailData = {
             [-106.39207227921759,39.634806234190705],[-106.39111495836606,39.63504796697231],[-106.3905353178194,39.635265230532866],[-106.39035011818406,39.63576731905411],[-106.39055885003631,39.636560875837006],[-106.39107687088963,39.63700868626157],[-106.39200404232226,39.63721421867211]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'Cheeah'
     },
     'SimbaTop': { 
@@ -1754,7 +1754,7 @@ var trailData = {
             [-106.39263346684885,39.63436971274436]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'SimbaTop'
     },
     'SimbaMiddle': { 
@@ -1777,7 +1777,7 @@ var trailData = {
             [-106.39217990529674,39.637875736657776],[-106.39187112575456,39.63823829236736],[-106.39159322706452,39.6385487279324],[-106.39108821714657,39.63890473879499],[-106.38990633371994,39.639270279936994],[-106.38822670990308,39.63941547334986]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'SimbaBottom'
     },
     'Pride': { 
@@ -1785,7 +1785,7 @@ var trailData = {
             [-106.38809764474325,39.62233066669563],[-106.38832835481985,39.62328850386834],[-106.38849419337231,39.6240525115696],[-106.38871526152079,39.62471931952135],[-106.38881748802729,39.62523784234082],[-106.38900943371343,39.62574266075265],[-106.38948031708266,39.62699262352109]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'Pride'
     },
     'CubsWayBottom': { 
@@ -1938,7 +1938,7 @@ var trailData = {
             [-106.36226118670567,39.6125522877349]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'NorthRim'
     },
     'SliferExpress': { 
@@ -1952,7 +1952,7 @@ var trailData = {
             [-106.36298465331463,39.612556421244506]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'NorthRim'
     },
     'WhistlePig': { 
@@ -1966,7 +1966,7 @@ var trailData = {
             [-106.36323719587662,39.611808998924886]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'NorthRim'
     },
     'Zot': { 
@@ -2034,8 +2034,8 @@ var trailData = {
             [-106.34850958727114,39.59817837899979],
             [-106.34844027497086,39.59740067241066]
         ],
-        difficulty: 'pink',
-        color: '#FF00FF',
+        difficulty: 'blue',
+        color: '#0022AA',
         parentTrail: 'TheSlot'
     },
     'SunUpCatwalk': { 
@@ -2048,7 +2048,7 @@ var trailData = {
             [-106.36058823271333, 39.590888603041435]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'SunUpCatwalk'
     },
     'ApresVous': { 
@@ -2264,7 +2264,7 @@ var trailData = {
             [-106.339811954621, 39.584058215205744]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'Chinabowlrunout'
     },
     'PoppyfieldsWest': {
@@ -2277,7 +2277,7 @@ var trailData = {
             [-106.32756750224974, 39.60245802375934],
             [-106.32747703958593, 39.60102845561829]
         ],
-        color: '#0000FF',
+        color: '#0022AA',
         difficulty: 'blue',
         parentTrail: 'PoppyfieldsWest'
     },
@@ -2291,7 +2291,7 @@ var trailData = {
             [-106.3277140937584, 39.59916156114991],
             [-106.32879368407545, 39.599416867373066]
         ],
-        color: '#0000FF',
+        color: '#0022AA',
         difficulty: 'blue',
         parentTrail: 'PoppyfieldsEast'
     },
@@ -2305,7 +2305,7 @@ var trailData = {
             [-106.32642477130658, 39.60220493553436],
             [-106.32867749443223, 39.59955827121601]
         ], 
-        color: '#0000FF',
+        color: '#0022AA',
         difficulty: 'blue',
         parentTrail: 'Chopstix'
     },
@@ -2349,7 +2349,7 @@ var trailData = {
             [-106.34160259253032,39.591152092197774]
         ],
         difficulty: 'blue',
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'RedZinger'
     },
     'EmperorsChoice': {
@@ -2531,7 +2531,7 @@ var trailData = {
             [-106.32463732510138, 39.574602271129066]
         ],
         difficulty: 'blue',  // Adjust difficulty if needed
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'BigRockPark'
     },
     'BigRockParkRunout': {
@@ -2545,7 +2545,7 @@ var trailData = {
             [-106.32765528992795, 39.57954530683426]
         ],
         difficulty: 'blue',  // Keeping the blue difficulty
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'BigRockPark'
     },
     'SkreeField': {
@@ -2573,7 +2573,7 @@ var trailData = {
             [-106.31919729984979, 39.56838464918502]
         ],
         difficulty: 'blue',  // Adjust difficulty if needed
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'Cloud9'
     },
     'Cloud9Catwalk': {
@@ -2587,7 +2587,7 @@ var trailData = {
             [-106.31998553766111, 39.57454265425284]
         ],
         difficulty: 'blue',  // Keeping the blue difficulty
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'Cloud9'
     },
     'Cloud9Catwalk2': {
@@ -2601,7 +2601,7 @@ var trailData = {
             [-106.32760405113878, 39.57973910391303]
         ],
         difficulty: 'blue',  // Keeping the blue difficulty
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'Cloud9'
     },
     'ChinaSpur': {
@@ -2614,7 +2614,7 @@ var trailData = {
             [-106.32573883625021, 39.58662662117712]
         ],
         difficulty: 'blue',  // Adjust difficulty if needed
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'ChinaSpur'
     },
     'Cloud9runout': {
@@ -2627,7 +2627,7 @@ var trailData = {
             [-106.33226563862945, 39.584941075297024]
         ],
         difficulty: 'blue',  // Adjust difficulty if needed
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'Cloud9'
     },
     'WFO': {
@@ -2651,7 +2651,7 @@ var trailData = {
             [-106.31561072689209, 39.57815411332888]
         ],
         difficulty: 'blue',  // Adjust difficulty if needed
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'GrandReview'
     },
     'GrandReview2': {
@@ -2662,7 +2662,7 @@ var trailData = {
             [-106.3259412178187, 39.58104737563218]
         ],
         difficulty: 'blue',  // Adjust difficulty if needed
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'GrandReview'
     },
     'InTheWuides': {
@@ -2676,7 +2676,7 @@ var trailData = {
             [-106.34229694928428, 39.57069552257602]
         ],
         difficulty: 'blue',  // Adjust difficulty if needed
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'InTheWuides'
     },
     'CJsGlade': {
@@ -2732,7 +2732,7 @@ var trailData = {
             [-106.34103156232405, 39.58253103318464]
         ],
         difficulty: 'blue',  // Adjust difficulty if needed
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'KellysToalRoad'
     },
     'TheStar': {
@@ -2746,7 +2746,7 @@ var trailData = {
             [-106.32500186334245, 39.578646285611796]
         ],
         difficulty: 'blue',  // Adjust difficulty if needed
-        color: '#0000FF',
+        color: '#0022AA',
         parentTrail: 'TheStar'
     },
     'Poppyfields': { 
@@ -2759,7 +2759,7 @@ var trailData = {
             [-106.33361055744177, 39.59117530319412],
             [-106.33312111419269, 39.587455074697544]
         ],
-        color: '#0000FF',
+        color: '#0022AA',
         difficulty: 'blue',
         parentTrail: 'Poppyfields'
     }
