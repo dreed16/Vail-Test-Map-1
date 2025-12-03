@@ -28,11 +28,23 @@
     <script src="Data/VailMountainFeatures.js"></script>
     <script src="Data/mountaincams.js"></script>
     <script src="Data/HardcodedCustomVideos.js"></script>
+    <script src="Data/HardcodedCustomPictures.js"></script>
     
     <!-- Firebase SDKs -->
     <script type="module" src="JS/firebaseConfig.js"></script>
     <script type="module" src="JS/auth.js"></script>
     <script type="module" src="JS/customVideos.js"></script>
+    <script type="module" src="JS/customPictures.js"></script>
+    <script type="module" src="JS/friends.js"></script>
+    <script type="module" src="JS/friendsUI.js"></script>
+    <script type="module" src="JS/friendMapView.js"></script>
+    <script type="module" src="JS/friendMapViewUI.js"></script>
+    <script type="module" src="JS/videoUpload.js"></script>
+    <script type="module" src="JS/pictureUpload.js"></script>
+    <script type="module" src="JS/profile.js"></script>
+    <script type="module" src="JS/profileUI.js"></script>
+    <!-- Temporary: Storage test - remove after testing -->
+    <script type="module" src="JS/testStorage.js"></script>
     
     <!-- Load JavaScript files - with cache busting -->
     <script>
@@ -176,7 +188,20 @@
     
     <!-- Login Toggle Button -->
     <button id="loginToggleButton" class="login-toggle-button">Login</button>
+    <button id="myPicturesButton" class="my-pictures-button" style="display: none;">My Pictures</button>
     <button id="myVideosButton" class="my-videos-button" style="display: none;">My Videos</button>
+    <button id="uploadVideoButton" class="upload-video-button" style="display: none;">Upload Video</button>
+    <button id="uploadPictureButton" class="upload-picture-button" style="display: none;">Upload Picture</button>
+    <button id="friendsButton" class="friends-button" style="display: none;">Friends</button>
+    
+    <!-- Friend Map View Dropdown (shown when viewing friend's map) -->
+    <div id="friendMapDropdown" class="friend-map-dropdown" style="display: none;">
+        <label for="friendMapSelect" style="font-size: 12px; margin-bottom: 5px; display: block;">View Friend's Map:</label>
+        <select id="friendMapSelect" style="width: 100%; padding: 4px; border: 1px solid #ccc; border-radius: 3px; font-size: 12px;">
+            <option value="">Select a friend...</option>
+        </select>
+        <button id="viewMyMapButton" class="view-my-map-button" style="margin-top: 5px; width: 100%; padding: 4px; font-size: 11px; background-color: #6c757d; color: white; border: none; border-radius: 3px; cursor: pointer;">View My Map</button>
+    </div>
     
     <!-- Video Category Dropdown (shown when My Videos is active) -->
     <div id="videoCategoryDropdown" class="video-category-dropdown" style="display: none;">
@@ -206,7 +231,7 @@
         <!-- Login form (shown when logged out) -->
         <div id="loginForm" class="login-form">
             <h2>Login</h2>
-            <input type="email" id="username" placeholder="Email">
+            <input type="text" id="username" placeholder="Email or Username">
             <input type="password" id="password" placeholder="Password">
             <button id="loginButton">Login</button>
             <button id="createAccount">Create Account</button>
@@ -216,7 +241,10 @@
         <div id="userInfo" class="user-info" style="display: none;">
             <div class="user-header">
                 <h2>Welcome, <span id="displayUsername"></span>!</h2>
-                <button id="logoutButton" class="logout-button">Logout</button>
+                <div style="display: flex; gap: 10px;">
+                    <button id="viewMyProfileButton" class="view-profile-link-button" style="background-color: #007bff; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;">My Profile</button>
+                    <button id="logoutButton" class="logout-button">Logout</button>
+                </div>
             </div>
             
 
@@ -310,9 +338,6 @@
                     <input type="checkbox" id="toggleBlackFeatures"> Black
                 </div>
             </div>
-            <div>
-                <input type="checkbox" id="toggleSlope"> Slope Analysis
-            </div>
         </div>
     </div>
 
@@ -397,6 +422,54 @@
         </div>
     </div>
 
+    <!-- Upload Picture Modal -->
+    <div id="uploadPictureModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Upload Picture</h3>
+                <span class="close" id="closeUploadPictureModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>Select a picture file to upload:</p>
+                <input type="file" id="pictureFileInput" accept="image/*">
+                <div id="pictureFileInfo" style="margin-top: 10px; font-size: 0.9em; display: none;">
+                    File: <span id="pictureFileName"></span><br>
+                    Size: <span id="pictureFileSize"></span><br>
+                    Type: <span id="pictureFileType"></span>
+                </div>
+                <p id="pictureFileError" style="color: red; display: none; margin-top: 10px;"></p>
+                <div id="pictureUploadProgressSection" style="margin-top: 15px; display: none;">
+                    <div style="width: 100%; background-color: #f3f3f3; border-radius: 5px;">
+                        <div id="pictureUploadProgressBar" style="width: 0%; height: 20px; background-color: #4CAF50; text-align: center; line-height: 20px; color: white; border-radius: 5px;">0%</div>
+                    </div>
+                    <p id="pictureUploadProgressText" style="text-align: center; margin-top: 5px;"></p>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button id="uploadPictureButtonConfirm" class="feature-button" disabled>Upload</button>
+                <button id="cancelUploadPictureButton" class="cancel-button">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Video Confirmation Modal -->
+    <div id="deleteVideoModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Delete Video</h3>
+                <span class="close" id="closeDeleteVideoModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p><strong>Are you sure you want to delete this video?</strong></p>
+                <p style="color: #dc3545; font-weight: bold;">This action cannot be undone. The video will be permanently removed.</p>
+            </div>
+            <div class="modal-buttons">
+                <button id="deleteVideoConfirm" class="delete-button">Confirm Delete</button>
+                <button id="cancelDeleteVideo" class="cancel-button">Cancel</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Add this new modal for push selection -->
     <div id="pushSessionModal" class="modal" style="display: none;">
         <div class="modal-content">
@@ -447,21 +520,59 @@
         </div>
     </div>
 
+    <!-- Upload Video Modal -->
+    <div id="uploadVideoModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Upload Video</h3>
+                <span class="close" id="closeUploadModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="fileSelectionSection">
+                    <p>Select a video file to upload:</p>
+                    <input type="file" id="videoFileInput" accept="video/*" style="margin: 10px 0; padding: 8px; width: 100%; border: 1px solid #ccc; border-radius: 4px;">
+                    <div id="fileInfo" style="margin-top: 10px; padding: 10px; background-color: #f5f5f5; border-radius: 4px; display: none;">
+                        <p style="margin: 5px 0;"><strong>File:</strong> <span id="fileName"></span></p>
+                        <p style="margin: 5px 0;"><strong>Size:</strong> <span id="fileSize"></span></p>
+                        <p style="margin: 5px 0;"><strong>Type:</strong> <span id="fileType"></span></p>
+                    </div>
+                    <div id="fileError" style="margin-top: 10px; padding: 10px; background-color: #ffebee; color: #c62828; border-radius: 4px; display: none;"></div>
+                </div>
+                <div id="uploadProgressSection" style="display: none; margin-top: 20px;">
+                    <p>Uploading video...</p>
+                    <div style="width: 100%; background-color: #e0e0e0; border-radius: 4px; height: 20px; margin-top: 10px;">
+                        <div id="uploadProgressBar" style="width: 0%; background-color: #4CAF50; height: 20px; border-radius: 4px; transition: width 0.3s;"></div>
+                    </div>
+                    <p id="uploadProgressText" style="margin-top: 5px; font-size: 12px; color: #666;">0%</p>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button id="uploadVideoButtonConfirm" class="feature-button" disabled>Upload</button>
+                <button id="cancelUploadVideo" class="cancel-button">Cancel</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Create Account Modal -->
     <div id="createAccountModal" class="modal">
         <div class="modal-content">
             <h2>Create Account</h2>
             <div class="form-group">
                 <label for="newEmail">Email:</label>
-                <input type="email" id="newEmail" placeholder="Enter your email">
+                <input type="email" id="newEmail" placeholder="Enter your email" required>
+            </div>
+            <div class="form-group">
+                <label for="newUsername">Username (optional):</label>
+                <input type="text" id="newUsername" placeholder="Choose a username (3-20 chars, letters/numbers/_)" maxlength="20">
+                <small style="font-size: 11px; color: #666;">You can set this later if you skip it now</small>
             </div>
             <div class="form-group">
                 <label for="newPassword">Password:</label>
-                <input type="password" id="newPassword" placeholder="Enter your password">
+                <input type="password" id="newPassword" placeholder="Enter your password" required>
             </div>
             <div class="form-group">
                 <label for="confirmPassword">Confirm Password:</label>
-                <input type="password" id="confirmPassword" placeholder="Confirm your password">
+                <input type="password" id="confirmPassword" placeholder="Confirm your password" required>
             </div>
             <div class="modal-buttons">
                 <button id="createAccountCancel" class="cancel-button">Cancel</button>
@@ -469,5 +580,159 @@
             </div>
         </div>
     </div>
+
+    <!-- Set Username Modal (for existing users without username) -->
+    <div id="setUsernameModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2>Set Your Username</h2>
+            <p style="color: #666; margin-bottom: 15px;">Choose a username to make it easier for friends to find you. You can login with your username or email.</p>
+            <div class="form-group">
+                <label for="usernameInput">Username:</label>
+                <input type="text" id="usernameInput" placeholder="3-20 characters, letters/numbers/_" maxlength="20" style="width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ccc; border-radius: 4px;">
+                <small id="usernameError" style="color: red; display: none;"></small>
+            </div>
+            <div class="modal-buttons">
+                <button id="skipUsernameButton" class="cancel-button">Skip for Now</button>
+                <button id="setUsernameConfirm" class="feature-button">Set Username</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Friends Modal -->
+    <div id="friendsModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3>Friends</h3>
+                <span class="close" id="closeFriendsModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <!-- Tabs for Friends, Requests, Add Friend -->
+                <div style="display: flex; border-bottom: 1px solid #ddd; margin-bottom: 15px;">
+                    <button id="friendsTab" class="tab-button active" style="flex: 1; padding: 10px; border: none; background: none; cursor: pointer; border-bottom: 2px solid #007bff;">Friends</button>
+                    <button id="requestsTab" class="tab-button" style="flex: 1; padding: 10px; border: none; background: none; cursor: pointer;">
+                        Requests <span id="requestsBadge" style="background: #dc3545; color: white; border-radius: 10px; padding: 2px 6px; font-size: 0.8em; margin-left: 5px; display: none;">0</span>
+                    </button>
+                    <button id="addFriendTab" class="tab-button" style="flex: 1; padding: 10px; border: none; background: none; cursor: pointer;">Add Friend</button>
+                </div>
+                
+                <!-- Friends List Tab -->
+                <div id="friendsListContent" class="tab-content">
+                    <div id="friendsList" style="max-height: 400px; overflow-y: auto;">
+                        <p style="text-align: center; color: #666; padding: 20px;">Loading friends...</p>
+                    </div>
+                </div>
+                
+                <!-- Friend Requests Tab -->
+                <div id="requestsListContent" class="tab-content" style="display: none;">
+                    <div id="receivedRequests" style="margin-bottom: 20px;">
+                        <h4 style="margin-bottom: 10px;">Received Requests</h4>
+                        <div id="receivedRequestsList" style="max-height: 200px; overflow-y: auto;">
+                            <p style="text-align: center; color: #666; padding: 10px;">No pending requests</p>
+                        </div>
+                    </div>
+                    <div id="sentRequests">
+                        <h4 style="margin-bottom: 10px;">Sent Requests</h4>
+                        <div id="sentRequestsList" style="max-height: 200px; overflow-y: auto;">
+                            <p style="text-align: center; color: #666; padding: 10px;">No pending requests</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Add Friend Tab -->
+                <div id="addFriendContent" class="tab-content" style="display: none;">
+                    <p>Enter your friend's email or username to send them a friend request:</p>
+                    <input type="text" id="friendEmailInput" placeholder="friend@example.com or username" style="width: 100%; padding: 8px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px;">
+                    <p id="addFriendError" style="color: red; display: none; margin: 10px 0;"></p>
+                    <button id="sendFriendRequestButton" class="feature-button" style="width: 100%;">Send Friend Request</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Page (hidden by default, shows when viewing profile) -->
+    <div id="profilePage" class="profile-page" style="display: none;">
+        <div class="profile-container">
+            <!-- Profile Header -->
+            <div class="profile-header">
+                <button id="backToMapButton" class="back-button">← Back to Map</button>
+                <h1 id="profilePageTitle">Profile</h1>
+            </div>
+            
+            <!-- Profile Content -->
+            <div class="profile-content">
+                <!-- Profile Picture Section -->
+                <div class="profile-picture-section">
+                    <img id="profilePicture" src="" alt="Profile Picture" class="profile-picture-large">
+                    <button id="editProfilePictureButton" class="edit-picture-button" style="display: none;">Change Picture</button>
+                    <input type="file" id="profilePictureInput" accept="image/*" style="display: none;">
+                </div>
+                
+                <!-- Profile Info Section -->
+                <div class="profile-info-section">
+                    <h2 id="profileDisplayName">Loading...</h2>
+                    <p id="profileUsername" class="profile-username">@username</p>
+                    
+                    <!-- Edit Profile Button (only for own profile) -->
+                    <button id="editProfileButton" class="edit-profile-button" style="display: none;">Edit Profile</button>
+                    
+                    <!-- Bio Section -->
+                    <div class="profile-bio-section">
+                        <h3>About</h3>
+                        <p id="profileBio" class="profile-bio">No bio yet.</p>
+                    </div>
+                    
+                    <!-- Stats Section -->
+                    <div class="profile-stats-section">
+                        <div class="stat-item">
+                            <div class="stat-number" id="profileVideosCount">0</div>
+                            <div class="stat-label">Videos</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="profilePicturesCount">0</div>
+                            <div class="stat-label">Pictures</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="profileFriendsCount">0</div>
+                            <div class="stat-label">Friends</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Pinned Videos Section -->
+                    <div class="pinned-videos-section" id="pinnedVideosSection" style="display: none;">
+                        <h3>Pinned Videos</h3>
+                        <div class="pinned-videos-grid" id="pinnedVideosGrid">
+                            <!-- Pinned videos will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Edit Profile Modal -->
+    <div id="editProfileModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Profile</h3>
+                <span class="close" id="closeEditProfileModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="editDisplayName">Display Name:</label>
+                    <input type="text" id="editDisplayName" placeholder="Your display name" maxlength="50" style="width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ccc; border-radius: 4px;">
+                </div>
+                <div class="form-group">
+                    <label for="editBio">Bio:</label>
+                    <textarea id="editBio" placeholder="Tell us about yourself..." maxlength="500" rows="4" style="width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ccc; border-radius: 4px; resize: vertical;"></textarea>
+                    <small style="color: #666;">Max 500 characters</small>
+                </div>
+                <div class="modal-buttons">
+                    <button id="cancelEditProfileButton" class="cancel-button">Cancel</button>
+                    <button id="saveProfileButton" class="feature-button">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>

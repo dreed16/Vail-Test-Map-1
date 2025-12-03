@@ -1,6 +1,6 @@
 // Custom Videos Module - Handles user-uploaded YouTube videos for trails
 import { db, auth } from './firebaseConfig.js';
-import { doc, setDoc, getDoc, deleteDoc, collection, getDocs } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+import { doc, setDoc, getDoc, deleteDoc, collection, getDocs, updateDoc } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
 
 // Cache for user's custom videos
 let customVideosCache = {};
@@ -130,6 +130,115 @@ export async function deleteCustomVideo(trailId) {
     }
 }
 
+// Pin a video (max 3 pinned videos)
+export async function pinVideo(trailId) {
+    const user = auth.currentUser;
+    if (!user) {
+        throw new Error('User must be logged in to pin videos');
+    }
+    
+    try {
+        // Get all videos to check how many are pinned
+        const customVideosRef = collection(db, 'users', user.uid, 'customVideos');
+        const snapshot = await getDocs(customVideosRef);
+        
+        let pinnedCount = 0;
+        snapshot.forEach((docSnapshot) => {
+            const data = docSnapshot.data();
+            if (data.pinned === true) {
+                pinnedCount++;
+            }
+        });
+        
+        // Check if already pinned
+        const currentVideo = customVideosCache[trailId];
+        if (currentVideo && currentVideo.pinned === true) {
+            throw new Error('Video is already pinned');
+        }
+        
+        // Enforce 3-video limit
+        if (pinnedCount >= 3) {
+            throw new Error('You can only pin up to 3 videos. Please unpin another video first.');
+        }
+        
+        // Update video document
+        const videoDocRef = doc(db, 'users', user.uid, 'customVideos', trailId);
+        await updateDoc(videoDocRef, { pinned: true });
+        
+        // Update cache
+        if (customVideosCache[trailId]) {
+            customVideosCache[trailId].pinned = true;
+        }
+        
+        console.log('Pinned video:', trailId);
+        return true;
+    } catch (error) {
+        console.error('Error pinning video:', error);
+        throw error;
+    }
+}
+
+// Unpin a video
+export async function unpinVideo(trailId) {
+    const user = auth.currentUser;
+    if (!user) {
+        throw new Error('User must be logged in to unpin videos');
+    }
+    
+    try {
+        // Update video document
+        const videoDocRef = doc(db, 'users', user.uid, 'customVideos', trailId);
+        await updateDoc(videoDocRef, { pinned: false });
+        
+        // Update cache
+        if (customVideosCache[trailId]) {
+            customVideosCache[trailId].pinned = false;
+        }
+        
+        console.log('Unpinned video:', trailId);
+        return true;
+    } catch (error) {
+        console.error('Error unpinning video:', error);
+        throw error;
+    }
+}
+
+// Get all pinned videos
+export async function getPinnedVideos() {
+    const user = auth.currentUser;
+    if (!user) {
+        return [];
+    }
+    
+    try {
+        const customVideosRef = collection(db, 'users', user.uid, 'customVideos');
+        const snapshot = await getDocs(customVideosRef);
+        
+        const pinnedVideos = [];
+        snapshot.forEach((docSnapshot) => {
+            const data = docSnapshot.data();
+            if (data.pinned === true) {
+                pinnedVideos.push({
+                    trailId: docSnapshot.id,
+                    ...data
+                });
+            }
+        });
+        
+        // Sort by createdAt (newest first) or maintain order
+        pinnedVideos.sort((a, b) => {
+            const dateA = a.createdAt ? new Date(a.createdAt) : new Date(0);
+            const dateB = b.createdAt ? new Date(b.createdAt) : new Date(0);
+            return dateB - dateA;
+        });
+        
+        return pinnedVideos;
+    } catch (error) {
+        console.error('Error getting pinned videos:', error);
+        return [];
+    }
+}
+
 // Get custom video for a specific trail
 export function getCustomVideo(trailId) {
     return customVideosCache[trailId] || null;
@@ -197,6 +306,9 @@ window.customVideos = {
     getMyVideosMode,
     shouldDimTrail,
     extractVideoId,
-    addFakeVideo  // Add test function
+    addFakeVideo,  // Add test function
+    pinVideo,
+    unpinVideo,
+    getPinnedVideos
 };
 

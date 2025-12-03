@@ -97,8 +97,8 @@ body {
 /* Base popup styles */
 .mapboxgl-popup {
     z-index: 2000 !important; /* Higher than video markers (1000) to appear on top */
-    max-width: 75vw !important; /* Prevent popup from being wider than viewport */
-    max-height: 85vh !important; /* Prevent popup from being taller than viewport */
+    max-width: 480px !important; /* Larger popup for better video viewing */
+    max-height: 420px !important; /* Larger height to accommodate bigger video */
 }
 
 /* Constrain popup to viewport - prevent it from going off-screen */
@@ -107,10 +107,11 @@ body {
 }
 
 .mapboxgl-popup-content {
-    padding: 10px;
+    padding: 8px;
     border-style: solid;
     max-width: 100%;
-    overflow: auto;
+    overflow: visible;
+    box-sizing: border-box;
 }
 
 /* Force popup container to stay within viewport bounds */
@@ -176,7 +177,7 @@ body {
 
 .my-videos-button {
     position: absolute;
-    top: 100px;  /* Below Tracking button (which is at 60px) */
+    top: 140px;  /* Below My Pictures button (which is at 100px) */
     right: 20px;
     background-color: #28a745;
     color: white;
@@ -187,6 +188,8 @@ body {
     font-size: 14px;
     z-index: 1000;
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    width: 120px;  /* Fixed width to match My Pictures button */
+    text-align: center;
 }
 
 .my-videos-button:hover {
@@ -198,9 +201,162 @@ body {
     box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
 
+.upload-video-button {
+    position: absolute;
+    right: 20px;
+    top: 180px; /* Below My Videos button */
+    background-color: #007aff; /* Blue */
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    z-index: 1000;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    width: 120px; /* Fixed width to match other buttons */
+    text-align: center;
+}
+
+.upload-video-button:hover {
+    background-color: #0056b3;
+}
+
+.upload-video-button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.upload-picture-button {
+    position: absolute;
+    right: 20px;
+    top: 220px; /* Below Upload Video button */
+    background-color: #007aff; /* Blue */
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    z-index: 1000;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    width: 120px; /* Fixed width to match other buttons */
+    text-align: center;
+}
+
+.upload-picture-button:hover {
+    background-color: #0056b3;
+}
+
+.upload-picture-button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.friends-button {
+    position: absolute;
+    right: 20px;
+    top: 260px; /* Below Upload Picture button */
+    background-color: #6c757d; /* Gray color for friends */
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    z-index: 1000;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    width: 120px;
+    text-align: center;
+}
+
+.friends-button:hover {
+    background-color: #5a6268;
+}
+
+.tab-button {
+    transition: all 0.2s;
+}
+
+.tab-button.active {
+    border-bottom: 2px solid #007bff !important;
+    font-weight: bold;
+}
+
+.tab-content {
+    min-height: 200px;
+}
+
+.friend-item {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.friend-item:last-child {
+    border-bottom: none;
+}
+
+.friend-request-item {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.friend-request-item:last-child {
+    border-bottom: none;
+}
+
+.friend-map-dropdown {
+    position: absolute;
+    right: 20px;
+    top: 300px; /* Below Friends button */
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 8px;
+    box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
+    z-index: 1000;
+    width: 150px;
+}
+
+.view-my-map-button:hover {
+    background-color: #5a6268 !important;
+}
+
+.my-pictures-button {
+    position: absolute;
+    top: 100px;  /* Below Tracking button (which is at 60px) */
+    right: 20px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    z-index: 1000;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    width: 120px;  /* Fixed width to match My Videos button */
+    text-align: center;
+}
+
+.my-pictures-button:hover {
+    background-color: #218838;
+}
+
+.my-pictures-button.active {
+    background-color: #1e7e34;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
 .video-category-dropdown {
     position: absolute;
-    top: 140px;  /* Below My Videos button (which is at 100px) */
+    top: 180px;  /* Below My Videos button (which is at 140px) */
     right: 20px;
     background: white;
     border: 1px solid #ccc;
@@ -229,16 +385,21 @@ body {
 }
 
 .tracking-options {
-    position: absolute;
-    top: 92px;  /* Below Tracking button (which is at 60px) */
-    right: 20px;
-    background: white;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    z-index: 1000;
-    padding: 10px;
-    min-width: 150px;
+    position: fixed !important;  /* Use fixed instead of absolute to position relative to viewport */
+    top: 92px !important;  /* Below Tracking button (which is at 60px) */
+    right: 20px !important;
+    background: white !important;
+    border: 1px solid #ccc !important;
+    border-radius: 5px !important;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2) !important;
+    z-index: 10000 !important;  /* Much higher to ensure it appears on top */
+    padding: 10px !important;
+    width: 150px !important;  /* Fixed width, not min-width */
+    max-width: 150px !important;
+    min-width: 150px !important;
+    max-height: 300px !important;  /* Prevent it from being too tall */
+    overflow-y: auto;  /* Allow scrolling if content is too tall */
+    display: none;  /* Default hidden - will be toggled by JS */
 }
 
 .tracker-option {
@@ -334,6 +495,7 @@ body {
     margin-top: 10px;
     border-radius: 3px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    display: none !important;  /* Hidden by default - only shown when a tracker is active */
 }
 
 .tracked-trails-container.active {
@@ -673,4 +835,260 @@ body {
 
 #createAccountModal input {
     z-index: 10002;
+}
+
+/* Profile Page Styles */
+.profile-page {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: #000000;
+    z-index: 5000;
+    overflow-y: auto;
+}
+
+.profile-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #1a1a1a;
+    min-height: 100vh;
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #333;
+}
+
+.back-button {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-right: 15px;
+}
+
+.back-button:hover {
+    background-color: #5a6268;
+}
+
+#profilePageTitle {
+    margin: 0;
+    font-size: 24px;
+    color: #ffffff;
+}
+
+.profile-content {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.profile-picture-section {
+    text-align: center;
+}
+
+.profile-picture-large {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #007bff;
+    margin-bottom: 15px;
+    background-color: #e0e0e0;
+}
+
+.edit-picture-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.edit-picture-button:hover {
+    background-color: #0056b3;
+}
+
+.profile-info-section {
+    text-align: center;
+}
+
+#profileDisplayName {
+    margin: 0 0 5px 0;
+    font-size: 28px;
+    color: #ffffff;
+}
+
+.profile-username {
+    color: #999;
+    font-size: 16px;
+    margin: 0 0 20px 0;
+}
+
+.edit-profile-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-bottom: 30px;
+}
+
+.edit-profile-button:hover {
+    background-color: #0056b3;
+}
+
+.profile-bio-section {
+    text-align: left;
+    margin-bottom: 30px;
+    padding: 20px;
+    background-color: #2a2a2a;
+    border-radius: 8px;
+}
+
+.profile-bio-section h3 {
+    margin: 0 0 10px 0;
+    font-size: 18px;
+    color: #ffffff;
+}
+
+.profile-bio {
+    margin: 0;
+    color: #cccccc;
+    line-height: 1.6;
+    white-space: pre-wrap;
+}
+
+.profile-stats-section {
+    display: flex;
+    justify-content: space-around;
+    padding: 20px;
+    background-color: #2a2a2a;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+.pinned-videos-section {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #2a2a2a;
+    border-radius: 8px;
+}
+
+.pinned-videos-section h3 {
+    margin: 0 0 15px 0;
+    font-size: 18px;
+    color: #ffffff;
+    border-bottom: 1px solid #444;
+    padding-bottom: 10px;
+}
+
+.pinned-videos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.pinned-video-card {
+    background-color: #1a1a1a;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+}
+
+.pinned-video-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.pinned-video-thumbnail {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 5px 5px 0 0;
+}
+
+.pinned-video-placeholder {
+    width: 100%;
+    height: 120px;
+    background-color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+    border-radius: 5px 5px 0 0;
+}
+
+.pinned-video-info {
+    padding: 10px;
+}
+
+.pinned-video-categories {
+    margin: 0;
+    font-size: 12px;
+    color: #bbb;
+    text-transform: capitalize;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 32px;
+    font-weight: bold;
+    color: #007bff;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    font-size: 14px;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .profile-container {
+        padding: 15px;
+    }
+    
+    .profile-picture-large {
+        width: 120px;
+        height: 120px;
+    }
+    
+    #profileDisplayName {
+        font-size: 24px;
+    }
+    
+    .profile-stats-section {
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .stat-item {
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .stat-item:last-child {
+        border-bottom: none;
+    }
 }

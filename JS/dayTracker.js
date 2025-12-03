@@ -1247,10 +1247,49 @@ document.addEventListener('DOMContentLoaded', () => {
     const trackingOptions = document.getElementById('trackingOptions');
     
     if (trackingButton && trackingOptions) {
+        console.log('Setting up tracking button handler. Button:', trackingButton, 'Options:', trackingOptions);
         trackingButton.addEventListener('click', (e) => {
             e.stopPropagation();
-            trackingOptions.style.display = 
-                trackingOptions.style.display === 'none' ? 'block' : 'none';
+            e.preventDefault();
+            const currentDisplay = window.getComputedStyle(trackingOptions).display;
+            const isVisible = currentDisplay !== 'none';
+            console.log('Tracking button clicked! Current computed display:', currentDisplay, 'Inline style:', trackingOptions.style.display);
+            
+            // Always hide loginContainer when clicking Tracking button
+            // The loginContainer should only show when clicking Account button
+            const loginContainer = document.getElementById('loginContainer');
+            if (loginContainer) {
+                loginContainer.style.display = 'none';
+            }
+            
+            // Hide all tracking containers (these are the large panels inside loginContainer)
+            ['daily', 'monthly', 'season'].forEach(type => {
+                const container = document.getElementById(`${type}TrailsContainer`);
+                if (container) {
+                    container.style.display = 'none';
+                    container.classList.remove('active');
+                }
+            });
+            
+            if (isVisible) {
+                trackingOptions.style.display = 'none';
+            } else {
+                // Show only the small dropdown menu (not the large containers)
+                trackingOptions.style.display = 'block';
+                // Force position and size to be correct
+                trackingOptions.style.position = 'fixed';
+                trackingOptions.style.top = '92px';
+                trackingOptions.style.right = '20px';
+                trackingOptions.style.width = '150px';
+                trackingOptions.style.height = 'auto';
+                trackingOptions.style.maxWidth = '150px';
+                trackingOptions.style.minWidth = '150px';
+                console.log('Showing tracking dropdown menu (small menu). Size:', trackingOptions.getBoundingClientRect());
+            }
+            
+            console.log('Tracking options display set to:', trackingOptions.style.display);
+            console.log('Tracking options computed style:', window.getComputedStyle(trackingOptions));
+            console.log('Tracking options position:', trackingOptions.getBoundingClientRect());
         });
         
         // Close dropdown when clicking outside
@@ -1264,6 +1303,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Setup each tracker button
     ['daily', 'monthly', 'season'].forEach(type => {
         const button = document.getElementById(`${type}TrackerButton`);
+        
+        if (!button) {
+            console.warn(`${type}TrackerButton not found`);
+            return;
+        }
         
         button.addEventListener('click', (e) => {
             e.preventDefault();
@@ -1342,7 +1386,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Add this where you set up your other tracking button listeners
-    document.getElementById('exitTrackingButton').addEventListener('click', () => {
+    const exitTrackingButton = document.getElementById('exitTrackingButton');
+    if (exitTrackingButton) {
+        exitTrackingButton.addEventListener('click', () => {
         // Restore full visibility to everything
         Object.keys(trailData).forEach(trailId => {
             const layer = `${trailId}-layer`;
@@ -1389,5 +1435,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Hide the tracking options menu
         document.getElementById('trackingOptions').style.display = 'none';
-    });
+        });
+    }
 });

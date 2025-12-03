@@ -2,6 +2,7 @@
 import { initializeApp, getApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
 import { getAuth } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
 import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+import { getStorage } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -15,7 +16,7 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase with error handling
-let app, auth, db;
+let app, auth, db, storage;
 
 try {
     // Check if Firebase is already initialized
@@ -27,6 +28,9 @@ try {
     
     db = getFirestore(app);
     console.log('Firestore initialized');
+    
+    storage = getStorage(app);
+    console.log('Firebase Storage initialized');
 } catch (error) {
     console.error('Error initializing Firebase:', error.message);
     if (error.code === 'app/duplicate-app') {
@@ -34,12 +38,13 @@ try {
         app = getApp();
         auth = getAuth(app);
         db = getFirestore(app);
+        storage = getStorage(app);
     }
 }
 
 // Wait for initialization before exporting
-if (!app || !auth || !db) {
+if (!app || !auth || !db || !storage) {
     console.error('Firebase initialization failed');
 }
 
-export { app, auth, db };
+export { app, auth, db, storage };

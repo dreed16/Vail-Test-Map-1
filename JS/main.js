@@ -160,6 +160,28 @@ const createVideoMarker = () => {
     return element;
 };
 
+// Create picture icon marker (camera icon style)
+const createPictureMarker = () => {
+    const element = document.createElement('div');
+    element.className = 'picture-marker';
+    
+    // Create camera icon SVG
+    element.innerHTML = `
+        <svg width="24" height="24" viewBox="0 0 24 24" style="background: rgba(0, 0, 0, 0.6); border-radius: 50%; padding: 4px;">
+            <circle cx="12" cy="12" r="10" fill="#FF6B35" stroke="#FFFFFF" stroke-width="2"/>
+            <rect x="8" y="9" width="8" height="6" fill="none" stroke="#FFFFFF" stroke-width="1.5"/>
+            <circle cx="12" cy="12" r="2" fill="#FFFFFF"/>
+        </svg>
+    `;
+    
+    // Make marker sit on top and capture clicks
+    element.style.zIndex = '1000';
+    element.style.pointerEvents = 'auto';
+    element.style.cursor = 'pointer';
+    
+    return element;
+};
+
 // Calculate midpoint of a trail (or use first point if only one)
 function getTrailMidpoint(trailId) {
     if (!trailData[trailId]) return null;
@@ -193,8 +215,30 @@ function getTrailMidpoint(trailId) {
 // Initialize your variables
 const mountainMarkers = [];
 const videoMarkers = [];  // Markers for trails with custom videos
+const pictureMarkers = [];  // Markers for custom pictures
 var trailsVisible = true;
 var liftsVisible = true;
+let myPicturesMode = false;  // Track My Pictures toggle state
+let viewingFriendMap = false;  // Track if viewing friend's map
+let currentFriendId = null;  // Current friend being viewed
+
+// Make these globally accessible and keep in sync
+window.viewingFriendMap = viewingFriendMap;
+window.currentFriendId = currentFriendId;
+window.myVideosMode = myVideosMode;
+window.myPicturesMode = myPicturesMode;
+window.myVideosMode = myVideosMode;
+window.myPicturesMode = myPicturesMode;
+
+// Sync function to update both local and global variables
+function syncFriendMapState() {
+    if (window.viewingFriendMap !== undefined) {
+        viewingFriendMap = window.viewingFriendMap;
+    }
+    if (window.currentFriendId !== undefined) {
+        currentFriendId = window.currentFriendId;
+    }
+}
 var mountainCamsVisible = false;  // Start with cams hidden for better performance
 var currentPopup = null;
 var liveFeedMarkers = [];
@@ -231,6 +275,9 @@ const map = new mapboxgl.Map({
     pitch: 45  // 45 degree angle view
 });
 console.log('Map initialized');
+
+// Make map globally accessible
+window.map = map;
 
 // Denver coordinates (slightly north ~500 feet)
 const denverCoords = [-104.9903, 39.7406]; // ~500 feet north of downtown Denver
@@ -810,6 +857,11 @@ map.on('load', function() {
         setTimeout(() => updateVideoMarkers(), 500);
     }
     
+    // Update picture markers after initial load (if My Pictures mode is on)
+    if (myPicturesMode) {
+        setTimeout(() => updatePictureMarkers(), 500);
+    }
+    
     // Load trails and lifts as map moves (when viewport changes)
     // Optimized for smooth panning: longer debounce + deferred execution + pre-computed bboxes
     let moveEndTimeout;
@@ -854,6 +906,10 @@ map.on('load', function() {
                         // Update video markers after viewport changes
                         if (myVideosMode) {
                             updateVideoMarkers();
+                        }
+                        // Update picture markers after viewport changes
+                        if (myPicturesMode) {
+                            updatePictureMarkers();
                         }
                     }, 200); // Increased delay
                 });
@@ -1037,22 +1093,7 @@ map.on('load', function() {
     // Initial load - only load lifts in viewport
     loadLiftsInViewport();
 
-    // Update the slope toggle event listener
-    document.getElementById('toggleSlope').addEventListener('change', function() {
-        console.log('Slope toggle clicked');
-        const visibility = this.checked ? 'visible' : 'none';
-        
-        if (map.getLayer('slopes')) {
-            map.setLayoutProperty('slopes', 'visibility', visibility);
-            if (this.checked) {
-                map.setPitch(45);
-            } else {
-                map.setPitch(0);
-            }
-        } else {
-            console.error('Slopes layer not found!');
-        }
-    });
+    // Slope toggle removed - feature no longer available
 
     // Create mountain cam markers but don't add to map initially (starts hidden for better performance)
     liveFeedLocations.forEach(function(location) {
@@ -2235,6 +2276,9 @@ function updateVideoMarkers() {
     console.log('window.customVideos:', window.customVideos);
     console.log('window.loadedTrails:', window.loadedTrails);
     
+    // Sync friend map state from window variables
+    syncFriendMapState();
+    
     if (!window.customVideos) {
         console.warn('customVideos not available');
         return;
@@ -2258,21 +2302,30 @@ function updateVideoMarkers() {
     videoMarkers.push(...markersToKeep);
     console.log('Cleared existing video markers');
     
-    // Only show markers if My Videos mode is ON
-    if (!myVideosMode) {
-        console.log('My Videos mode is OFF, not showing markers');
+    // Only show markers if My Videos mode is ON OR viewing friend's map
+    if (!myVideosMode && !viewingFriendMap) {
+        console.log('My Videos mode is OFF and not viewing friend map, not showing markers');
         return;
     }
     
     // Get all trails with custom videos
-    // Use hardcoded list for now (bypasses Firebase)
     let trailsWithVideos = trailsWithVideosHardcoded;
     
-    // If customVideos module is available, merge with hardcoded list
-    if (window.customVideos && window.customVideos.getTrailsWithCustomVideos) {
-        const firebaseTrails = window.customVideos.getTrailsWithCustomVideos() || [];
-        // Combine and remove duplicates
-        trailsWithVideos = [...new Set([...trailsWithVideos, ...firebaseTrails])];
+    // Check if viewing friend's map
+    console.log('Checking friend map state:', { viewingFriendMap, currentFriendId, friendMapView: !!window.friendMapView });
+    if (viewingFriendMap && currentFriendId && window.friendMapView) {
+        // Load friend's videos
+        const friendVideoIds = window.friendMapView.getFriendVideoIds() || [];
+        console.log('Friend video IDs:', friendVideoIds);
+        console.log('Friend videos cache:', window.friendMapView.getFriendVideos());
+        trailsWithVideos = friendVideoIds; // Use only friend's videos when viewing friend map
+    } else {
+        // If customVideos module is available, merge with hardcoded list (user's own videos)
+        if (window.customVideos && window.customVideos.getTrailsWithCustomVideos) {
+            const firebaseTrails = window.customVideos.getTrailsWithCustomVideos() || [];
+            // Combine and remove duplicates
+            trailsWithVideos = [...new Set([...trailsWithVideos, ...firebaseTrails])];
+        }
     }
     
     console.log('Trails with custom videos:', trailsWithVideos);
@@ -2290,15 +2343,22 @@ function updateVideoMarkers() {
     
     trailsWithVideos.forEach(trailId => {
         // Check if this video's category is selected
-        // First check hardcoded videos, then Firebase videos
+        // First check hardcoded videos, then Firebase videos (user's or friend's)
         let videoData = hardcodedCustomVideosData[trailId];
         let videoCategories = null;
         
         if (videoData) {
             // Hardcoded video - get categories from videoData
             videoCategories = videoData.category || ['misc'];
+        } else if (viewingFriendMap && currentFriendId && window.friendMapView) {
+            // Friend's Firebase video - get from friend cache
+            const friendVideo = window.friendMapView.getFriendVideos()[trailId];
+            if (friendVideo) {
+                videoData = friendVideo;
+                videoCategories = friendVideo.categories || ['misc'];
+            }
         } else if (window.customVideos && window.customVideos.getCustomVideo) {
-            // Firebase video - get from cache
+            // User's own Firebase video - get from cache
             const firebaseVideo = window.customVideos.getCustomVideo(trailId);
             if (firebaseVideo) {
                 videoData = firebaseVideo;
@@ -2341,7 +2401,13 @@ function updateVideoMarkers() {
         
         // Get icon position (use custom position if specified, otherwise try trail midpoint)
         let iconPosition = null;
-        if (hardcodedIconPositions[trailId]) {
+        
+        // First check if video has a position field (for uploaded videos - user's or friend's)
+        // videoData should already be set above for friend videos
+        if (videoData && videoData.position && Array.isArray(videoData.position)) {
+            iconPosition = videoData.position;
+            console.log('Using video position from videoData:', iconPosition);
+        } else if (hardcodedIconPositions[trailId]) {
             // Use custom position (standalone, like mountain features - no trail required!)
             // You can use any name you want (e.g., "Test123", "RockDrop1", etc.)
             iconPosition = hardcodedIconPositions[trailId];
@@ -2373,71 +2439,116 @@ function updateVideoMarkers() {
         marker.trailId = trailId;
         
         // Add click handler to show custom video popup (no text, just video)
-        // Check both hardcoded and Firebase videos
-        let customVideo = hardcodedCustomVideos[trailId];
-        let videosToShow = [];
-        
-        if (customVideo) {
-            // Hardcoded video - Support both single video (backward compatible) and multiple videos
-            if (customVideo.videos && Array.isArray(customVideo.videos)) {
-                // Multiple videos format
-                videosToShow = customVideo.videos;
-            } else if (customVideo.videoUrl) {
-                // Single video format (backward compatible)
-                videosToShow = [{
-                    videoUrl: customVideo.videoUrl,
-                    startTime: customVideo.startTime || 0
-                }];
-            }
-        } else if (window.customVideos && window.customVideos.getCustomVideo) {
-            // Firebase video
-            const firebaseVideo = window.customVideos.getCustomVideo(trailId);
-            if (firebaseVideo && firebaseVideo.videoUrl) {
-                videosToShow = [{
-                    videoUrl: firebaseVideo.videoUrl,
-                    startTime: firebaseVideo.startTime || 0
-                }];
-            }
-        }
+               // Check hardcoded, user's Firebase, or friend's Firebase videos
+               let customVideo = hardcodedCustomVideos[trailId];
+               let videosToShow = [];
+               
+               if (customVideo) {
+                   // Hardcoded video - Support both single video (backward compatible) and multiple videos
+                   if (customVideo.videos && Array.isArray(customVideo.videos)) {
+                       // Multiple videos format
+                       videosToShow = customVideo.videos;
+                   } else if (customVideo.videoUrl) {
+                       // Single video format (backward compatible)
+                       videosToShow = [{
+                           videoUrl: customVideo.videoUrl,
+                           startTime: customVideo.startTime || 0
+                       }];
+                   }
+               } else if (viewingFriendMap && currentFriendId && window.friendMapView) {
+                   // Friend's Firebase video
+                   const friendVideo = window.friendMapView.getFriendVideos()[trailId];
+                   if (friendVideo && friendVideo.videoUrl) {
+                       videosToShow = [{
+                           videoUrl: friendVideo.videoUrl,
+                           startTime: friendVideo.startTime || 0,
+                           isUploadedVideo: friendVideo.isUploadedVideo || false,
+                           isFriendVideo: true // Flag to indicate this is a friend's video
+                       }];
+                   }
+               } else if (window.customVideos && window.customVideos.getCustomVideo) {
+                   // User's own Firebase video
+                   const firebaseVideo = window.customVideos.getCustomVideo(trailId);
+                   if (firebaseVideo && firebaseVideo.videoUrl) {
+                       videosToShow = [{
+                           videoUrl: firebaseVideo.videoUrl,
+                           startTime: firebaseVideo.startTime || 0,
+                           isUploadedVideo: firebaseVideo.isUploadedVideo || false // Pass this flag
+                       }];
+                   }
+               }
         
         if (videosToShow.length > 0) {
             // Build HTML for all videos
             let videosHTML = '';
             
+            // Get video data for delete button check
+            let currentVideoData = null;
+            if (window.customVideos && window.customVideos.getCustomVideo) {
+                currentVideoData = window.customVideos.getCustomVideo(trailId);
+            }
+            
             videosToShow.forEach((videoData, index) => {
                     const url = videoData.videoUrl;
                     const startTime = videoData.startTime || 0;
+                    const isUploadedVideo = videoData.isUploadedVideo || url.includes('firebasestorage.googleapis.com');
                     
-                    // Extract video ID
-                    let videoId = null;
-                    const patterns = [
-                        /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
-                        /youtube\.com\/shorts\/([^&\n?#]+)/,
-                    ];
-                    for (const pattern of patterns) {
-                        const match = url.match(pattern);
-                        if (match && match[1]) {
-                            videoId = match[1];
-                            break;
+                    // Check if this is an uploaded video (Firebase Storage) or YouTube video
+                    if (isUploadedVideo) {
+                        // Uploaded video - use HTML5 video player (larger size for better viewing)
+                        const videoWidth = '400';
+                        const videoHeight = '225';
+                        videosHTML += `<div style="margin-bottom: ${index < videosToShow.length - 1 ? '16px' : '0'};">
+                            <video id="video-player-${trailId}-${index}" width='${videoWidth}' height='${videoHeight}' controls autoplay muted style="width: 100%; max-width: 100%; max-height: 360px; height: auto; border-radius: 5px; display: block;" data-start-time="${startTime}">
+                                <source src="${url}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>`;
+                    } else {
+                        // YouTube video - extract video ID and use iframe
+                        let videoId = null;
+                        const patterns = [
+                            /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
+                            /youtube\.com\/shorts\/([^&\n?#]+)/,
+                        ];
+                        for (const pattern of patterns) {
+                            const match = url.match(pattern);
+                            if (match && match[1]) {
+                                videoId = match[1];
+                                break;
+                            }
+                        }
+                        
+                        if (videoId) {
+                            // Check if it's a Shorts video (vertical)
+                            const isShorts = url.includes('/shorts/');
+                            const iframeWidth = isShorts ? '240' : '400';
+                            const iframeHeight = isShorts ? '427' : '225';
+                            const startParam = startTime > 0 ? `&start=${startTime}` : '';
+                            
+                            // Only autoplay if there's a single video (not multiple)
+                            const autoplayParam = videosToShow.length === 1 ? '&autoplay=1&mute=1' : '';
+                            
+                            // Add video iframe
+                            videosHTML += `<div style="margin-bottom: ${index < videosToShow.length - 1 ? '16px' : '0'};">
+                                <iframe id="video-iframe-${trailId}-${index}" width='${iframeWidth}' height='${iframeHeight}' src='https://www.youtube.com/embed/${videoId}?enablejsapi=1&hd=1${autoplayParam}${startParam}' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen style="width: 100%; max-width: 100%; max-height: 360px; height: auto; display: block;"></iframe>
+                            </div>`;
                         }
                     }
-                    
-                    if (videoId) {
-                        // Check if it's a Shorts video (vertical)
-                        const isShorts = url.includes('/shorts/');
-                        const iframeWidth = isShorts ? '240' : '480';
-                        const iframeHeight = isShorts ? '427' : '270';
-                        const startParam = startTime > 0 ? `&start=${startTime}` : '';
-                        
-                        // Only autoplay if there's a single video (not multiple)
-                        const autoplayParam = videosToShow.length === 1 ? '&autoplay=1&mute=1' : '';
-                        
-                        // Add video iframe
-                        videosHTML += `<div style="margin-bottom: ${index < videosToShow.length - 1 ? '16px' : '0'};">
-                            <iframe id="video-iframe-${trailId}-${index}" width='${iframeWidth}' height='${iframeHeight}' src='https://www.youtube.com/embed/${videoId}?enablejsapi=1&hd=1${autoplayParam}${startParam}' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>
-                        </div>`;
-                    }
                 });
+                
+                // Add delete and pin buttons if this is a user's video (from Firebase)
+                if (currentVideoData) {
+                    const isPinned = currentVideoData.pinned === true;
+                    videosHTML += `<div style="margin-top: 10px; text-align: center; padding-top: 10px; border-top: 1px solid #eee; display: flex; gap: 8px; justify-content: center;">
+                        <button id="pinVideoBtn-${trailId}" class="pin-video-button" style="background-color: ${isPinned ? '#ffc107' : '#6c757d'}; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                            ${isPinned ? '📌 Pinned' : '📌 Pin'}
+                        </button>
+                        <button id="deleteVideoBtn-${trailId}" class="delete-video-button" style="background-color: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                            Delete Video
+                        </button>
+                    </div>`;
+                }
                 
                 if (videosHTML) {
                     // Simple approach: determine anchor based on icon position
@@ -2473,8 +2584,67 @@ function updateVideoMarkers() {
                     })
                         .setHTML(videosHTML);
                     
+                    // Prevent popup from closing when clicking inside the popup content
+                    videoPopup.on('open', () => {
+                        const popupContent = videoPopup._content;
+                        if (popupContent) {
+                            popupContent.addEventListener('click', (e) => {
+                                // Don't stop propagation for buttons - let them handle their own clicks
+                                if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
+                                    return; // Let button handle its own click
+                                }
+                                e.stopPropagation();
+                            });
+                            
+                            // Setup autoplay for uploaded videos
+                            const videoElements = popupContent.querySelectorAll('video[data-start-time]');
+                            videoElements.forEach((video) => {
+                                const startTime = parseFloat(video.getAttribute('data-start-time')) || 0;
+                                
+                                // Set start time when video metadata is loaded
+                                video.addEventListener('loadedmetadata', () => {
+                                    if (startTime > 0) {
+                                        video.currentTime = startTime;
+                                    }
+                                });
+                                
+                                // Ensure autoplay works (some browsers require user interaction first)
+                                video.addEventListener('canplay', () => {
+                                    video.play().catch(err => {
+                                        console.log('Autoplay prevented:', err);
+                                        // If autoplay fails, user can still click play
+                                    });
+                                });
+                            });
+                        }
+                    });
+                    
                     // Attach popup to marker
                     marker.setPopup(videoPopup);
+                    
+                    // Store trailId and videoData on popup for delete button
+                    videoPopup.trailId = trailId;
+                    videoPopup.videoData = currentVideoData;
+                    
+                    // Setup delete and pin button handlers if this is a user's video
+                    if (currentVideoData) {
+                        // Wait for popup to be fully rendered
+                        videoPopup.on('open', () => {
+                            // Use setTimeout to ensure DOM is ready
+                            setTimeout(() => {
+                                setupDeleteVideoButton(trailId, videoPopup, currentVideoData);
+                                setupPinVideoButton(trailId, videoPopup, currentVideoData);
+                            }, 100);
+                        });
+                        
+                        // Also try immediately if popup is already open
+                        if (videoPopup.isOpen()) {
+                            setTimeout(() => {
+                                setupDeleteVideoButton(trailId, videoPopup, currentVideoData);
+                                setupPinVideoButton(trailId, videoPopup, currentVideoData);
+                            }, 200);
+                        }
+                    }
                     
                     // Prevent popup from closing when video is in fullscreen
                     // Store a flag to track fullscreen state
@@ -2551,6 +2721,617 @@ function updateVideoMarkers() {
     console.log('=== updateVideoMarkers complete ===');
 }
 
+// My Pictures: Update picture markers (icons) for custom pictures
+function updatePictureMarkers() {
+    console.log('=== updatePictureMarkers called ===');
+    
+    // Sync friend map state from window
+    syncFriendMapState();
+    console.log('Friend map state synced:', { viewingFriendMap, currentFriendId });
+    
+    console.log('=== updatePictureMarkers called ===');
+    console.log('myPicturesMode:', myPicturesMode);
+    console.log('viewingFriendMap:', viewingFriendMap);
+    console.log('currentFriendId:', currentFriendId);
+    console.log('window.customPictures:', window.customPictures);
+    
+    if (!window.customPictures && !viewingFriendMap) {
+        console.warn('customPictures not available and not viewing friend map');
+        return;
+    }
+    
+    // Remove all existing picture markers (but preserve any open popups)
+    const markersToKeep = [];
+    pictureMarkers.forEach(marker => {
+        const popup = marker.getPopup();
+        if (popup && popup.isOpen()) {
+            console.log('Skipping picture marker removal - popup is open');
+            markersToKeep.push(marker);
+            return;
+        }
+        marker.remove();
+    });
+    pictureMarkers.length = 0;
+    pictureMarkers.push(...markersToKeep);
+    console.log('Cleared existing picture markers');
+    
+    // Only show markers if My Pictures mode is ON OR viewing friend's map
+    if (!myPicturesMode && !viewingFriendMap) {
+        console.log('My Pictures mode is OFF and not viewing friend map, not showing markers');
+        return;
+    }
+    
+    // Get all pictures - combine hardcoded and Firebase
+    let trailsWithPictures = picturesWithImagesHardcoded || [];
+    
+    // Check if viewing friend's map
+    if (viewingFriendMap && currentFriendId && window.friendMapView) {
+        // Load friend's pictures
+        const friendPictureIds = window.friendMapView.getFriendPictureIds() || [];
+        console.log('Friend picture IDs:', friendPictureIds);
+        console.log('Friend pictures cache:', window.friendMapView.getFriendPictures());
+        trailsWithPictures = friendPictureIds; // Use only friend's pictures when viewing friend map
+    } else {
+        // If customPictures module is available, merge with hardcoded list (user's own pictures)
+        if (window.customPictures && window.customPictures.getTrailsWithCustomPictures) {
+            const firebasePictures = window.customPictures.getTrailsWithCustomPictures() || [];
+            trailsWithPictures = [...new Set([...trailsWithPictures, ...firebasePictures])];
+        }
+    }
+    
+    console.log('Pictures to display:', trailsWithPictures);
+    
+    if (!trailsWithPictures || trailsWithPictures.length === 0) {
+        console.log('No pictures found');
+        return;
+    }
+    
+    let markersCreated = 0;
+    let skippedNoPosition = 0;
+    
+    trailsWithPictures.forEach(pictureId => {
+        // Get picture data - check hardcoded first, then Firebase (user's or friend's)
+        let pictureData = hardcodedCustomPicturesData[pictureId];
+        let iconPosition = null;
+        
+        if (pictureData) {
+            // Hardcoded picture
+            iconPosition = hardcodedPicturePositions[pictureId];
+        } else if (viewingFriendMap && currentFriendId && window.friendMapView) {
+            // Friend's Firebase picture
+            const friendPicture = window.friendMapView.getFriendPictures()[pictureId];
+            if (friendPicture) {
+                pictureData = friendPicture;
+                // Friend's pictures have position stored
+                if (friendPicture.position && Array.isArray(friendPicture.position)) {
+                    iconPosition = friendPicture.position;
+                }
+            }
+        } else if (window.customPictures && window.customPictures.getCustomPicture) {
+            // User's own Firebase picture
+            const firebasePicture = window.customPictures.getCustomPicture(pictureId);
+            if (firebasePicture) {
+                pictureData = firebasePicture;
+                // Firebase pictures have position stored
+                if (firebasePicture.position && Array.isArray(firebasePicture.position)) {
+                    iconPosition = firebasePicture.position;
+                }
+            }
+        }
+        
+        if (!pictureData || !iconPosition) {
+            skippedNoPosition++;
+            return;
+        }
+        
+        // Create picture marker
+        const pictureIcon = createPictureMarker();
+        const marker = new mapboxgl.Marker(pictureIcon)
+            .setLngLat(iconPosition);
+        
+        // Store picture ID for reference
+        marker.pictureId = pictureId;
+        
+        // Build popup HTML with image(s)
+        let imagesHTML = '';
+        
+        // Support both single image and multiple images
+        if (pictureData.images && Array.isArray(pictureData.images)) {
+            // Multiple images
+            pictureData.images.forEach((imgData, index) => {
+                const imgUrl = imgData.imageUrl || imgData;
+                imagesHTML += `<div style="margin-bottom: ${index < pictureData.images.length - 1 ? '16px' : '0'};">
+                    <img src="${imgUrl}" alt="Picture ${index + 1}" style="max-width: 400px; max-height: 400px; width: auto; height: auto; border-radius: 5px;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <p style="display: none; color: red;">Failed to load image</p>
+                </div>`;
+            });
+        } else {
+            // Single image
+            const imgUrl = pictureData.imageUrl;
+            imagesHTML += `<div>
+                <img src="${imgUrl}" alt="Picture" style="max-width: 400px; max-height: 400px; width: auto; height: auto; border-radius: 5px;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <p style="display: none; color: red;">Failed to load image</p>
+            </div>`;
+        }
+        
+        // Add delete button if this is a user's picture (from Firebase) - not friend's pictures
+        const isUserPicture = !viewingFriendMap && window.customPictures && window.customPictures.getCustomPicture && window.customPictures.getCustomPicture(pictureId);
+        if (isUserPicture) {
+            imagesHTML += `<div style="margin-top: 10px; text-align: center; padding-top: 10px; border-top: 1px solid #eee;">
+                <button id="deletePictureBtn-${pictureId}" class="delete-picture-button" style="background-color: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                    Delete Picture
+                </button>
+            </div>`;
+        }
+        
+        // Create popup
+        const point = map.project(iconPosition);
+        const viewportHeight = map.getCanvas().height;
+        const viewportWidth = map.getCanvas().width;
+        
+        let anchor = 'bottom';
+        if (point.y > viewportHeight / 2) {
+            anchor = 'bottom';
+        } else {
+            anchor = 'top';
+        }
+        
+        if (point.x > viewportWidth * 0.9) {
+            anchor = 'left';
+        } else if (point.x < viewportWidth * 0.1) {
+            anchor = 'right';
+        }
+        
+        const picturePopup = new mapboxgl.Popup({
+            offset: 25,
+            anchor: anchor,
+            closeOnClick: true,
+            closeButton: true
+        })
+            .setHTML(imagesHTML);
+        
+        // Attach popup to marker
+        marker.setPopup(picturePopup);
+        
+        // Store pictureId and pictureData on popup for delete button
+        picturePopup.pictureId = pictureId;
+        picturePopup.pictureData = pictureData;
+        
+        // Setup delete button handler if this is a user's picture
+        if (isUserPicture) {
+            picturePopup.on('open', () => {
+                setTimeout(() => {
+                    setupDeletePictureButton(pictureId, picturePopup, pictureData);
+                }, 100);
+            });
+            
+            if (picturePopup.isOpen()) {
+                setTimeout(() => {
+                    setupDeletePictureButton(pictureId, picturePopup, pictureData);
+                }, 200);
+            }
+        }
+        
+        // Add to map and array
+        marker.addTo(map);
+        pictureMarkers.push(marker);
+        markersCreated++;
+    });
+    
+    console.log(`Created ${markersCreated} picture markers`);
+    console.log(`Skipped ${skippedNoPosition} (no position)`);
+    console.log('=== updatePictureMarkers complete ===');
+}
+
+// Make updatePictureMarkers globally accessible
+window.updatePictureMarkers = updatePictureMarkers;
+
+// Setup delete picture button handler
+function setupDeletePictureButton(pictureId, popup, pictureData) {
+    // Try to find button in popup container first, then fall back to document
+    let deleteBtn = null;
+    if (popup && popup._content) {
+        deleteBtn = popup._content.querySelector(`#deletePictureBtn-${pictureId}`);
+    }
+    if (!deleteBtn) {
+        deleteBtn = document.getElementById(`deletePictureBtn-${pictureId}`);
+    }
+    
+    if (!deleteBtn) {
+        console.warn('Delete picture button not found for pictureId:', pictureId);
+        return;
+    }
+    
+    console.log('Setting up delete picture button for pictureId:', pictureId);
+    
+    // Remove any existing listeners to avoid duplicates
+    const newDeleteBtn = deleteBtn.cloneNode(true);
+    deleteBtn.parentNode.replaceChild(newDeleteBtn, deleteBtn);
+    
+    newDeleteBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        console.log('Delete picture button clicked for pictureId:', pictureId);
+        
+        try {
+            await showDeletePictureModal(pictureId, popup, pictureData);
+        } catch (error) {
+            console.error('Error showing delete modal:', error);
+            alert('Error: ' + error.message);
+        }
+    });
+}
+
+// Show delete picture modal with confirmation
+async function showDeletePictureModal(pictureId, popup, pictureData) {
+    console.log('showDeletePictureModal called for pictureId:', pictureId);
+    const deleteModal = document.getElementById('deletePictureModal');
+    if (!deleteModal) {
+        console.warn('Delete picture modal not found, using fallback confirm');
+        if (confirm('Are you sure you want to delete this picture? This cannot be undone.')) {
+            await deletePicture(pictureId, popup, pictureData);
+        }
+        return;
+    }
+    
+    console.log('Delete picture modal found, showing...');
+    
+    // Get modal elements
+    const deleteConfirmBtn = document.getElementById('deletePictureConfirm');
+    const cancelBtn = document.getElementById('cancelDeletePicture');
+    const closeBtn = document.getElementById('closeDeletePictureModal');
+    
+    // Show modal
+    deleteModal.style.display = 'block';
+    
+    // Handle confirm button
+    if (deleteConfirmBtn) {
+        const newConfirmBtn = deleteConfirmBtn.cloneNode(true);
+        deleteConfirmBtn.replaceWith(newConfirmBtn);
+        
+        newConfirmBtn.addEventListener('click', async () => {
+            deleteModal.style.display = 'none';
+            await deletePicture(pictureId, popup, pictureData);
+        });
+    }
+    
+    // Handle cancel/close
+    const closeModal = () => {
+        deleteModal.style.display = 'none';
+    };
+    
+    if (cancelBtn) {
+        const newCancelBtn = cancelBtn.cloneNode(true);
+        cancelBtn.replaceWith(newCancelBtn);
+        newCancelBtn.addEventListener('click', closeModal);
+    }
+    
+    if (closeBtn) {
+        const newCloseBtn = closeBtn.cloneNode(true);
+        closeBtn.replaceWith(newCloseBtn);
+        newCloseBtn.addEventListener('click', closeModal);
+    }
+}
+
+// Delete picture (from both Firestore and Storage if uploaded)
+async function deletePicture(pictureId, popup, pictureData) {
+    try {
+        // Check if this is an uploaded picture (needs Storage deletion)
+        const isUploadedPicture = pictureData && (pictureData.isUploadedPicture || (pictureData.imageUrl && pictureData.imageUrl.includes('firebasestorage.googleapis.com')));
+        
+        if (isUploadedPicture && pictureData.imageUrl) {
+            // Delete from Firebase Storage
+            await deletePictureFromStorage(pictureData.imageUrl);
+        }
+        
+        // Delete from Firestore
+        if (window.customPictures && window.customPictures.deleteCustomPicture) {
+            await window.customPictures.deleteCustomPicture(pictureId);
+        }
+        
+        // Close popup
+        if (popup) {
+            popup.remove();
+        }
+        
+        // Remove marker from map
+        const marker = pictureMarkers.find(m => m.pictureId === pictureId);
+        if (marker) {
+            marker.remove();
+            const index = pictureMarkers.indexOf(marker);
+            if (index > -1) {
+                pictureMarkers.splice(index, 1);
+            }
+        }
+        
+        // Refresh picture markers
+        if (window.updatePictureMarkers) {
+            window.updatePictureMarkers();
+        }
+        
+        alert('Picture deleted successfully!');
+    } catch (error) {
+        console.error('Error deleting picture:', error);
+        alert('Error deleting picture: ' + error.message);
+    }
+}
+
+// Delete picture file from Firebase Storage
+async function deletePictureFromStorage(imageUrl) {
+    try {
+        // Import Storage delete function
+        const { ref, deleteObject } = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js');
+        const { storage } = await import('./firebaseConfig.js');
+        
+        // Extract file path from URL
+        const urlMatch = imageUrl.match(/\/o\/(.+?)\?/);
+        if (urlMatch) {
+            const filePath = decodeURIComponent(urlMatch[1]);
+            const fileRef = ref(storage, filePath);
+            await deleteObject(fileRef);
+            console.log('✅ Picture file deleted from Storage');
+        }
+    } catch (error) {
+        console.error('Error deleting picture from Storage:', error);
+        // Don't throw - Firestore deletion should still proceed
+    }
+}
+
+// Setup delete video button handler
+function setupDeleteVideoButton(trailId, popup, videoData) {
+    // Try to find button in popup container first, then fall back to document
+    let deleteBtn = null;
+    if (popup && popup._content) {
+        deleteBtn = popup._content.querySelector(`#deleteVideoBtn-${trailId}`);
+    }
+    if (!deleteBtn) {
+        deleteBtn = document.getElementById(`deleteVideoBtn-${trailId}`);
+    }
+    
+    if (!deleteBtn) {
+        console.warn('Delete button not found for trailId:', trailId);
+        console.log('Searched in popup._content:', popup?._content);
+        console.log('Searched in document for ID:', `deleteVideoBtn-${trailId}`);
+        return;
+    }
+    
+    console.log('Setting up delete button for trailId:', trailId, 'Button:', deleteBtn);
+    
+    // Remove any existing listeners to avoid duplicates
+    const newDeleteBtn = deleteBtn.cloneNode(true);
+    deleteBtn.parentNode.replaceChild(newDeleteBtn, deleteBtn);
+    
+    newDeleteBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation(); // Prevent any other handlers
+        console.log('Delete button clicked for trailId:', trailId);
+        
+        // Show delete confirmation modal with double confirmation
+        try {
+            await showDeleteVideoModal(trailId, popup, videoData);
+        } catch (error) {
+            console.error('Error showing delete modal:', error);
+            alert('Error: ' + error.message);
+        }
+    });
+    
+    console.log('Delete button handler attached successfully');
+}
+
+// Setup pin/unpin video button
+function setupPinVideoButton(trailId, popup, videoData) {
+    // Try to find button in popup container first, then fall back to document
+    let pinBtn = null;
+    if (popup && popup._content) {
+        pinBtn = popup._content.querySelector(`#pinVideoBtn-${trailId}`);
+    }
+    if (!pinBtn) {
+        pinBtn = document.getElementById(`pinVideoBtn-${trailId}`);
+    }
+    
+    if (!pinBtn) {
+        console.warn('Pin button not found for trailId:', trailId);
+        return;
+    }
+    
+    // Remove any existing listeners to avoid duplicates
+    const newPinBtn = pinBtn.cloneNode(true);
+    pinBtn.parentNode.replaceChild(newPinBtn, pinBtn);
+    
+    // Add click handler
+    newPinBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation(); // Prevent popup from closing
+        
+        console.log('Pin button clicked for trailId:', trailId);
+        console.log('Current videoData:', videoData);
+        
+        const isPinned = videoData.pinned === true;
+        
+        try {
+            if (isPinned) {
+                // Unpin video
+                console.log('Unpinning video...');
+                if (window.customVideos && window.customVideos.unpinVideo) {
+                    await window.customVideos.unpinVideo(trailId);
+                    console.log('Video unpinned successfully');
+                    alert('Video unpinned');
+                } else {
+                    console.error('unpinVideo function not available');
+                    alert('Error: Pin/unpin feature not available');
+                    return;
+                }
+            } else {
+                // Pin video
+                console.log('Pinning video...');
+                if (window.customVideos && window.customVideos.pinVideo) {
+                    await window.customVideos.pinVideo(trailId);
+                    console.log('Video pinned successfully');
+                    alert('Video pinned!');
+                } else {
+                    console.error('pinVideo function not available');
+                    alert('Error: Pin/unpin feature not available');
+                    return;
+                }
+            }
+            
+            // Reload custom videos to update cache
+            if (window.customVideos && window.customVideos.loadCustomVideos) {
+                await window.customVideos.loadCustomVideos();
+            }
+            
+            // Update button text immediately
+            const updatedVideoData = window.customVideos.getCustomVideo(trailId);
+            if (updatedVideoData) {
+                const newIsPinned = updatedVideoData.pinned === true;
+                newPinBtn.textContent = newIsPinned ? '📌 Pinned' : '📌 Pin';
+                newPinBtn.style.backgroundColor = newIsPinned ? '#ffc107' : '#6c757d';
+            }
+            
+            // Refresh video markers to update popup content (but keep popup open)
+            // Don't close the popup - just update the button state
+            // The popup will show the updated button state on next open
+            
+            // If viewing profile, refresh pinned videos
+            const profilePage = document.getElementById('profilePage');
+            if (profilePage && profilePage.style.display !== 'none') {
+                // Trigger profile reload
+                const currentHash = window.location.hash;
+                if (currentHash && currentHash.startsWith('#profile/')) {
+                    const userId = currentHash.split('/')[1];
+                    if (window.showProfile) {
+                        await window.showProfile(userId);
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Error pinning/unpinning video:', error);
+            console.error('Error details:', error.message, error.stack);
+            alert('Error: ' + error.message);
+        }
+    });
+}
+
+// Show delete video modal with confirmation
+async function showDeleteVideoModal(trailId, popup, videoData) {
+    console.log('showDeleteVideoModal called for trailId:', trailId);
+    const deleteModal = document.getElementById('deleteVideoModal');
+    if (!deleteModal) {
+        console.warn('Delete modal not found, using fallback confirm');
+        // Fallback to simple confirm
+        if (confirm('Are you sure you want to delete this video? This cannot be undone.')) {
+            await deleteVideo(trailId, popup, videoData);
+        }
+        return;
+    }
+    
+    console.log('Delete modal found, showing...');
+    
+    // Get modal elements
+    const deleteConfirmBtn = document.getElementById('deleteVideoConfirm');
+    const cancelBtn = document.getElementById('cancelDeleteVideo');
+    const closeBtn = document.getElementById('closeDeleteVideoModal');
+    
+    // Show modal
+    deleteModal.style.display = 'block';
+    
+    // Handle confirm button
+    if (deleteConfirmBtn) {
+        const newConfirmBtn = deleteConfirmBtn.cloneNode(true);
+        deleteConfirmBtn.replaceWith(newConfirmBtn);
+        
+        newConfirmBtn.addEventListener('click', async () => {
+            deleteModal.style.display = 'none';
+            await deleteVideo(trailId, popup, videoData);
+        });
+    }
+    
+    // Handle cancel/close
+    const closeModal = () => {
+        deleteModal.style.display = 'none';
+    };
+    
+    if (cancelBtn) {
+        const newCancelBtn = cancelBtn.cloneNode(true);
+        cancelBtn.replaceWith(newCancelBtn);
+        newCancelBtn.addEventListener('click', closeModal);
+    }
+    
+    if (closeBtn) {
+        const newCloseBtn = closeBtn.cloneNode(true);
+        closeBtn.replaceWith(newCloseBtn);
+        newCloseBtn.addEventListener('click', closeModal);
+    }
+}
+
+// Delete video (from both Firestore and Storage if uploaded)
+async function deleteVideo(trailId, popup, videoData) {
+    try {
+        // Check if this is an uploaded video (needs Storage deletion)
+        const isUploadedVideo = videoData && (videoData.isUploadedVideo || (videoData.videoUrl && videoData.videoUrl.includes('firebasestorage.googleapis.com')));
+        
+        if (isUploadedVideo && videoData.videoUrl) {
+            // Delete from Firebase Storage
+            await deleteVideoFromStorage(videoData.videoUrl);
+        }
+        
+        // Delete from Firestore
+        if (window.customVideos && window.customVideos.deleteCustomVideo) {
+            await window.customVideos.deleteCustomVideo(trailId);
+        }
+        
+        // Close popup
+        if (popup) {
+            popup.remove();
+        }
+        
+        // Remove marker from map
+        const marker = videoMarkers.find(m => m.trailId === trailId);
+        if (marker) {
+            marker.remove();
+            const index = videoMarkers.indexOf(marker);
+            if (index > -1) {
+                videoMarkers.splice(index, 1);
+            }
+        }
+        
+        // Refresh video markers
+        if (window.updateVideoMarkers) {
+            window.updateVideoMarkers();
+        }
+        
+        alert('Video deleted successfully!');
+    } catch (error) {
+        console.error('Error deleting video:', error);
+        alert('Error deleting video: ' + error.message);
+    }
+}
+
+// Delete video file from Firebase Storage
+async function deleteVideoFromStorage(videoUrl) {
+    try {
+        // Import Storage delete function
+        const { ref, deleteObject } = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js');
+        const { storage } = await import('./firebaseConfig.js');
+        
+        // Extract file path from URL
+        // URL format: https://firebasestorage.googleapis.com/v0/b/BUCKET/o/PATH?alt=media&token=...
+        const urlMatch = videoUrl.match(/\/o\/(.+?)\?/);
+        if (urlMatch) {
+            const filePath = decodeURIComponent(urlMatch[1]);
+            const fileRef = ref(storage, filePath);
+            await deleteObject(fileRef);
+            console.log('✅ Video file deleted from Storage');
+        }
+    } catch (error) {
+        console.error('Error deleting video from Storage:', error);
+        // Don't throw - Firestore deletion should still proceed
+    }
+}
+
 // My Videos button handler
 document.addEventListener('DOMContentLoaded', function() {
     const myVideosButton = document.getElementById('myVideosButton');
@@ -2567,9 +3348,27 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         
-        myVideosButton.addEventListener('click', function() {
+        myVideosButton.addEventListener('click', async function() {
             console.log('My Videos button clicked!');
+            
+            // If viewing a friend's map, switch back to own map first
+            // But skip this if we're programmatically switching to friend map
+            if (window._switchingToFriendMap) {
+                console.log('Skipping switch-back - programmatically switching to friend map');
+                return;
+            }
+            
+            syncFriendMapState();
+            if (viewingFriendMap) {
+                console.log('Currently viewing friend map, switching back to own map');
+                if (window.switchToMyMap) {
+                    await window.switchToMyMap();
+                    syncFriendMapState();
+                }
+            }
+            
             myVideosMode = !myVideosMode;
+            window.myVideosMode = myVideosMode; // Keep in sync
             console.log('My Videos mode toggled to:', myVideosMode);
             
             // Update button appearance
@@ -2643,6 +3442,50 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     });
+    
+    // My Pictures button handler
+    const myPicturesButton = document.getElementById('myPicturesButton');
+    if (myPicturesButton) {
+        myPicturesButton.addEventListener('click', async function() {
+            console.log('My Pictures button clicked!');
+            
+            // If viewing a friend's map, switch back to own map first
+            // But skip this if we're programmatically switching to friend map
+            if (window._switchingToFriendMap) {
+                return;
+            }
+            
+            syncFriendMapState();
+            if (viewingFriendMap) {
+                console.log('Currently viewing friend map, switching back to own map');
+                if (window.switchToMyMap) {
+                    await window.switchToMyMap();
+                    syncFriendMapState();
+                }
+            }
+            
+            myPicturesMode = !myPicturesMode;
+            window.myPicturesMode = myPicturesMode; // Keep in sync
+            console.log('My Pictures mode toggled to:', myPicturesMode);
+            
+            // Update button appearance
+            if (myPicturesMode) {
+                this.classList.add('active');
+                this.textContent = 'My Pictures';
+            } else {
+                this.classList.remove('active');
+                this.textContent = 'My Pictures';
+            }
+            
+            // Update customPictures module state
+            if (window.customPictures && window.customPictures.setMyPicturesMode) {
+                window.customPictures.setMyPicturesMode(myPicturesMode);
+            }
+            
+            // Update picture markers
+            updatePictureMarkers();
+        });
+    }
 });
 
 // Using hardcoded trailsWithVideosHardcoded array instead (see line ~200)

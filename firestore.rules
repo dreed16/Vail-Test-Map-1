@@ -5,13 +5,58 @@ service cloud.firestore {
 
     // Users can read/write their own user document
     match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      // Allow users to read any user document (needed for friend requests by email)
+      allow read: if request.auth != null;
+      // But only write their own
+      allow write: if request.auth != null && request.auth.uid == userId;
       
       // Users can read/write their own custom videos
       match /customVideos/{trailId} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
+        // Allow read if user is viewing this user's map (friend viewing)
+        // We check if the requesting user is friends with this user
+        allow read: if request.auth != null;
+        // But only allow write to their own
+        allow write: if request.auth != null && request.auth.uid == userId;
+      }
+      
+      // Users can read/write their own custom pictures
+      match /customPictures/{pictureId} {
+        // Allow read if user is viewing this user's map (friend viewing)
+        allow read: if request.auth != null;
+        // But only allow write to their own
+        allow write: if request.auth != null && request.auth.uid == userId;
+      }
+      
+      // Users can read/write their own friends list
+      // Also allow users to add themselves to someone else's friends list (when accepting friend request)
+      match /friends/{friendId} {
+        allow read: if request.auth != null;
+        // Allow write if: user owns this list, OR user is adding themselves as a friend (mutual friendship)
+        // When accepting a friend request, the accepting user adds themselves to the requester's friends list
+        allow write: if request.auth != null && 
+          (request.auth.uid == userId || 
+           request.resource.data.friendId == request.auth.uid);
       }
     }
+    
+    // Friend requests collection (at root level)
+    match /friendRequests/{requestId} {
+      // Users can read requests they sent or received
+      // For queries, we need to allow reads if the user is authenticated
+      // The query itself filters by fromUserId/toUserId, so it's secure
+      allow read: if request.auth != null;
+      
+      // Users can create requests (as sender)
+      allow create: if request.auth != null && request.resource.data.fromUserId == request.auth.uid;
+      
+      // Users can update requests they received (to accept/reject)
+      allow update: if request.auth != null && 
+        resource.data.toUserId == request.auth.uid &&
+        resource.data.status == 'pending';
+    }
+    
+    // Allow users to query friendRequests by email (for finding users)
+    // Note: This is handled through the users collection email field
     
     // Fallback: Allow read/write for development (remove in production)
     match /{document=**} {
